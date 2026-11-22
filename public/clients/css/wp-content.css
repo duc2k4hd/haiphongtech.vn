@@ -1,0 +1,210 @@
+/* ==========================================================================
+   Hai Phong Tech — WordPress Migrated Pages, Policies & Content Typography
+   ========================================================================== */
+
+.hpt_static_page_wrap {
+    background-color: #f8fafc;
+    padding-bottom: 56px;
+}
+
+.hpt_breadcrumb_bar {
+    background-color: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 12px 0;
+    margin-bottom: 28px;
+}
+
+.hpt_breadcrumb_list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 14px;
+    color: #64748b;
+}
+
+.hpt_breadcrumb_list a {
+    color: #005b87;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.hpt_breadcrumb_list a:hover {
+    text-decoration: underline;
+}
+
+.hpt_breadcrumb_sep {
+    color: #94a3b8;
+}
+
+.hpt_breadcrumb_current {
+    color: #1e293b;
+    font-weight: 600;
+}
+
+.hpt_static_card {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 32px 36px;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+}
+
+.hpt_static_header {
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.hpt_static_page_title {
+    font-size: 28px;
+    line-height: 1.35;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 8px 0;
+}
+
+.hpt_static_meta {
+    font-size: 13px;
+    color: #64748b;
+}
+
+.hpt_wp_entry_content {
+    font-size: 16px;
+    line-height: 1.75;
+    color: #1e293b;
+    overflow-wrap: break-word;
+}
+
+.hpt_wp_entry_content h1,
+.hpt_wp_entry_content h2,
+.hpt_wp_entry_content h3,
+.hpt_wp_entry_content h4 {
+    color: #0f172a;
+    font-weight: 700;
+    line-height: 1.35;
+    margin-top: 1.5em;
+    margin-bottom: 0.65em;
+}
+
+.hpt_wp_entry_content h2 {
+    font-size: 22px;
+}
+
+.hpt_wp_entry_content h3 {
+    font-size: 19px;
+}
+
+.hpt_wp_entry_content p,
+.hpt_wp_entry_content ul,
+.hpt_wp_entry_content ol {
+    margin-bottom: 1.1em;
+}
+
+.hpt_wp_entry_content ul,
+.hpt_wp_entry_content ol {
+    padding-left: 1.5rem;
+}
+
+.hpt_wp_entry_content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 6px;
+}
+
+.hpt_wp_entry_content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 15px;
+}
+
+.hpt_wp_entry_content table th,
+.hpt_wp_entry_content table td {
+    border: 1px solid #cbd5e1;
+    padding: 10px 14px;
+    text-align: left;
+    vertical-align: top;
+}
+
+.hpt_wp_entry_content table th {
+    background-color: #f1f5f9;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.hpt_wp_entry_content a {
+    color: #0066a2;
+    text-decoration: underline;
+}
+
+.hpt_wp_entry_content a:hover {
+    color: #003b70;
+}
+
+.hpt_plugin_placeholder {
+    padding: 16px 20px;
+    background-color: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-left: 4px solid #007fba;
+    border-radius: 6px;
+    color: #334155;
+    margin: 16px 0;
+    font-size: 15px;
+}
+
+.hpt_post_tags_bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.hpt_post_tags_label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #334155;
+}
+
+.hpt_post_tag_chip {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background-color: #f1f5f9;
+    color: #0f172a;
+    font-size: 13px;
+    text-decoration: none;
+    border: 1px solid #e2e8f0;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.hpt_post_tag_chip:hover {
+    background-color: #007fba;
+    color: #ffffff;
+    border-color: #007fba;
+}
+
+.hpt_contact_wp_intro {
+    margin-bottom: 24px;
+}
+
+@media (max-width: 768px) {
+    .hpt_static_card {
+        padding: 20px 16px;
+    }
+
+    .hpt_static_page_title {
+        font-size: 22px;
+    }
+
+    .hpt_wp_entry_content table {
+        display: block;
+        overflow-x: auto;
+    }
+}

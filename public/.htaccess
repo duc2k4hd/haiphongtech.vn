@@ -1,0 +1,58 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Chặn bot không có header User-Agent
+    <IfModule mod_rewrite.c>
+        RewriteCond %{HTTP_USER_AGENT} ^-?$
+        RewriteRule ^ - [F,L]
+    </IfModule>
+
+    # Giới hạn query string quá dài (chặn DDoS qua URL dài bất thường)
+    <IfModule mod_rewrite.c>
+        RewriteCond %{QUERY_STRING} ^.{2000,}$ [NC]
+        RewriteRule ^ - [F,L]
+    </IfModule>
+
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    # Chuẩn hóa www.haiphongtech.vn -> haiphongtech.vn (chỉ kích hoạt khi khớp host thật)
+    RewriteCond %{HTTP_HOST} ^www\.haiphongtech\.vn$ [NC]
+    RewriteRule ^ https://haiphongtech.vn%{REQUEST_URI} [R=301,L]
+
+    # Gộp nhiều "//" liên tiếp trong path
+    RewriteCond %{REQUEST_URI} ^(.*)//+(.*)$
+    RewriteRule ^ %1/%2 [R=301,L]
+
+    # QUAN TRỌNG: KHÔNG cắt dấu "/" cuối URL (bảo toàn trailing-slash chuẩn WordPress haiphongtech.vn)
+
+    # Giữ Authorization / XSRF Token
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+    RewriteCond %{HTTP:x-xsrf-token} .
+    RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
+
+    # Chuyển request động vào Laravel Front Controller
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+<IfModule mod_expires.c>
+    ExpiresActive on
+    ExpiresByType application/pdf A31557600
+    ExpiresByType image/x-icon A31557600
+    ExpiresByType image/vnd.microsoft.icon A31557600
+    ExpiresByType image/svg+xml A31557600
+    ExpiresByType image/jpg A31557600
+    ExpiresByType image/jpeg A31557600
+    ExpiresByType image/png A31557600
+    ExpiresByType image/gif A31557600
+    ExpiresByType image/webp A31557600
+    ExpiresByType image/avif A31557600
+    ExpiresByType text/css A31557600
+    ExpiresByType text/javascript A31557600
+    ExpiresByType application/javascript A31557600
+    ExpiresByType font/woff2 A31557600
+</IfModule>
