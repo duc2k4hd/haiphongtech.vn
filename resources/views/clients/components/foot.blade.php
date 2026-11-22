@@ -179,14 +179,14 @@
         </button>
     </div>
 
-    {{-- 4. Tin Blog --}}
-    <a href="/tin-blog/" class="misutech_mb_nav_item">
+    {{-- 4. Tự động hóa --}}
+    <a href="/tu-dong-hoa/" class="misutech_mb_nav_item">
         <div class="misutech_mb_nav_icon misutech_mb_ai_icon">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h10v2H4z"/>
             </svg>
         </div>
-        <span class="misutech_mb_nav_label">Tin Blog</span>
+        <span class="misutech_mb_nav_label">Tự động hóa</span>
     </a>
 
     {{-- 5. Zalo --}}

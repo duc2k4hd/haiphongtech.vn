@@ -1,9 +1,12 @@
 @php
     $rawBrands = request('brands', '');
     $selectedBrands = is_array($rawBrands) ? $rawBrands : array_filter(explode(',', (string)$rawBrands));
-    $brandList = isset($brands) ? $brands : collect([]);
-    $topBrands = $brandList->take(7);
-    $remainingBrandsCount = max(0, $brandList->count() - 7);
+    $brandList = (isset($brands) ? $brands : collect([]))
+        ->filter(fn ($b) => (int) ($b->products_count ?? 0) >= 1)
+        ->values();
+    $hasMoreBrands = $brandList->count() > 16;
+    $topBrands = $hasMoreBrands ? $brandList->take(15) : $brandList;
+    $remainingBrandsCount = max(0, $brandList->count() - 15);
 @endphp
 
 <div class="misutech_filter_top_bar">
@@ -86,9 +89,9 @@
                     </button>
                 @endforeach
 
-                @if($remainingBrandsCount > 0 || $brandList->count() > 7)
+                @if($hasMoreBrands)
                     <button type="button" class="misutech_brand_more_tile" data-open-modal="modal-brands">
-                        <span>Xem thêm{{-- <br>{{ $remainingBrandsCount > 0 ? $remainingBrandsCount : $brandList->count() }} hãng--}}</span> 
+                        <span>Xem thêm</span>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                     </button>
                 @endif

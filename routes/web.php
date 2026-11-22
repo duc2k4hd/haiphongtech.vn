@@ -32,11 +32,13 @@ Route::get('/wp-content/uploads/{path}', [WpMediaController::class, 'serve'])
     ->where('path', '.*')
     ->name('wp.uploads.serve');
 
-// 4. WordPress Blog Index & Tag Archives (preserving exact trailing-slash URLs)
-Route::get('/tin-blog', [WpContentRouterController::class, 'blogIndex'])->name('blogs.index');
-Route::get('/tin-blog/page/{page}', [WpContentRouterController::class, 'blogIndex'])
+// 4. Articles / Blog Index (/tu-dong-hoa/ for all articles; /tin-blog/ 301 -> /tu-dong-hoa/)
+Route::get('/tu-dong-hoa', [WpContentRouterController::class, 'blogIndex'])->name('blogs.index');
+Route::get('/tu-dong-hoa/page/{page}', [WpContentRouterController::class, 'blogIndex'])
     ->whereNumber('page')
     ->name('blogs.index.paged');
+Route::redirect('/tin-blog', '/tu-dong-hoa/', 301);
+Route::redirect('/tin-blog/page/{page}', '/tu-dong-hoa/', 301);
 
 Route::get('/tag/{slug}', [WpContentRouterController::class, 'tagArchive'])->name('blogs.tag');
 Route::get('/tag/{slug}/page/{page}', [WpContentRouterController::class, 'tagArchive'])
@@ -58,15 +60,21 @@ Route::get('/tag-san-pham/{slug}/page/{page}', [WpContentRouterController::class
     ->whereNumber('page')
     ->name('products.wp.tag.paged');
 
-// 6. Contact form submission (GET /lien-he/ is resolved via exact WP Page route with formToken)
+// 6. Core static & contact pages (always available even when WP pages table is empty)
+Route::view('/gioi-thieu', 'clients.pages.about.index')->name('about.index');
+Route::get('/lien-he', [ContactController::class, 'index'])->name('contact.index');
 Route::post('/lien-he', [ContactController::class, 'submit'])->name('contact.submit');
+Route::get('/tai-lieu-ki-thuat', [DocumentController::class, 'index'])->name('documents.ki_thuat');
+Route::get('/tai-lieu-ky-thuat', [DocumentController::class, 'index'])->name('documents.ky_thuat');
 
 // 7. Auxiliary application tools (preserved for backward compatibility)
 Route::get('/thuong-hieu', [ShopController::class, 'brands'])->name('brands.index');
-Route::get('/danh-muc/{slug}', [CategoryController::class, 'show'])->name('categories.show');
+Route::get('/danh-muc/{slug}', fn (string $slug) => redirect('/' . ltrim($slug, '/'), 301))->name('categories.show');
 Route::get('/series', [SeriesController::class, 'index'])->name('series.index');
 Route::get('/series/{slug}', [SeriesController::class, 'show'])->name('series.show');
 Route::get('/gio-hang', [ShopController::class, 'cart'])->name('cart.index');
+Route::get('/cart', [ShopController::class, 'cart'])->name('cart.alias');
+Route::redirect('/my-account', '/lien-he/', 301);
 Route::get('/documents', [DocumentController::class, 'index'])->name('documents.index');
 Route::get('/documents/{id}/download', [DocumentController::class, 'download'])->name('documents.download');
 Route::get('/bao-gia', [QuoteController::class, 'index'])->name('quote.index');

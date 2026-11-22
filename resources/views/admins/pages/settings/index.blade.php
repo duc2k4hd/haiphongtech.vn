@@ -302,6 +302,9 @@
         <button type="button" class="settings-tab-btn" data-tab="contact" onclick="switchTab('contact')">
             <i class="fa fa-phone"></i> Hotline &amp; Liên Hệ
         </button>
+        <button type="button" class="settings-tab-btn" data-tab="mail" onclick="switchTab('mail')">
+            <i class="fa fa-envelope-o"></i> Cấu Hình Email (Gửi &amp; Nhận)
+        </button>
         <button type="button" class="settings-tab-btn" data-tab="branding" onclick="switchTab('branding')">
             <i class="fa fa-picture-o"></i> Logo &amp; Nhận Diện
         </button>
@@ -434,6 +437,102 @@
                                        value="{{ $settings->zalo ?? 'https://zalo.me/0866555212' }}" placeholder="https://zalo.me/0866555212">
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═════════════════════════════════════════════════════════════════
+             TAB MAIL: CẤU HÌNH EMAIL GỬI (SMTP) & EMAIL NHẬN THÔNG TIN
+             ═════════════════════════════════════════════════════════════════ -->
+        <div class="settings-tab-content" id="tab_mail" style="display: none;">
+            <div class="settings-card mb-4">
+                <div class="settings-card-header">
+                    <h5><i class="fa fa-inbox text-primary"></i> 1. Email Nhận Thông Tin Từ Khách Hàng</h5>
+                </div>
+                <div class="settings-card-body">
+                    <div class="row">
+                        <div class="col-md-8 col-12 mb-3">
+                            <label class="form-label-clean">Email Nhận Thông Báo Liên Hệ / Yêu Cầu Báo Giá</label>
+                            <input type="text" name="mail_receive_address" id="setting_mail_receive_address" class="form-control form-control-clean"
+                                   value="{{ $settings->mail_receive_address ?? ($settings->email ?? '') }}"
+                                   placeholder="kinhdoanhhpt@haiphongtech.vn, sale2@haiphongtech.vn">
+                            <small class="text-muted">Có thể nhập nhiều email nhận, cách nhau bằng dấu phẩy (<code>,</code>). Khi khách gửi form liên hệ/báo giá, hệ thống sẽ tự gửi thông báo về các địa chỉ này.</small>
+                        </div>
+                        <div class="col-md-4 col-12 mb-3">
+                            <label class="form-label-clean">Tự Động Báo Mail Khi Có Khách Liên Hệ</label>
+                            <select name="mail_notify_on_contact" class="form-control form-control-clean">
+                                <option value="1" {{ ($settings->mail_notify_on_contact ?? '1') == '1' ? 'selected' : '' }}>Bật (Gửi ngay về Mail nhận)</option>
+                                <option value="0" {{ ($settings->mail_notify_on_contact ?? '1') == '0' ? 'selected' : '' }}>Tắt (Chỉ lưu trong Admin)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-card">
+                <div class="settings-card-header">
+                    <h5><i class="fa fa-paper-plane text-primary"></i> 2. Cấu Hình Mail Gửi Đi (SMTP — Gửi Báo Giá &amp; Thông Báo)</h5>
+                    <button type="button" class="btn btn-sm btn-outline-primary font-weight-bold" id="btnSendTestMail" onclick="sendTestMail()">
+                        <i class="fa fa-paper-plane-o mr-1"></i> Gửi Email Kiểm Tra
+                    </button>
+                </div>
+                <div class="settings-card-body">
+                    <div class="row">
+                        <div class="col-md-4 col-12 mb-3">
+                            <label class="form-label-clean">Phương Thức Gửi (Mailer)</label>
+                            <select name="mail_mailer" class="form-control form-control-clean">
+                                <option value="smtp" {{ ($settings->mail_mailer ?? 'smtp') === 'smtp' ? 'selected' : '' }}>SMTP (Gửi mail thật)</option>
+                                <option value="log" {{ ($settings->mail_mailer ?? 'smtp') === 'log' ? 'selected' : '' }}>Log (Chỉ ghi log để test local)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-5 col-12 mb-3">
+                            <label class="form-label-clean">SMTP Host</label>
+                            <input type="text" name="mail_host" class="form-control form-control-clean"
+                                   value="{{ $settings->mail_host ?? 'smtp.gmail.com' }}" placeholder="smtp.gmail.com">
+                        </div>
+                        <div class="col-md-3 col-12 mb-3">
+                            <label class="form-label-clean">SMTP Port</label>
+                            <input type="number" name="mail_port" class="form-control form-control-clean"
+                                   value="{{ $settings->mail_port ?? '587' }}" placeholder="587 hoặc 465">
+                        </div>
+
+                        <div class="col-md-4 col-12 mb-3">
+                            <label class="form-label-clean">Mã Hóa (Encryption)</label>
+                            <select name="mail_encryption" class="form-control form-control-clean">
+                                <option value="tls" {{ ($settings->mail_encryption ?? 'tls') === 'tls' ? 'selected' : '' }}>TLS (Port 587 — Khuyên dùng)</option>
+                                <option value="ssl" {{ ($settings->mail_encryption ?? 'tls') === 'ssl' ? 'selected' : '' }}>SSL (Port 465)</option>
+                                <option value="none" {{ ($settings->mail_encryption ?? 'tls') === 'none' ? 'selected' : '' }}>Không mã hóa</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 col-12 mb-3">
+                            <label class="form-label-clean">Tài Khoản Email Gửi (SMTP Username)</label>
+                            <input type="text" name="mail_username" class="form-control form-control-clean"
+                                   value="{{ $settings->mail_username ?? '' }}" placeholder="kinhdoanhhpt@gmail.com">
+                        </div>
+                        <div class="col-md-4 col-12 mb-3">
+                            <label class="form-label-clean">Mật Khẩu Ứng Dụng (App Password)</label>
+                            <input type="password" name="mail_password" class="form-control form-control-clean"
+                                   value="" autocomplete="new-password"
+                                   placeholder="{{ !empty($settings->mail_password) ? '•••••••••••• (để trống nếu giữ nguyên)' : 'Nhập mật khẩu ứng dụng SMTP' }}">
+                        </div>
+
+                        <div class="col-md-6 col-12 mb-3">
+                            <label class="form-label-clean">Email Người Gửi (From Address)</label>
+                            <input type="email" name="mail_from_address" class="form-control form-control-clean"
+                                   value="{{ $settings->mail_from_address ?? ($settings->email ?? '') }}"
+                                   placeholder="kinhdoanhhpt@haiphongtech.vn">
+                        </div>
+                        <div class="col-md-6 col-12 mb-3">
+                            <label class="form-label-clean">Tên Người Gửi Hiển Thị (From Name)</label>
+                            <input type="text" name="mail_from_name" class="form-control form-control-clean"
+                                   value="{{ $settings->mail_from_name ?? ($settings->name ?? 'Hải Phòng Tech') }}"
+                                   placeholder="Hải Phòng Tech">
+                        </div>
+                    </div>
+                    <div class="alert alert-light border mb-0 py-2 px-3 small text-muted">
+                        <i class="fa fa-info-circle text-primary mr-1"></i>
+                        Sau khi chỉnh sửa, bấm <strong>Lưu Tất Cả Cài Đặt</strong> rồi bấm <strong>Gửi Email Kiểm Tra</strong> để xác nhận kết nối SMTP hoạt động ngay lập tức.
                     </div>
                 </div>
             </div>
@@ -1027,6 +1126,31 @@
                 .replace(/>/g, "&gt;")
                 .replace(/"/g, "&quot;")
                 .replace(/'/g, "&#039;");
+        }
+
+        function sendTestMail() {
+            const btn = $('#btnSendTestMail');
+            const target = $('#setting_mail_receive_address').val().split(',')[0].trim();
+            btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin mr-1"></i> Đang gửi thử...');
+            $.ajax({
+                url: '{{ route("admin.api.settings.test_mail") }}',
+                type: 'POST',
+                data: { _token: csrfToken, test_email: target },
+                success: function(res) {
+                    if (res && res.success) {
+                        toastr.success(res.message, 'Thành công');
+                    } else {
+                        toastr.error((res && res.message) || 'Gửi email thất bại!', 'Lỗi');
+                    }
+                },
+                error: function(xhr) {
+                    const msg = xhr.responseJSON?.message || 'Không thể gửi email kiểm tra. Vui lòng lưu cài đặt và kiểm tra lại SMTP!';
+                    toastr.error(msg, 'Lỗi SMTP');
+                },
+                complete: function() {
+                    btn.prop('disabled', false).html('<i class="fa fa-paper-plane-o mr-1"></i> Gửi Email Kiểm Tra');
+                }
+            });
         }
     </script>
 @endsection

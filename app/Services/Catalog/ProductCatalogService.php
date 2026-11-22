@@ -324,10 +324,14 @@ class ProductCatalogService
      */
     public static function getFilterBrandsWithCounts(string $cacheKey, ?array $categoryIds = null, int $ttl = 3600): Collection
     {
-        $data = Cache::remember($cacheKey, $ttl, function () use ($categoryIds) {
-            $counts = self::getBrandCounts($categoryIds);
+        $data = Cache::remember($cacheKey . '_nonempty_v1', $ttl, function () use ($categoryIds) {
+            $counts = array_filter(self::getBrandCounts($categoryIds), static fn (int $cnt): bool => $cnt >= 1);
+            if (empty($counts)) {
+                return [];
+            }
 
             return Brand::select(['id', 'name', 'slug', 'logo'])
+                ->whereIn('id', array_keys($counts))
                 ->orderBy('name', 'asc')
                 ->get()
                 ->map(static fn (Brand $brand): array => [

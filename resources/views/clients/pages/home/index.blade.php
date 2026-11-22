@@ -285,6 +285,7 @@
                                     @endif
                                 </div>
                                 <button class="misutech_home_add_cart" type="button" data-cart
+                                    data-product-id="{{ $product->id }}"
                                     data-product="{{ $product->name }}"
                                     aria-label="Thêm {{ $product->name }} vào giỏ hàng">
                                     +

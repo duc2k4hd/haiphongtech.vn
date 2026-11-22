@@ -98,7 +98,7 @@
                 <ol class="misutech_blog_breadcrumb_list">
                     <li><a href="/">Trang chủ</a></li>
                     <li class="separator">»</li>
-                    <li><a href="/tin-blog/">Tin Blog</a></li>
+                    <li><a href="/tu-dong-hoa/">Tự động hóa</a></li>
                     @if($post->category)
                         <li class="separator">»</li>
                         <li><a href="/{{ $post->category->slug }}/">{{ $post->category->name }}</a></li>
@@ -196,7 +196,7 @@
             <aside class="misutech_blog_sidebar">
                 <div class="sidebar_widget">
                     <h3 class="widget_title">Tìm kiếm bài viết</h3>
-                    <form action="/tin-blog/" method="GET" class="sidebar_search_form">
+                    <form action="/tu-dong-hoa/" method="GET" class="sidebar_search_form">
                         <input type="text" name="q" placeholder="Nhập từ khóa tìm kiếm...">
                         <button type="submit" aria-label="Tìm kiếm">🔍</button>
                     </form>
@@ -206,7 +206,7 @@
                     <h3 class="widget_title">Chuyên mục bài viết</h3>
                     <ul class="sidebar_cat_list">
                         <li>
-                            <a href="/tin-blog/"><span>Tất cả bài viết</span></a>
+                            <a href="/tu-dong-hoa/"><span>Tất cả bài viết</span></a>
                         </li>
                         @foreach($categories as $cat)
                             <li>

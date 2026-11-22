@@ -941,11 +941,14 @@
                                 <div class="col-lg-3 col-md-3 text-lg-right">
                                     <div class="quote-amount-label">Tổng thanh toán</div>
                                     <div class="quote-amount-highlight">${formatMoney(q.total_amount)}</div>
-                                    <div class="d-flex justify-content-lg-end align-items-center" style="gap: 8px;">
-                                        <button type="button" class="btn btn-primary btn-sm px-3 font-weight-bold" style="border-radius: 8px;" onclick="viewQuoteDetail(${q.id})">
-                                            <i class="fa fa-eye mr-1"></i> Xem chi tiết
+                                    <div class="d-flex justify-content-lg-end align-items-center flex-wrap" style="gap: 6px;">
+                                        <button type="button" class="btn btn-success btn-sm px-3 font-weight-bold" style="border-radius: 6px; background:#1e73be; border-color:#1e73be;" onclick="openQuoteEmailFromQuote(${q.id})">
+                                            <i class="fa fa-paper-plane mr-1"></i> Gửi báo giá
                                         </button>
-                                        <button type="button" class="btn btn-outline-danger btn-sm px-2" style="border-radius: 8px;" onclick="deleteQuote(${q.id})" title="Xóa báo giá">
+                                        <button type="button" class="btn btn-outline-primary btn-sm px-2 font-weight-bold" style="border-radius: 6px;" onclick="viewQuoteDetail(${q.id})">
+                                            <i class="fa fa-eye"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-danger btn-sm px-2" style="border-radius: 6px;" onclick="deleteQuote(${q.id})" title="Xóa báo giá">
                                             <i class="fa fa-trash-o"></i>
                                         </button>
                                     </div>
@@ -982,6 +985,7 @@
                             ${getStatusBadge(q.status)}
                         </td>
                         <td class="text-right">
+                            <button class="btn btn-xs btn-success mr-1" style="background:#1e73be; border-color:#1e73be;" onclick="openQuoteEmailFromQuote(${q.id})" title="Gửi báo giá qua Email"><i class="fa fa-paper-plane"></i></button>
                             <button class="btn btn-xs btn-primary mr-1" onclick="viewQuoteDetail(${q.id})" title="Xem chi tiết"><i class="fa fa-eye"></i></button>
                             <button class="btn btn-xs btn-danger" onclick="deleteQuote(${q.id})" title="Xóa"><i class="fa fa-trash"></i></button>
                         </td>
@@ -1262,5 +1266,35 @@
                 }
             });
         }
+
+        function openQuoteEmailFromQuote(id) {
+            const q = (typeof quotesData !== 'undefined' ? quotesData : []).find(item => Number(item.id) === Number(id));
+            if (!q) {
+                $.get(`/admin/api/quotes/${id}`, function(res) {
+                    if (res && res.data) openAdminSendQuoteModal({
+                        quote_id: res.data.id,
+                        quote_code: res.data.quote_code,
+                        customer_name: res.data.customer_name,
+                        customer_email: res.data.customer_email,
+                        customer_phone: res.data.customer_phone,
+                        customer_company: res.data.customer_company,
+                        vat_percent: res.data.vat_percent,
+                        items: res.data.items || []
+                    });
+                });
+                return;
+            }
+            openAdminSendQuoteModal({
+                quote_id: q.id,
+                quote_code: q.quote_code,
+                customer_name: q.customer_name,
+                customer_email: q.customer_email,
+                customer_phone: q.customer_phone,
+                customer_company: q.customer_company,
+                vat_percent: q.vat_percent,
+                items: q.items || []
+            });
+        }
     </script>
+    @include('admins.components.send_quote_modal')
 @endsection

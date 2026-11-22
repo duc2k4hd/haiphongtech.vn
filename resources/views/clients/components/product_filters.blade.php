@@ -4,9 +4,11 @@
     $rawPriceRanges = request('price_ranges', '');
     $selectedPriceRanges = is_array($rawPriceRanges) ? $rawPriceRanges : array_filter(explode(',', (string)$rawPriceRanges));
     $currentSort = request('sort', 'featured');
-    $brandList = isset($brands) ? $brands : collect([]);
-    $topBrands = $brandList->take(7);
-    $remainingBrandsCount = max(0, $brandList->count() - 7);
+    $brandList = (isset($brands) ? $brands : collect([]))
+        ->filter(fn ($b) => (int) ($b->products_count ?? 0) >= 1)
+        ->values();
+    $topBrands = $brandList->take(15);
+    $remainingBrandsCount = max(0, $brandList->count() - 15);
     
     $priceBrackets = [
         ['range' => '0-2000000', 'label' => 'Dưới 2 triệu'],

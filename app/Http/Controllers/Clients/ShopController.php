@@ -216,51 +216,65 @@ class ShopController extends Controller
 
     public function addCart(Request $request)
     {
-        $key = 'add-cart:' . $request->ip();
+        $productId = (int) $request->input('product_id', 0);
+        $productSlug = trim((string) $request->input('product_slug', ''));
+        $productName = trim((string) $request->input('product_name', ''));
+        $quantity = max(1, min(1000, (int) $request->input('quantity', 1)));
 
-        if (RateLimiter::tooManyAttempts($key, 1)) {
+        $product = null;
+        if ($productId > 0) {
+            $product = Product::published()->with('thumbnailMedia')->find($productId);
+        }
+        if (!$product && $productSlug !== '') {
+            $product = Product::published()->with('thumbnailMedia')->where('slug', $productSlug)->first();
+        }
+        if (!$product && $productName !== '') {
+            $product = Product::published()->with('thumbnailMedia')->where('name', $productName)->first();
+        }
+
+        if (!$product) {
             return response()->json([
                 'success' => false,
-                'message' => 'Vui lòng chậm lại tránh spam!',
-            ], 429);
+                'message' => 'Không tìm thấy sản phẩm để thêm vào giỏ hàng.',
+            ], 404);
         }
-
-        RateLimiter::hit($key, 1);
-
-        $productName = $request->input('product_name');
-        $quantity = max(1, (int) $request->input('quantity', 1));
-        $product = Product::with('thumbnailMedia')->where('name', $productName)->first();
 
         $cartItems = session('cart_items', []);
+        $effectivePrice = (float) ($product->sale_price > 0 ? $product->sale_price : ($product->price ?? 0));
 
-        if ($product) {
-            if (isset($cartItems[$product->id])) {
-                $cartItems[$product->id]['quantity'] += $quantity;
-            } else {
-                $cartItems[$product->id] = [
-                    'id'            => $product->id,
-                    'name'          => $product->name,
-                    'slug'          => $product->slug,
-                    'price'         => $product->sale_price ?: $product->price,
-                    'thumbnail_url' => $product->thumbnailMedia->first()?->url,
-                    'quantity'      => $quantity,
-                ];
-            }
-
-            if ($cartItems[$product->id]['quantity'] > 1000) {
-                $cartItems[$product->id]['quantity'] = 1000;
-            }
-
-            session(['cart_items' => $cartItems]);
+        if (isset($cartItems[$product->id])) {
+            $cartItems[$product->id]['quantity'] = min(1000, $cartItems[$product->id]['quantity'] + $quantity);
+            $cartItems[$product->id]['price'] = $effectivePrice;
+            $cartItems[$product->id]['sku'] = $product->sku ?? ($cartItems[$product->id]['sku'] ?? '');
+        } else {
+            $cartItems[$product->id] = [
+                'id'            => $product->id,
+                'name'          => $product->name,
+                'sku'           => $product->sku ?? '',
+                'slug'          => $product->slug,
+                'price'         => $effectivePrice,
+                'thumbnail_url' => $product->thumbnailMedia->first()?->url ?? asset('storage/clients/imgs/products/no-image.png'),
+                'quantity'      => $quantity,
+            ];
         }
+
+        session(['cart_items' => $cartItems]);
 
         $cartCount = array_sum(array_column($cartItems, 'quantity'));
         session(['cart_count' => $cartCount]);
 
+        $totalPrice = 0;
+        foreach ($cartItems as $item) {
+            $totalPrice += ((float) ($item['price'] ?? 0)) * ((int) ($item['quantity'] ?? 0));
+        }
+
         return response()->json([
-            'success'    => true,
-            'message'    => 'Đã thêm vào giỏ hàng',
-            'cart_count' => $cartCount,
+            'success'     => true,
+            'message'     => 'Đã thêm “' . $product->name . '” vào giỏ hàng!',
+            'cart_count'  => $cartCount,
+            'total_price' => $totalPrice,
+            'item'        => $cartItems[$product->id],
+            'cart_items'  => array_values($cartItems),
         ]);
     }
 

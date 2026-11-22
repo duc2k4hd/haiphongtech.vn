@@ -26,6 +26,7 @@ Route::middleware('auth')->group(function () {
     Route::match(['get', 'post'], 'api/settings-list', [\App\Http\Controllers\Admins\SettingController::class, 'apiList'])->name('api.settings.list');
     Route::get('api/settings', [\App\Http\Controllers\Admins\SettingController::class, 'apiList']);
     Route::post('api/settings-save-all', [\App\Http\Controllers\Admins\SettingController::class, 'apiSaveAll'])->name('api.settings.save_all');
+    Route::post('api/settings-test-mail', [\App\Http\Controllers\Admins\SettingController::class, 'apiTestMail'])->name('api.settings.test_mail');
     Route::post('api/settings', [\App\Http\Controllers\Admins\SettingController::class, 'apiStore'])->name('api.settings.store');
     Route::get('api/settings/{id}', [\App\Http\Controllers\Admins\SettingController::class, 'apiShow'])->name('api.settings.show');
     Route::delete('api/settings/{id}', [\App\Http\Controllers\Admins\SettingController::class, 'apiDestroy'])->name('api.settings.destroy');
@@ -58,6 +59,7 @@ Route::middleware('auth')->group(function () {
     Route::get('quotes', [\App\Http\Controllers\Admins\QuoteController::class, 'index'])->name('quotes.index');
     Route::match(['get', 'post'], 'api/quotes', [\App\Http\Controllers\Admins\QuoteController::class, 'apiList'])->name('api.quotes.list');
     Route::get('api/quotes/{id}', [\App\Http\Controllers\Admins\QuoteController::class, 'apiShow'])->name('api.quotes.show');
+    Route::post('api/quotes/send-email', [\App\Http\Controllers\Admins\QuoteController::class, 'apiSendEmail'])->name('api.quotes.send_email');
     Route::put('api/quotes/{id}/status', [\App\Http\Controllers\Admins\QuoteController::class, 'apiUpdateStatus'])->name('api.quotes.status');
     Route::delete('api/quotes/{id}', [\App\Http\Controllers\Admins\QuoteController::class, 'apiDestroy'])->name('api.quotes.destroy');
     Route::post('api/quotes-bulk-delete', [\App\Http\Controllers\Admins\QuoteController::class, 'apiBulkDestroy'])->name('api.quotes.bulk.destroy');

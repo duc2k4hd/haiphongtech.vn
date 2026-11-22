@@ -115,51 +115,20 @@
 @endpush
 
 @section('content')
-    <section
-        style="background-image:url({{ asset('storage/clients/imgs/banners/banner-category.png') }}); background-repeat: no-repeat; background-size: cover; background-position: center;"
-        class="misutech_home_page_intro">
-        <div class="misutech_catalog_container misutech_home_page_intro_inner">
-            <h1 class="misutech_home_page_title">{{ $pageH1 }}</h1>
-            <nav class="misutech_home_breadcrumb" aria-label="Breadcrumb">
-                <a class="misutech_home_breadcrumb_link" href="{{ \App\Support\WpUrl::absolute('/') }}">Trang chủ</a>
-                <span class="misutech_home_breadcrumb_separator">>></span>
+    <div class="hpt_catalog_header">
+        <div class="misutech_catalog_container">
+            <nav class="hpt_catalog_breadcrumb" aria-label="Breadcrumb">
+                <a href="{{ \App\Support\WpUrl::absolute('/') }}">Trang chủ</a>
+                <span>›</span>
                 @if(isset($activeBrand) && $activeBrand || isset($activeProductTag) && $activeProductTag)
-                    <a class="misutech_home_breadcrumb_link" href="{{ \App\Support\WpUrl::shopUrl() }}">Cửa hàng</a>
-                    <span class="misutech_home_breadcrumb_separator">>></span>
+                    <a href="{{ \App\Support\WpUrl::shopUrl() }}">Cửa hàng</a>
+                    <span>›</span>
                 @endif
                 <span>{{ $breadcrumbName }}</span>
             </nav>
+            <h1 class="hpt_catalog_title">{{ $pageH1 }}</h1>
         </div>
-    </section>
-
-    <section class="misutech_home_categories" id="misutech_home_categories" aria-label="Product categories">
-        <div class="misutech_catalog_container misutech_home_category_carousel">
-            <button class="misutech_home_category_arrow" type="button" data-category-direction="-1"
-                aria-label="Danh mục trước">‹</button>
-            <div class="misutech_home_category_track_wrapper" style="overflow: hidden; width: 100%;">
-                <div class="misutech_home_category_track">
-                    @foreach ($parentCategories as $parent)
-                        <button class="misutech_home_category_card" type="button" data-category="{{ $parent->slug }}">
-                            <span class="misutech_home_category_image">
-                                <a href="{{ \App\Support\WpUrl::categoryUrl($parent->slug) }}">
-                                    <img src="{{ \App\Support\WpUrl::resolveCategoryImage($parent->icon) }}"
-                                        alt="{{ $parent->name }}"
-                                        loading="lazy"
-                                        style="width: 100%; height: 100%; object-fit: contain;">
-                                </a>
-                            </span>
-                            <strong class="misutech_home_category_name">
-                                <a href="{{ \App\Support\WpUrl::categoryUrl($parent->slug) }}">{{ $parent->name }}</a>
-                            </strong>
-                            <span class="misutech_home_category_count">{{ $parent->products_count }} Sản phẩm</span>
-                        </button>
-                    @endforeach
-                </div>
-            </div>
-            <button class="misutech_home_category_arrow" type="button" data-category-direction="1"
-                aria-label="Danh mục tiếp theo">›</button>
-        </div>
-    </section>
+    </div>
 
     <section class="misutech_home_catalog" id="misutech_home_products">
         <div class="misutech_catalog_container misutech_home_catalog_layout">

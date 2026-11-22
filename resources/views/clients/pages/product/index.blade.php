@@ -508,7 +508,7 @@
                         </div>
                     @endif
 
-                    {{-- Thông tin meta --}}
+                    {{-- Thông tin meta (cố định 6 mục chuẩn) --}}
                     <dl class="misutech_product_meta">
                         <div class="misutech_product_meta_row">
                             <dt>Tình trạng:</dt>
@@ -520,52 +520,34 @@
                                     id="misutech_product_stock_text">{{ $product->status === 'active' ? 'Còn hàng' : 'Hết hàng' }}</span>
                             </dd>
                         </div>
-                        <div class="misutech_product_meta_row" id="misutech_sku_row"
-                            style="{{ $product->sku ? '' : 'display:none;' }}">
+                        <div class="misutech_product_meta_row" id="misutech_sku_row">
                             <dt>Mã SP:</dt>
-                            <dd id="misutech_product_sku">{{ $product->sku }}</dd>
+                            <dd id="misutech_product_sku">{{ $product->sku ?: 'Đang cập nhật' }}</dd>
                         </div>
-                        @if ($product->brand)
-                            <div class="misutech_product_meta_row">
-                                <dt>Thương hiệu:</dt>
-                                <dd>
+                        <div class="misutech_product_meta_row">
+                            <dt>Thương hiệu:</dt>
+                            <dd>
+                                @if ($product->brand)
                                     <a href="{{ \App\Support\WpUrl::brandUrl($product->brand->slug) }}">
                                         {{ $product->brand->name }}
                                     </a>
-                                </dd>
-                            </div>
-                        @endif
-                        @if ($product->series)
-                            <div class="misutech_product_meta_row">
-                                <dt>Dòng SP:</dt>
-                                <dd><strong>{{ $product->series->name }}</strong></dd>
-                            </div>
-                        @endif
-                        @php
-                            $displayCats = ($product->categories && $product->categories->isNotEmpty())
-                                ? $product->categories
-                                : ($product->category ? collect([$product->category]) : collect());
-                        @endphp
-                        @if ($displayCats->isNotEmpty())
-                            <div class="misutech_product_meta_row">
-                                <dt>Danh mục:</dt>
-                                <dd>
-                                    @foreach ($displayCats as $dCat)
-                                        <a href="{{ \App\Support\WpUrl::categoryUrl($dCat->slug) }}">{{ $dCat->name }}</a>@if(!$loop->last), @endif
-                                    @endforeach
-                                </dd>
-                            </div>
-                        @endif
-                        @if ($product->productTags && $product->productTags->isNotEmpty())
-                            <div class="misutech_product_meta_row">
-                                <dt>Thẻ:</dt>
-                                <dd>
-                                    @foreach ($product->productTags as $pTag)
-                                        <a href="{{ \App\Support\WpUrl::productTagUrl($pTag->slug) }}">{{ $pTag->name }}</a>@if(!$loop->last), @endif
-                                    @endforeach
-                                </dd>
-                            </div>
-                        @endif
+                                @else
+                                    Đang cập nhật
+                                @endif
+                            </dd>
+                        </div>
+                        <div class="misutech_product_meta_row">
+                            <dt>Bảo hành:</dt>
+                            <dd>12 tháng</dd>
+                        </div>
+                        <div class="misutech_product_meta_row">
+                            <dt>Chất lượng:</dt>
+                            <dd>Chính hãng, mới 100%</dd>
+                        </div>
+                        <div class="misutech_product_meta_row">
+                            <dt>Chứng từ:</dt>
+                            <dd>Hóa đơn VAT</dd>
+                        </div>
                     </dl>
 
                     <p class="misutech_product_summary" id="misutech_product_summary">{!! $product->short_description !!}</p>
@@ -587,7 +569,7 @@
                                 data-product-id="{{ $product->id }}" aria-label="Yêu thích">☆</button>
                         </div>
                         <button class="misutech_product_buy_now" type="button"
-                            data-product-id="{{ $product->id }}">Mua ngay</button>
+                            data-product-id="{{ $product->id }}">Liên hệ đặt hàng / Báo giá</button>
                     </div>
 
                     <div class="misutech_product_extra_actions">
@@ -926,8 +908,12 @@
         <div class="misutech_product_cart_items">
             <p class="misutech_product_cart_empty">Giỏ hàng của bạn đang trống.</p>
         </div>
-        <div class="misutech_product_cart_footer"><span>Tổng cộng</span><strong
-                class="misutech_product_cart_total">0đ</strong></div>
+        <div class="misutech_product_cart_footer" style="flex-direction: column; gap: 10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+                <span>Tạm tính</span><strong class="misutech_product_cart_total">0đ</strong>
+            </div>
+            <a href="{{ route('cart.alias') }}" style="display:block; width:100%; text-align:center; padding:10px 14px; border-radius:6px; background:var(--misutech_home_primary, #1e73be); color:#fff; font-weight:700; text-decoration:none; font-size:13.5px;">Xem giỏ hàng</a>
+        </div>
     </aside>
     <div class="misutech_product_drawer_overlay" hidden></div>
 
@@ -1098,7 +1084,6 @@
             'name' => $product->name,
             'url' => \App\Support\WpUrl::productUrl($product->slug),
             'image' => $mainImage,
-            'meta_description' => Str::limit(strip_tags(!empty($product->meta_description) ? $product->meta_description : ($product->short_description ?: '')), 95),
             'price' => ($product->sale_price ?? $product->price) > 0 ? number_format($product->sale_price ?? $product->price, 0, ',', '.') . 'đ' : ''
         ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
     </script>

@@ -17,10 +17,10 @@ Route::prefix('v1')->group(function () {
         ->middleware('throttle:120,1')
         ->name('api.products.count');
         
-    // Adding web middleware here allows session access for mock cart functionality
+    // Session-backed cart endpoints (view & contact only, no online checkout)
     Route::post('/cart/add', [ShopController::class, 'addCart'])
         ->middleware('web')
-        ->middleware('throttle:1,0.033333')
+        ->middleware('throttle:60,1')
         ->name('api.cart.add');
         
     Route::post('/cart/update', [ShopController::class, 'updateCart'])

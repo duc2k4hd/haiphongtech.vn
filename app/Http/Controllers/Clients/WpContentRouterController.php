@@ -22,20 +22,20 @@ class WpContentRouterController extends Controller
     public const POSTS_PER_PAGE = 12;
 
     /**
-     * Blog archive index: /tin-blog/ and /tin-blog/page/{page}/
+     * Blog archive index: /tu-dong-hoa/ and /tu-dong-hoa/page/{page}/
      */
     public function blogIndex(Request $request, int $page = 1): Response
     {
-        $expectedPath = $page <= 1 ? '/tin-blog/' : "/tin-blog/page/{$page}/";
+        $expectedPath = $page <= 1 ? '/tu-dong-hoa/' : "/tu-dong-hoa/page/{$page}/";
         if ($page === 1 && str_contains(WpUrl::rawRequestPath($request), '/page/1')) {
-            return $this->redirectPreservingQuery($request, '/tin-blog/', 301);
+            return $this->redirectPreservingQuery($request, '/tu-dong-hoa/', 301);
         }
         if ($redirect = $this->enforceTrailingSlash($request, $expectedPath)) {
             return $redirect;
         }
 
         $search = trim((string) $request->input('q', ''));
-        $blogPage = Page::where('slug', 'tin-blog')->first();
+        $blogPage = Page::whereIn('slug', ['tu-dong-hoa', 'tin-blog'])->first();
 
         $query = Post::where('status', 'published')
             ->select([
@@ -56,7 +56,7 @@ class WpContentRouterController extends Controller
             $query->orderByDesc('published_at')->orderByDesc('id'),
             self::POSTS_PER_PAGE,
             $page,
-            '/tin-blog/',
+            '/tu-dong-hoa/',
             $request->query()
         );
 
@@ -67,11 +67,11 @@ class WpContentRouterController extends Controller
         $totalPages = max(1, $posts->lastPage());
         $seoMeta = [
             'title'       => $page > 1
-                ? "Tin Blog - Trang {$page} trên {$totalPages} - Hải Phòng Tech"
-                : ($blogPage?->meta_title ?: 'Tin Blog - Hải Phòng Tech'),
-            'description' => $blogPage?->meta_description ?: '',
+                ? "Tự động hóa - Trang {$page} trên {$totalPages} - Hải Phòng Tech"
+                : ($blogPage?->meta_title ?: 'Tự động hóa - Tin tức & Kiến thức kỹ thuật - Hải Phòng Tech'),
+            'description' => $blogPage?->meta_description ?: 'Tổng hợp bài viết kỹ thuật, hướng dẫn cài đặt PLC, HMI, cảm biến, biến tần và giải pháp tự động hóa công nghiệp.',
             'robots'      => $blogPage?->meta_robots ?: 'follow, index, max-snippet:-1, max-video-preview:-1, max-image-preview:large',
-            'canonical'   => WpUrl::absolute('/tin-blog/'),
+            'canonical'   => WpUrl::absolute('/tu-dong-hoa/'),
             'og_type'     => 'website',
             'schema_json' => WpUrl::adaptSchemaJson($blogPage?->schema_json),
         ];
@@ -192,6 +192,12 @@ class WpContentRouterController extends Controller
         // Check if slug is a product category (via SourceUrlRoute or direct Category lookup)
         $normRoot = SourceUrlRoute::normalizePath($cleanSlug);
         $routeEntry = SourceUrlRoute::where('path_hash', hash('sha256', $normRoot))->first();
+        if ($routeEntry && $routeEntry->entity_type === 'redirect' && !empty($routeEntry->redirect_target)) {
+            return new \Symfony\Component\HttpFoundation\RedirectResponse(
+                WpUrl::absolute($routeEntry->redirect_target),
+                (int) ($routeEntry->http_status ?: 301)
+            );
+        }
         if ($routeEntry && $routeEntry->entity_type === 'product_category') {
             if ($page <= 1 && str_contains(WpUrl::rawRequestPath($request), '/page/1')) {
                 return $this->redirectPreservingQuery($request, "/{$cleanSlug}/", 301);
@@ -358,26 +364,43 @@ class WpContentRouterController extends Controller
         $pathHash = hash('sha256', $normPath);
         $cleanRootSlug = trim(mb_strtolower(rawurldecode($path), 'UTF-8'), '/');
 
-        // 0. Root Brand Archive: /{brand-slug} (ví dụ: /omron, /abb, /mitsubishi, ...)
+        // 0. Root Brand & Category Archive: /{slug} (áp dụng cho cả danh mục cha, danh mục con và thương hiệu)
         if ($cleanRootSlug !== '' && !str_contains($cleanRootSlug, '/')) {
             $brand = Brand::where('slug', $cleanRootSlug)->where('status', 'active')->first();
             if ($brand) {
                 return response(app(ShopController::class)->index($request, 1, activeBrand: $brand));
             }
+
+            $cat = Category::where('slug', $cleanRootSlug)->where('status', 'active')->first();
+            if ($cat) {
+                if ($cat->type === 'post') {
+                    return $this->renderPostCategoryArchive($request, $cat, 1);
+                }
+                return response(app(CategoryController::class)->show($request, $cat->slug));
+            }
+        }
+
+        // 0b. Nếu người dùng truy cập URL danh mục lồng nhiều cấp (/cha/con) -> 301 về /{con} hoặc đích redirect 301 mới
+        if ($cleanRootSlug !== '' && str_contains($cleanRootSlug, '/')) {
+            $segments = array_values(array_filter(explode('/', $cleanRootSlug)));
+            $lastSeg = end($segments);
+            if ($lastSeg && !in_array($segments[0], ['product', 'tag', 'tag-san-pham', 'thuong_hieu', 'series', 'documents'], true)) {
+                $nestedCat = Category::where('slug', $lastSeg)->where('status', 'active')->first();
+                if ($nestedCat) {
+                    return $this->redirectPreservingQuery($request, '/' . $nestedCat->slug, 301);
+                }
+                $lastNorm = SourceUrlRoute::normalizePath($lastSeg);
+                $lastRedirect = SourceUrlRoute::where('path_hash', hash('sha256', $lastNorm))
+                    ->where('entity_type', 'redirect')
+                    ->first();
+                if ($lastRedirect && !empty($lastRedirect->redirect_target)) {
+                    return $this->redirectPreservingQuery($request, $lastRedirect->redirect_target, (int) ($lastRedirect->http_status ?: 301));
+                }
+            }
         }
 
         $routeEntry = SourceUrlRoute::where('path_hash', $pathHash)->first();
         if (!$routeEntry) {
-            // Fallback trực tiếp cho Danh mục sản phẩm / bài viết khi bảng source_url_routes trống
-            if ($cleanRootSlug !== '' && !str_contains($cleanRootSlug, '/')) {
-                $cat = Category::where('slug', $cleanRootSlug)->where('status', 'active')->first();
-                if ($cat) {
-                    if ($cat->type === 'post') {
-                        return $this->renderPostCategoryArchive($request, $cat, 1);
-                    }
-                    return response(app(CategoryController::class)->show($request, $cat->slug));
-                }
-            }
             abort(404);
         }
 

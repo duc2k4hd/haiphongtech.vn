@@ -110,25 +110,59 @@
     }
   }
 
-  function addToCart(quantity, title, price, imageSource, openAfterAdd) {
+  async function addToCart(productId, quantity, title, openAfterAdd) {
     const safeQuantity = Math.max(1, Number(quantity) || 1);
-    const numericPrice = Number(String(price).replace(/[^0-9.]/g, "")) || 0;
-    cartItemCount += safeQuantity;
-    cartValue += numericPrice * safeQuantity;
-    if (cartCount) cartCount.textContent = String(cartItemCount);
-    if (cartTotal) cartTotal.textContent = `${cartValue.toLocaleString('vi-VN')}đ`;
-    if (cartItems) {
-      cartItems.innerHTML = `
-        <article class="misutech_product_cart_item">
-          <img class="misutech_product_cart_item_image" src="${imageSource}" alt="${title}">
-          <div>
-            <h3 class="misutech_product_cart_item_title">${title}</h3>
-            <p class="misutech_product_cart_item_meta">${safeQuantity} × ${price}</p>
-          </div>
-        </article>`;
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || "";
+    try {
+      const response = await fetch("/api/v1/cart/add", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "X-CSRF-TOKEN": csrfToken,
+        },
+        body: JSON.stringify({
+          product_id: Number(productId) || undefined,
+          product_name: title,
+          quantity: safeQuantity,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        showToast(data.message || "Không thể thêm sản phẩm vào giỏ hàng.");
+        return;
+      }
+
+      document.querySelectorAll(".misutech_home_cart_count, .misutech_product_cart_count").forEach((el) => {
+        el.textContent = String(data.cart_count ?? 0);
+      });
+      const headerCartLabel = document.getElementById("misutechCartHeaderLabel");
+      if (headerCartLabel) {
+        headerCartLabel.textContent = `${data.cart_count ?? 0} sản phẩm`;
+      }
+      if (cartTotal) {
+        const totalNum = Number(data.total_price) || 0;
+        cartTotal.textContent = totalNum > 0 ? `${totalNum.toLocaleString("vi-VN")}đ` : "Liên hệ báo giá";
+      }
+      if (cartItems && Array.isArray(data.cart_items)) {
+        cartItems.innerHTML = data.cart_items.map((it) => {
+          const unitPrice = Number(it.price) > 0 ? `${Number(it.price).toLocaleString("vi-VN")}đ` : "Liên hệ báo giá";
+          return `
+            <article class="misutech_product_cart_item">
+              <img class="misutech_product_cart_item_image" src="${it.thumbnail_url || "/storage/clients/imgs/products/no-image.png"}" alt="${it.name}">
+              <div>
+                <h3 class="misutech_product_cart_item_title">${it.name}</h3>
+                <p class="misutech_product_cart_item_meta">${it.quantity} × ${unitPrice}</p>
+              </div>
+            </article>`;
+        }).join("");
+      }
+      showToast(data.message || `Đã thêm “${title}” vào giỏ hàng.`);
+      if (openAfterAdd) openCart();
+    } catch (err) {
+      console.error("Add to cart error:", err);
+      showToast("Có lỗi kết nối khi thêm vào giỏ hàng.");
     }
-    showToast(`Đã thêm ${title} vào giỏ hàng.`);
-    if (openAfterAdd) openCart();
   }
 
   // =========================================================================
@@ -172,9 +206,7 @@
 
     // 5. Update SKU
     const skuEl = document.getElementById("misutech_product_sku");
-    const skuRow = document.getElementById("misutech_sku_row");
-    if (skuEl) skuEl.textContent = data.sku || "";
-    if (skuRow) skuRow.style.display = data.sku ? "" : "none";
+    if (skuEl) skuEl.textContent = data.sku || "Đang cập nhật";
 
     // 6. Update Stock Status
     const stockDot = document.getElementById("misutech_product_stock_dot");
@@ -428,17 +460,20 @@
     quantityInput.value = String(Math.max(1, Math.min(99, Number(quantityInput.value) || 1)));
   });
 
-  document.querySelector(".misutech_product_add_button")?.addEventListener("click", () => {
-    const title = document.getElementById("misutech_product_title")?.textContent || "Sản phẩm";
-    const price = document.getElementById("misutech_product_price_box")?.textContent?.trim() || "";
-    addToCart(quantityInput ? quantityInput.value : 1, title, price, mainImage ? mainImage.src : "", true);
+  document.querySelector(".misutech_product_add_button")?.addEventListener("click", (event) => {
+    const btn = event.currentTarget;
+    const productId = btn.dataset.productId || 0;
+    const title = document.getElementById("misutech_product_title")?.textContent?.trim() || "Sản phẩm";
+    addToCart(productId, quantityInput ? quantityInput.value : 1, title, true);
   });
 
   document.querySelector(".misutech_product_buy_now")?.addEventListener("click", () => {
-    const title = document.getElementById("misutech_product_title")?.textContent || "Sản phẩm";
-    const price = document.getElementById("misutech_product_price_box")?.textContent?.trim() || "";
-    addToCart(quantityInput ? quantityInput.value : 1, title, price, mainImage ? mainImage.src : "", false);
-    showToast("Sản phẩm đã sẵn sàng để thanh toán.");
+    const questionModal = document.querySelector('[data-modal="question"]');
+    if (questionModal) {
+      openModal("question");
+    } else {
+      window.location.href = "/lien-he/";
+    }
   });
 
   document.querySelector(".misutech_product_wishlist_button")?.addEventListener("click", (event) => {
@@ -711,9 +746,6 @@
         let html = "";
         for (let i = 0; i < displayItems.length; i++) {
           const item = displayItems[i];
-          const descHtml = item.meta_description
-            ? `<p class="misutech_product_side_pdesc">${item.meta_description}</p>`
-            : "";
           const priceHtml = item.price
             ? `<div class="misutech_product_side_pprice"><strong>${item.price}</strong></div>`
             : "";
@@ -725,7 +757,6 @@
               </div>
               <div class="misutech_product_side_pinfo">
                 <h4 class="misutech_product_side_pname">${item.name}</h4>
-                ${descHtml}
                 ${priceHtml}
               </div>
             </a>

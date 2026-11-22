@@ -29,7 +29,7 @@
 
                 {{-- Smart Search Bar to Guide Users --}}
                 <div class="error_search_box">
-                    <form action="/tin-blog/" method="GET" class="error_search_form">
+                    <form action="/tu-dong-hoa/" method="GET" class="error_search_form">
                         <input type="text" name="q" class="error_search_input" placeholder="Tìm nhanh bài viết & tài liệu kỹ thuật..." required>
                         <button type="submit" class="error_search_btn">
                             <span>🔍 Tìm kiếm</span>
@@ -45,8 +45,8 @@
                     <a href="/gioi-thieu/" class="btn_error_secondary">
                         <span>🏢 Giới Thiệu</span>
                     </a>
-                    <a href="/tin-blog/" class="btn_error_quote">
-                        <span>📰 Tin Blog</span>
+                    <a href="/tu-dong-hoa/" class="btn_error_quote">
+                        <span>📰 Tự động hóa</span>
                     </a>
                     <a href="/tai-lieu-ki-thuat/" class="btn_error_secondary">
                         <span>📚 Tài Liệu Kĩ Thuật</span>

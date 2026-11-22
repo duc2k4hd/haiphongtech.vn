@@ -6,7 +6,7 @@
     $blogTitle = $seoMeta['title'] ?? (
         isset($selectedTag) && $selectedTag
             ? ($selectedTag->name . ' Archives - ' . $brandName)
-            : ($selectedCategory ? ($selectedCategory->name . ' - ' . $brandName) : ('Tin Blog - ' . $brandName))
+            : ($selectedCategory ? ($selectedCategory->name . ' - ' . $brandName) : ('Tự động hóa - ' . $brandName))
     );
     $blogDesc = $seoMeta['description'] ?? '';
     $blogRobots = $seoMeta['robots'] ?? 'follow, index, max-snippet:-1, max-video-preview:-1, max-image-preview:large';
@@ -66,13 +66,13 @@
                     <li><a href="/">Trang chủ</a></li>
                     <li class="separator">»</li>
                     @if(isset($selectedTag) && $selectedTag)
-                        <li><a href="/tin-blog/">Tin Blog</a></li>
+                        <li><a href="/tu-dong-hoa/">Tự động hóa</a></li>
                         <li class="separator">»</li>
                         <li class="current" aria-current="page">Thẻ: {{ $selectedTag->name }}</li>
                     @elseif($selectedCategory)
                         <li class="current" aria-current="page">{{ $selectedCategory->name }}</li>
                     @else
-                        <li class="current" aria-current="page">Tin Blog</li>
+                        <li class="current" aria-current="page">Tự động hóa</li>
                     @endif
                 </ol>
             </div>
@@ -90,7 +90,7 @@
                         @elseif(!empty($search))
                             Kết quả tìm kiếm: "{{ $search }}"
                         @else
-                            Tin Blog
+                            Tự động hóa
                         @endif
                     </h1>
                     @if($selectedCategory && !empty($selectedCategory->description))
@@ -109,7 +109,7 @@
                         <span class="empty_icon">📰</span>
                         <h3>Chưa có bài viết trong mục này</h3>
                         <p>Vui lòng thử lại với từ khóa khác hoặc xem danh sách tất cả bài viết.</p>
-                        <a href="/tin-blog/" class="btn_reset_blog">Xem tất cả bài viết</a>
+                        <a href="/tu-dong-hoa/" class="btn_reset_blog">Xem tất cả bài viết</a>
                     </div>
                 @else
                     <div class="misutech_blog_grid">
@@ -166,7 +166,7 @@
             <aside class="misutech_blog_sidebar">
                 <div class="sidebar_widget">
                     <h3 class="widget_title">Tìm kiếm bài viết</h3>
-                    <form action="/tin-blog/" method="GET" class="sidebar_search_form">
+                    <form action="/tu-dong-hoa/" method="GET" class="sidebar_search_form">
                         <input type="text" name="q" value="{{ $search }}" placeholder="Nhập từ khóa tìm kiếm...">
                         <button type="submit" aria-label="Tìm kiếm">🔍</button>
                     </form>
@@ -176,7 +176,7 @@
                     <h3 class="widget_title">Chuyên mục bài viết</h3>
                     <ul class="sidebar_cat_list">
                         <li>
-                            <a href="/tin-blog/" class="{{ empty($catSlug) && empty($selectedTag) ? 'active' : '' }}">
+                            <a href="/tu-dong-hoa/" class="{{ empty($catSlug) && empty($selectedTag) ? 'active' : '' }}">
                                 <span>Tất cả bài viết</span>
                             </a>
                         </li>

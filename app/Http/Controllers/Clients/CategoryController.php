@@ -70,9 +70,7 @@ class CategoryController extends Controller
 
         $lastPage = max(1, $products->lastPage());
         $baseTitle = $category->meta_title ?: ($category->name . ' - Hải Phòng Tech');
-        $canonical = !empty($category->canonical_url)
-            ? WpUrl::absolute($category->canonical_url)
-            : WpUrl::categoryUrl($category->slug);
+        $canonical = WpUrl::categoryUrl($category->slug);
 
         $seoCategory = [
             'title'       => $page > 1 ? "{$category->name} - Trang {$page} trên {$lastPage} - Hải Phòng Tech" : $baseTitle,

@@ -62,7 +62,7 @@ class WpUrl
     public static function categoryUrl(string $slug, int $page = 1): string
     {
         $clean = trim($slug, '/');
-        return self::absolute($page > 1 ? "/{$clean}/page/{$page}/" : "/{$clean}/");
+        return self::absolute($page > 1 ? "/{$clean}/page/{$page}" : "/{$clean}");
     }
 
     public static function productUrl(string $slug): string

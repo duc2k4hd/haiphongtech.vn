@@ -1,20 +1,38 @@
 @extends('clients.layouts.master')
 
+@php
+    $hotlineRaw = preg_replace('/[^0-9]/', '', $settings->phone ?? ($settings->hotline ?? '0866555212'));
+    $hotlineDisplay = $settings->hotline ?? '0866.555.212';
+    $zaloHref = $settings->zalo ?? ($settings->zalo_url ?? 'https://zalo.me/0866555212');
+    $totalPrice = 0;
+    $totalQty = 0;
+    $hasContactPrice = false;
+    foreach ($cartItems as $it) {
+        $p = (float) ($it['price'] ?? 0);
+        $q = (int) ($it['quantity'] ?? 0);
+        $totalQty += $q;
+        if ($p > 0) {
+            $totalPrice += $p * $q;
+        } else {
+            $hasContactPrice = true;
+        }
+    }
+@endphp
+
 @section('title', 'Giỏ Hàng - ' . ($settings->company ?? ($settings->name ?? 'CÔNG TY TNHH HẢI PHÒNG TECH')))
-@section('meta_description', 'Giỏ hàng của bạn tại Hải Phòng Tech. Xem lại các sản phẩm và tiến hành thanh toán an toàn, tiện lợi.')
+@section('meta_description', 'Danh sách sản phẩm bạn đã chọn tại Hải Phòng Tech. Liên hệ trực tiếp qua Hotline, Zalo hoặc form liên hệ để nhận báo giá tốt nhất.')
 
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('clients/css/cart.css') }}">
+    <link rel="stylesheet" href="{{ asset('clients/css/cart.css') }}?v={{ file_exists(public_path('clients/css/cart.css')) ? filemtime(public_path('clients/css/cart.css')) : '1.0' }}">
 @endpush
 
 @section('content')
-    <div class="misutech_home_container" style="margin-top: 30px; margin-bottom: 50px;">
+    <div class="misutech_home_container" style="margin-top: 28px; margin-bottom: 52px;">
         <h1 class="misutech_cart_title">Giỏ Hàng Của Bạn</h1>
-        
+
         <div class="misutech_cart_wrapper">
             <!-- Left: Cart Items -->
             <div class="misutech_cart_items">
-                
                 <div class="misutech_cart_header">
                     <div class="misutech_cart_header_col misutech_col_product">Sản Phẩm</div>
                     <div class="misutech_cart_header_col misutech_col_price">Đơn Giá</div>
@@ -23,93 +41,123 @@
                     <div class="misutech_cart_header_col misutech_col_action"></div>
                 </div>
 
-                @php $totalPrice = 0; @endphp
                 @forelse($cartItems as $item)
-                    @php 
-                        $itemTotal = $item['price'] * $item['quantity']; 
-                        $totalPrice += $itemTotal; 
+                    @php
+                        $unitPrice = (float) ($item['price'] ?? 0);
+                        $qty = (int) ($item['quantity'] ?? 1);
+                        $itemTotal = $unitPrice * $qty;
                     @endphp
-                    <div class="misutech_cart_item" data-id="{{ $item['id'] }}" data-price="{{ $item['price'] }}">
+                    <div class="misutech_cart_item" data-id="{{ $item['id'] }}" data-price="{{ $unitPrice }}">
                         <div class="misutech_cart_item_info">
-                            <img src="{{ $item['thumbnail_url'] ?? asset('clients/imgs/no-image.png') }}" alt="{{ $item['name'] }}" class="misutech_cart_item_img" onerror="this.src='https://placehold.co/100x100?text=No+Image'">
+                            <img src="{{ $item['thumbnail_url'] ?? asset('storage/clients/imgs/products/no-image.png') }}"
+                                alt="{{ $item['name'] }}"
+                                class="misutech_cart_item_img"
+                                onerror="this.src='{{ asset('storage/clients/imgs/products/no-image.png') }}'">
                             <div class="misutech_cart_item_details">
-                                <a href="{{ !empty($item['slug']) ? \App\Support\WpUrl::productUrl($item['slug']) : '#' }}" class="misutech_cart_item_name">{{ $item['name'] }}</a>
+                                <a href="{{ !empty($item['slug']) ? \App\Support\WpUrl::productUrl($item['slug']) : '#' }}"
+                                    class="misutech_cart_item_name">{{ $item['name'] }}</a>
+                                @if(!empty($item['sku']))
+                                    <span class="misutech_cart_item_attr">Mã SKU: <strong>{{ $item['sku'] }}</strong></span>
+                                @endif
                             </div>
                         </div>
                         <div class="misutech_cart_item_price_wrapper">
-                            <span class="misutech_cart_current_price">{{ number_format($item['price'], 0, ',', '.') }}đ</span>
+                            @if($unitPrice > 0)
+                                <span class="misutech_cart_current_price">{{ number_format($unitPrice, 0, ',', '.') }}đ</span>
+                            @else
+                                <span class="misutech_cart_contact_price">Liên hệ</span>
+                            @endif
                         </div>
                         <div class="misutech_cart_item_qty_wrapper">
                             <div class="misutech_cart_qty_controls">
-                                <button class="misutech_qty_btn" aria-label="Giảm số lượng">
+                                <button type="button" class="misutech_qty_btn" aria-label="Giảm số lượng">
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                                 </button>
-                                <input type="number" class="misutech_qty_input" value="{{ $item['quantity'] }}" min="1">
-                                <button class="misutech_qty_btn" aria-label="Tăng số lượng">
+                                <input type="number" class="misutech_qty_input" value="{{ $qty }}" min="1" max="1000">
+                                <button type="button" class="misutech_qty_btn" aria-label="Tăng số lượng">
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                                 </button>
                             </div>
                         </div>
-                        <div class="misutech_cart_item_total_price">{{ number_format($itemTotal, 0, ',', '.') }}đ</div>
+                        <div class="misutech_cart_item_total_price">
+                            {{ $unitPrice > 0 ? number_format($itemTotal, 0, ',', '.') . 'đ' : 'Liên hệ' }}
+                        </div>
                         <div class="misutech_cart_item_action_wrapper">
-                            <button class="misutech_cart_remove_btn" aria-label="Xóa sản phẩm">
+                            <button type="button" class="misutech_cart_remove_btn" aria-label="Xóa sản phẩm">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
                             </button>
                         </div>
                     </div>
                 @empty
-                    <div style="padding: 40px; text-align: center; color: #666;">
+                    <div class="misutech_cart_empty_state">
                         <p>Giỏ hàng của bạn đang trống.</p>
-                        <a href="{{ \App\Support\WpUrl::shopUrl() }}" style="display: inline-block; margin-top: 15px; color: var(--misutech_cart_primary); text-decoration: none; font-weight: 500;">Tiếp tục mua sắm</a>
+                        <a href="{{ \App\Support\WpUrl::shopUrl() }}" class="misutech_cart_empty_btn">Khám phá sản phẩm ngay</a>
                     </div>
                 @endforelse
 
                 <div class="misutech_cart_bottom_actions">
                     <a href="{{ \App\Support\WpUrl::shopUrl() }}" class="misutech_cart_continue_btn">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-                        Tiếp Tục Mua Sắm
+                        Tiếp Tục Xem Sản Phẩm
                     </a>
-                    <button class="misutech_cart_clear_btn" onclick="if(confirm('Bạn có chắc chắn muốn xóa toàn bộ giỏ hàng?')) { fetch('/api/v1/cart/clear', {method: 'POST', headers: {'X-CSRF-TOKEN': document.querySelector('meta[name=\'csrf-token\']').content}}).then(() => location.reload()); }">Xóa Toàn Bộ Giỏ Hàng</button>
+                    @if(!empty($cartItems))
+                        <button type="button" class="misutech_cart_clear_btn" id="misutechCartClearBtn">Xóa Toàn Bộ Giỏ Hàng</button>
+                    @endif
                 </div>
             </div>
 
-            <!-- Right: Order Summary -->
+            <!-- Right: Contact & Quote Summary (No Online Checkout) -->
             <div class="misutech_cart_summary">
-                <h3 class="misutech_cart_summary_title">Tổng Quan Đơn Hàng</h3>
-                
+                <h3 class="misutech_cart_summary_title">Thông Tin Giỏ Hàng</h3>
+
                 <div class="misutech_cart_summary_list">
                     <div class="misutech_cart_summary_row">
-                        <span class="misutech_cart_summary_label">Tạm tính</span>
-                        <span class="misutech_cart_summary_value">{{ number_format($totalPrice ?? 0, 0, ',', '.') }}đ</span>
+                        <span class="misutech_cart_summary_label">Tổng số sản phẩm</span>
+                        <span class="misutech_cart_summary_value" id="misutechCartTotalQty">{{ $totalQty }} sản phẩm</span>
                     </div>
                     <div class="misutech_cart_summary_row">
-                        <span class="misutech_cart_summary_label">Phí vận chuyển</span>
-                        <span class="misutech_cart_summary_value misutech_free_shipping">Miễn phí</span>
-                    </div>
-                    <div class="misutech_cart_summary_row">
-                        <span class="misutech_cart_summary_label">Khuyến mãi</span>
-                        <span class="misutech_cart_summary_value misutech_discount_value">-0đ</span>
+                        <span class="misutech_cart_summary_label">Hình thức đặt hàng</span>
+                        <span class="misutech_cart_summary_value misutech_free_shipping">Liên hệ / Báo giá</span>
                     </div>
                 </div>
 
                 <div class="misutech_cart_summary_total_row">
-                    <span class="misutech_cart_summary_total_label">Tổng Tiền</span>
+                    <span class="misutech_cart_summary_total_label">Tạm tính</span>
                     <div class="misutech_cart_summary_total_price_box">
-                        <span class="misutech_cart_summary_total_price">{{ number_format($totalPrice ?? 0, 0, ',', '.') }}đ</span>
-                        <small>(Đã bao gồm VAT nếu có)</small>
+                        <span class="misutech_cart_summary_total_price" id="misutechCartTotalPrice">
+                            @if($totalPrice > 0)
+                                {{ number_format($totalPrice, 0, ',', '.') }}đ
+                            @else
+                                Liên hệ báo giá
+                            @endif
+                        </span>
+                        <small>{{ $hasContactPrice && $totalPrice > 0 ? '(Chưa gồm SP giá liên hệ)' : '(Chưa bao gồm VAT)' }}</small>
                     </div>
                 </div>
 
+                <div class="misutech_cart_contact_notice">
+                    Website chỉ hỗ trợ <strong>xem giỏ hàng và đặt hàng qua liên hệ trực tiếp</strong> (không thanh toán trực tuyến). Vui lòng liên hệ để được kỹ sư tư vấn và nhận báo giá tốt nhất.
+                </div>
+
                 <div class="misutech_cart_checkout_wrapper">
-                    <a href="javascript:void(0)" onclick="alert('Tính năng thanh toán đang được phát triển, vui lòng quay lại sau!')" class="misutech_cart_checkout_btn">Tiến Hành Thanh Toán</a>
+                    <a href="/lien-he/" class="misutech_cart_checkout_btn">
+                        Gửi Yêu Cầu Liên Hệ / Báo Giá
+                    </a>
+                    <a href="tel:{{ $hotlineRaw }}" class="misutech_cart_secondary_btn">
+                        ☎ Gọi Hotline: {{ $hotlineDisplay }}
+                    </a>
+                    <a href="{{ $zaloHref }}" target="_blank" rel="noopener noreferrer" class="misutech_cart_outline_btn">
+                        Chat Zalo Nhận Báo Giá Nhanh
+                    </a>
+
                     <div class="misutech_cart_trust_info">
                         <div class="misutech_cart_trust_item">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-                            Thanh toán an toàn 100%
+                            Hàng chính hãng 100%, đầy đủ CO/CQ
                         </div>
                         <div class="misutech_cart_trust_item">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-                            Giao hàng nhanh toàn quốc
+                            Hỗ trợ kỹ thuật & giao hàng toàn quốc
                         </div>
                     </div>
                 </div>
@@ -121,103 +169,109 @@
 @push('scripts')
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        let updateTimeout;
-        
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || "";
+        const totalQtyEl = document.getElementById("misutechCartTotalQty");
+        const totalPriceEl = document.getElementById("misutechCartTotalPrice");
+        const headerCartLabel = document.getElementById("misutechCartHeaderLabel");
+
         function formatMoney(amount) {
-            return new Intl.NumberFormat('vi-VN').format(amount) + 'đ';
+            return new Intl.NumberFormat("vi-VN").format(amount) + "đ";
         }
-        
-        document.querySelectorAll('.misutech_cart_item').forEach(item => {
-            const input = item.querySelector('.misutech_qty_input');
-            const btns = item.querySelectorAll('.misutech_qty_btn');
+
+        function recalcSummary() {
+            let sumQty = 0;
+            let sumPrice = 0;
+            document.querySelectorAll(".misutech_cart_item").forEach((it) => {
+                const p = parseFloat(it.dataset.price) || 0;
+                const q = parseInt(it.querySelector(".misutech_qty_input")?.value, 10) || 0;
+                sumQty += q;
+                if (p > 0) sumPrice += p * q;
+            });
+            if (totalQtyEl) totalQtyEl.textContent = sumQty + " sản phẩm";
+            if (totalPriceEl) totalPriceEl.textContent = sumPrice > 0 ? formatMoney(sumPrice) : "Liên hệ báo giá";
+            document.querySelectorAll(".misutech_home_cart_count").forEach((el) => {
+                el.textContent = String(sumQty);
+            });
+            if (headerCartLabel) headerCartLabel.textContent = sumQty + " sản phẩm";
+        }
+
+        document.querySelectorAll(".misutech_cart_item").forEach((item) => {
+            const input = item.querySelector(".misutech_qty_input");
+            const btns = item.querySelectorAll(".misutech_qty_btn");
             const productId = item.dataset.id;
-            const price = parseFloat(item.dataset.price);
-            const totalEl = item.querySelector('.misutech_cart_item_total_price');
-            
+            const price = parseFloat(item.dataset.price) || 0;
+            const totalEl = item.querySelector(".misutech_cart_item_total_price");
+            let updateTimer;
+
             function scheduleUpdate(newQty) {
                 if (isNaN(newQty) || newQty < 0) newQty = 0;
                 if (newQty > 1000) newQty = 1000;
-                
                 input.value = newQty;
-                
-                // Optimistic UI update
-                const newTotal = price * newQty;
-                totalEl.textContent = formatMoney(newTotal);
-                
-                // Recalculate summary total
-                let newSummaryTotal = 0;
-                document.querySelectorAll('.misutech_cart_item').forEach(it => {
-                    const itPrice = parseFloat(it.dataset.price);
-                    const itQty = parseInt(it.querySelector('.misutech_qty_input').value) || 0;
-                    newSummaryTotal += itPrice * itQty;
-                });
-                
-                const summaryValueEls = document.querySelectorAll('.misutech_cart_summary_value');
-                if (summaryValueEls.length > 0) summaryValueEls[0].textContent = formatMoney(newSummaryTotal);
-                
-                const totalPriceEls = document.querySelectorAll('.misutech_cart_summary_total_price');
-                if (totalPriceEls.length > 0) totalPriceEls[0].textContent = formatMoney(newSummaryTotal);
-                
-                clearTimeout(updateTimeout);
-                updateTimeout = setTimeout(() => {
-                    fetch('/api/v1/cart/update', {
-                        method: 'POST',
+                if (totalEl) {
+                    totalEl.textContent = price > 0 ? formatMoney(price * newQty) : "Liên hệ";
+                }
+                recalcSummary();
+
+                clearTimeout(updateTimer);
+                updateTimer = setTimeout(() => {
+                    fetch("/api/v1/cart/update", {
+                        method: "POST",
                         headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            "Content-Type": "application/json",
+                            "Accept": "application/json",
+                            "X-CSRF-TOKEN": csrfToken,
                         },
-                        body: JSON.stringify({
-                            product_id: productId,
-                            quantity: newQty
-                        })
-                    }).then(res => res.json()).then(data => {
-                        if (data.success) {
-                            if (newQty === 0) {
+                        body: JSON.stringify({ product_id: productId, quantity: newQty }),
+                    })
+                        .then((res) => res.json())
+                        .then((data) => {
+                            if (data.success && newQty === 0) {
                                 item.remove();
-                                if (document.querySelectorAll('.misutech_cart_item').length === 0) {
+                                if (document.querySelectorAll(".misutech_cart_item").length === 0) {
                                     location.reload();
                                 }
                             }
-                            // Sync with server data
-                            if (summaryValueEls.length > 0) summaryValueEls[0].textContent = formatMoney(data.total_price);
-                            if (totalPriceEls.length > 0) totalPriceEls[0].textContent = formatMoney(data.total_price);
-                            
-                            const countEls = document.querySelectorAll('.misutech_home_cart_count');
-                            countEls.forEach(el => el.textContent = data.cart_count);
-                            const labelEls = document.querySelectorAll('.misutech_home_header_action_copy strong');
-                            labelEls.forEach(el => el.textContent = data.cart_count + " sản phẩm");
-                        }
-                    }).catch(err => console.error(err));
-                }, 1000);
+                        })
+                        .catch((err) => console.error(err));
+                }, 400);
             }
-            
+
             if (btns.length >= 2) {
-                btns[0].addEventListener('click', () => scheduleUpdate(parseInt(input.value) - 1));
-                btns[1].addEventListener('click', () => scheduleUpdate(parseInt(input.value) + 1));
+                btns[0].addEventListener("click", () => scheduleUpdate((parseInt(input.value, 10) || 1) - 1));
+                btns[1].addEventListener("click", () => scheduleUpdate((parseInt(input.value, 10) || 1) + 1));
             }
-            input.addEventListener('change', () => scheduleUpdate(parseInt(input.value)));
-            input.addEventListener('keyup', () => {
-                clearTimeout(updateTimeout);
-                updateTimeout = setTimeout(() => scheduleUpdate(parseInt(input.value)), 1000);
-            });
+            input.addEventListener("change", () => scheduleUpdate(parseInt(input.value, 10)));
         });
-        
-        document.querySelectorAll('.misutech_cart_remove_btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const item = this.closest('.misutech_cart_item');
-                const productId = item.dataset.id;
-                
-                if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?')) {
-                    fetch('/api/v1/cart/update', {
-                        method: 'POST',
+
+        document.querySelectorAll(".misutech_cart_remove_btn").forEach((btn) => {
+            btn.addEventListener("click", function() {
+                const item = this.closest(".misutech_cart_item");
+                const productId = item?.dataset.id;
+                if (!productId) return;
+                if (confirm("Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?")) {
+                    fetch("/api/v1/cart/update", {
+                        method: "POST",
                         headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            "Content-Type": "application/json",
+                            "Accept": "application/json",
+                            "X-CSRF-TOKEN": csrfToken,
                         },
-                        body: JSON.stringify({ product_id: productId, quantity: 0 })
+                        body: JSON.stringify({ product_id: productId, quantity: 0 }),
                     }).then(() => location.reload());
                 }
             });
+        });
+
+        document.getElementById("misutechCartClearBtn")?.addEventListener("click", () => {
+            if (confirm("Bạn có chắc chắn muốn xóa toàn bộ giỏ hàng?")) {
+                fetch("/api/v1/cart/clear", {
+                    method: "POST",
+                    headers: {
+                        "Accept": "application/json",
+                        "X-CSRF-TOKEN": csrfToken,
+                    },
+                }).then(() => location.reload());
+            }
         });
     });
 </script>

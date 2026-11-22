@@ -1002,7 +1002,10 @@
                                             <option value="cancelled" ${item.status === 'cancelled' ? 'selected' : ''}>Hủy / Spam</option>
                                         </select>
                                     </div>
-                                    <button type="button" class="btn btn-sm btn-primary font-weight-bold w-100" style="max-width: 200px; border-radius: 8px; padding: 7px 12px;" onclick="showContactModal(${item.id})">
+                                    <button type="button" class="btn btn-sm btn-primary font-weight-bold w-100 mb-2" style="max-width: 200px; border-radius: 6px; padding: 7px 12px; background:#1e73be; border-color:#1e73be;" onclick="openQuoteEmailFromContact(${item.id})">
+                                        <i class="fa fa-paper-plane mr-1"></i> Gửi báo giá Email
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-primary font-weight-bold w-100" style="max-width: 200px; border-radius: 6px; padding: 6px 12px;" onclick="showContactModal(${item.id})">
                                         <i class="fa fa-eye mr-1"></i> Xem chi tiết
                                     </button>
                                 </div>
@@ -1312,5 +1315,31 @@
                 }
             });
         }
+
+        function openQuoteEmailFromContact(id) {
+            const list = typeof allContacts !== 'undefined' ? allContacts : (typeof filteredContacts !== 'undefined' ? filteredContacts : []);
+            const item = list.find(c => Number(c.id) === Number(id));
+            if (!item) return;
+
+            let defaultProdName = '';
+            let defaultProdSku = '';
+            const subj = String(item.subject || '');
+            const m = subj.match(/\[Tư vấn SP\]\s*(.+?)(?:\s*\(Mã:\s*([^)]*)\))?$/i);
+            if (m) {
+                defaultProdName = (m[1] || '').trim();
+                defaultProdSku = (m[2] || '').trim();
+            }
+
+            openAdminSendQuoteModal({
+                contact_id: item.id,
+                customer_name: item.name || '',
+                customer_email: item.email || '',
+                customer_phone: item.phone || '',
+                default_product_name: defaultProdName,
+                default_product_sku: defaultProdSku,
+                staff_note: 'Cảm ơn anh/chị đã quan tâm sản phẩm tại Hải Phòng Tech. Chúng tôi xin gửi bảng báo giá chi tiết theo yêu cầu.'
+            });
+        }
     </script>
+    @include('admins.components.send_quote_modal')
 @endsection

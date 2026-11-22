@@ -350,13 +350,11 @@
                                 <thead>
                                     <tr>
                                         <th class="text-center" style="width: 38px;">STT</th>
-                                        <th>Tên Hàng Hóa / Mã Thiết Bị</th>
-                                        <th style="width: 90px;">Thương Hiệu</th>
-                                        <th class="text-center" style="width: 50px;">ĐVT</th>
-                                        <th class="text-center" style="width: 75px;">Số Lượng</th>
-                                        <th class="text-right" style="width: 110px;">Đơn Giá (VNĐ)</th>
-                                        <th class="text-right" style="width: 120px;">Thành Tiền (VNĐ)</th>
-                                        <th class="text-center tbl_btn_del" style="width: 35px;">Xóa</th>
+                                        <th class="text-left">Sản phẩm / Mã SP</th>
+                                        <th class="text-center" style="width: 82px;">SL</th>
+                                        <th class="text-right" style="width: 118px;">Đơn giá</th>
+                                        <th class="text-right" style="width: 124px;">Thành tiền</th>
+                                        <th class="text-center tbl_btn_del" style="width: 34px;"></th>
                                     </tr>
                                 </thead>
                                 <tbody id="quoteTableBody">
@@ -610,9 +608,9 @@
                 if (quoteItems.length === 0) {
                     tableBody.innerHTML = `
                         <tr>
-                            <td colspan="8" style="text-align: center; padding: 30px; color: #94a3b8;">
-                                📦 Chưa có sản phẩm nào trong báo giá.<br>
-                                <span style="font-size: 11.5px;">Hãy tìm kiếm mã sản phẩm ở khung bên trái hoặc bấm "Thêm tùy chỉnh" để bắt đầu lập báo giá.</span>
+                            <td colspan="6" class="paper_empty_row">
+                                Chưa có sản phẩm nào trong báo giá.<br>
+                                <span style="font-size: 11.5px;">Tìm mã sản phẩm ở khung bên trái hoặc bấm "Thêm tùy chỉnh" để bắt đầu lập báo giá.</span>
                             </td>
                         </tr>
                     `;
@@ -624,25 +622,33 @@
                     const itemTotal = item.qty * item.price;
                     subtotal += itemTotal;
 
+                    const metaParts = [];
+                    if (item.sku) metaParts.push('Mã SP: <strong>' + item.sku + '</strong>');
+                    if (item.brand) metaParts.push('Hãng: ' + item.brand);
+                    const metaHtml = metaParts.length
+                        ? `<div class="tbl_meta">${metaParts.join(' &nbsp;|&nbsp; ')}</div>`
+                        : '';
+                    const unitLabel = item.unit || 'Cái';
+
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
-                        <td class="text-center">${index + 1}</td>
+                        <td class="tbl_center">${index + 1}</td>
                         <td>
-                            <strong>${item.name}</strong>
-                            ${item.sku ? `<div style="font-size: 11px; color: #64748b;">SKU: ${item.sku}</div>` : ''}
+                            <div class="tbl_name">${item.name}</div>
+                            ${metaHtml}
                         </td>
-                        <td>${item.brand || 'Hải Phòng Tech'}</td>
-                        <td class="text-center">${item.unit || 'Cái'}</td>
-                        <td class="text-center">
+                        <td class="tbl_center">
                             <input type="number" class="tbl_qty_input" value="${item.qty}" min="1" max="10000" data-index="${index}">
+                            <span class="print_only_val">${item.qty} ${unitLabel}</span>
                         </td>
-                        <td class="text-right">
+                        <td class="tbl_right">
                             <input type="number" class="tbl_price_input" value="${item.price}" min="0" data-index="${index}">
+                            <span class="print_only_val">${formatVND(item.price)}</span>
                         </td>
-                        <td class="text-right">
+                        <td class="tbl_right tbl_total_cell">
                             <strong>${formatVND(itemTotal)}</strong>
                         </td>
-                        <td class="text-center tbl_btn_del">
+                        <td class="tbl_center tbl_btn_del">
                             <button type="button" class="tbl_btn_del remove_item_btn" data-index="${index}" title="Xóa">✕</button>
                         </td>
                     `;

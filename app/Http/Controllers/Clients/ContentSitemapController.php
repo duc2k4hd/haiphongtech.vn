@@ -112,7 +112,7 @@ class ContentSitemapController extends Controller
         if ($blogPage) {
             $dt = $blogPage->source_modified_at ?: ($blogPage->published_at ?: now());
             $items[] = [
-                'loc'     => WpUrl::absolute('/tin-blog/'),
+                'loc'     => WpUrl::absolute('/tu-dong-hoa/'),
                 'lastmod' => $dt->toAtomString(),
             ];
         }

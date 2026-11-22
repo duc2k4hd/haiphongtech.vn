@@ -6,9 +6,11 @@
     ];
     const emptyState = document.querySelector(".misutech_home_empty");
     const cartCount = document.querySelector(".misutech_home_cart_count");
-    const cartLabel = document.querySelector(
-        ".misutech_home_header_action:last-child .misutech_home_header_action_copy strong",
-    );
+    const cartLabel =
+        document.getElementById("misutechCartHeaderLabel") ||
+        document.querySelector(
+            ".misutech_home_header_action:last-child .misutech_home_header_action_copy strong",
+        );
     const toast = document.querySelector(".misutech_home_toast");
     let cart = 0;
     let toastTimer;
@@ -41,8 +43,7 @@
         event.preventDefault();
         
         const now = Date.now();
-        if (now - lastCartClickTime < 2000) {
-            showToast("Vui lòng chậm lại!");
+        if (now - lastCartClickTime < 400) {
             return;
         }
         lastCartClickTime = now;
@@ -53,7 +54,8 @@
             || cartBtn.closest(".misutech_series_card")
             || cartBtn.closest(".misutech_series_product_card")
             || cartBtn.closest("article");
-        const productName = productCard ? (productCard.dataset.name || productCard.dataset.productName || "Sản phẩm") : "Sản phẩm";
+        const productId = Number(cartBtn.dataset.productId || (productCard ? productCard.dataset.productId : 0)) || 0;
+        const productName = cartBtn.dataset.product || (productCard ? (productCard.dataset.name || productCard.dataset.productName || "Sản phẩm") : "Sản phẩm");
         const img = productCard ? productCard.querySelector("img") : null;
         
         // Button visual feedback
@@ -113,6 +115,7 @@
                     'X-CSRF-TOKEN': csrfTokenMeta ? csrfTokenMeta.content : ''
                 },
                 body: JSON.stringify({
+                    product_id: productId || undefined,
                     product_name: productName,
                     quantity: 1
                 })
@@ -120,11 +123,13 @@
             
             if (response.ok) {
                 const data = await response.json();
-                if (data.cart_count && cartCount) {
-                    cartCount.textContent = data.cart_count;
-                    if(cartLabel) cartLabel.textContent = data.cart_count + " sản phẩm";
+                if (typeof data.cart_count !== "undefined") {
+                    document.querySelectorAll(".misutech_home_cart_count").forEach((el) => {
+                        el.textContent = data.cart_count;
+                    });
+                    if (cartLabel) cartLabel.textContent = data.cart_count + " sản phẩm";
                 }
-                showToast("Đã thêm “" + productName + "” vào giỏ hàng!");
+                showToast(data.message || ("Đã thêm “" + productName + "” vào giỏ hàng!"));
             } else if (response.status === 429) {
                 const data = await response.json();
                 showToast(data.message || "Vui lòng chậm lại tránh spam làm hỏng database");

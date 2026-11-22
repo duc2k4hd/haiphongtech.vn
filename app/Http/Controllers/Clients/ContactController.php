@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Clients;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Contact;
+use App\Support\MailConfigHelper;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Crypt;
@@ -169,6 +171,35 @@ class ContactController extends Controller
 
             // Ghi nhận 1 lượt submit thành công
             RateLimiter::hit($rateLimitKey, 300);
+
+            // Gửi email thông báo về Mail nhận đã cấu hình trong Admin (không làm gián đoạn khách nếu SMTP lỗi)
+            try {
+                $mailRows = MailConfigHelper::applyFromSettings();
+                $notifyEnabled = ($mailRows['mail_notify_on_contact'] ?? '1') !== '0';
+                $receivers = MailConfigHelper::getReceiveEmails($mailRows);
+                if ($notifyEnabled && !empty($receivers)) {
+                    $siteName = $mailRows['name'] ?? 'Hải Phòng Tech';
+                    $bodyHtml = '<div style="font-family:Inter,Arial,sans-serif;max-width:600px;border:1px solid #d8e5f1;border-radius:6px;overflow:hidden;">'
+                        . '<div style="background:#1e73be;color:#fff;padding:14px 18px;font-weight:700;font-size:15px;">Yêu cầu liên hệ / Báo giá mới từ Website</div>'
+                        . '<div style="padding:16px 18px;font-size:13.5px;color:#111827;line-height:1.65;">'
+                        . '<div><strong>Khách hàng:</strong> ' . e($cleanName) . '</div>'
+                        . '<div><strong>Số điện thoại / Zalo:</strong> ' . e($cleanPhone) . '</div>'
+                        . '<div><strong>Email:</strong> ' . e($cleanEmail) . '</div>'
+                        . '<div><strong>Tiêu đề:</strong> ' . e($cleanSubject) . '</div>'
+                        . '<div style="margin-top:10px;padding:10px 12px;background:#f4f8fc;border-left:3px solid #1e73be;">' . nl2br(e($cleanMessage)) . '</div>'
+                        . '<div style="margin-top:12px;font-size:12px;color:#64748b;">Thời gian: ' . now()->format('H:i d/m/Y') . ' — Vào Admin &rarr; Liên hệ để lập &amp; gửi báo giá nhanh cho khách.</div>'
+                        . '</div></div>';
+
+                    Mail::html($bodyHtml, function ($msg) use ($receivers, $siteName, $cleanSubject, $cleanEmail) {
+                        $msg->to($receivers)->subject("[{$siteName}] {$cleanSubject}");
+                        if (filter_var($cleanEmail, FILTER_VALIDATE_EMAIL) && $cleanEmail !== 'no-email@haiphongtech.vn') {
+                            $msg->replyTo($cleanEmail);
+                        }
+                    });
+                }
+            } catch (\Throwable $mailEx) {
+                Log::warning('Contact notification email failed: ' . $mailEx->getMessage());
+            }
 
             return $this->respondSuccess($request);
 
