@@ -19,7 +19,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="{{ $faviconUrl }}">
 <link rel="icon" type="image/png" sizes="16x16" href="{{ $faviconUrl }}">
 <link rel="icon" href="{{ $faviconUrl }}" type="image/x-icon">
-<meta name="theme-color" content="#003b70">
+<meta name="theme-color" content="#1e73be">
 
 {{-- DNS Prefetch & Preconnect for High Performance --}}
 <link rel="dns-prefetch" href="https://fonts.googleapis.com">

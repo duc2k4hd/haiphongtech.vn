@@ -39,7 +39,7 @@
 }
 
 .misutech_series_breadcrumb_list li a:hover {
-    color: #003b70;
+    color: #114574;
 }
 
 .misutech_series_breadcrumb_list .separator {
@@ -98,13 +98,13 @@
 .misutech_series_tag_item:hover {
     border-color: #cbd5e1;
     background: #e2e8f0;
-    color: #003b70;
+    color: #114574;
 }
 
 .misutech_series_tag_item.count_tag {
-    background: #e0f2fe;
-    border-color: #bae6fd;
-    color: #0369a1;
+    background: #e8f2fb;
+    border-color: #cfe0f0;
+    color: #165a96;
 }
 
 .misutech_series_main_title {
@@ -187,7 +187,7 @@
 
 .models_badge {
     font-size: 13.5px;
-    color: #0284c7;
+    color: #1e73be;
     font-weight: 600;
 }
 
@@ -211,7 +211,7 @@
 }
 
 .misutech_series_sort_filter select:focus {
-    border-color: #003b70;
+    border-color: #114574;
 }
 
 /* ─── Product Card Grid (5 columns, standard B2B style) ────────────────── */
@@ -310,7 +310,7 @@
 }
 
 .misutech_series_card_btn_cart:hover {
-    background: #003b70;
+    background: #114574;
     transform: scale(1.1);
 }
 
@@ -352,7 +352,7 @@
 }
 
 .misutech_series_card_name a:hover {
-    color: #003b70;
+    color: #114574;
 }
 
 .misutech_series_card_price {
@@ -378,7 +378,7 @@
 .price_contact {
     font-size: 13.5px;
     font-weight: 700;
-    color: #0284c7;
+    color: #1e73be;
 }
 
 .misutech_series_empty_box {
@@ -428,7 +428,7 @@
     color: #0f172a;
     margin: 20px 0 10px;
     padding-left: 10px;
-    border-left: 3px solid #003b70;
+    border-left: 3px solid #114574;
 }
 
 .misutech_series_article_body h3 {
@@ -583,16 +583,16 @@
 
 .doc_btn.view_btn:hover {
     background: #f1f5f9;
-    color: #003b70;
+    color: #114574;
 }
 
 .doc_btn.download_btn {
-    background: #003b70;
+    background: #114574;
     color: #ffffff;
 }
 
 .doc_btn.download_btn:hover {
-    background: #0284c7;
+    background: #1e73be;
 }
 
 /* ─── Related Series Section ───────────────────────────────────────────── */
@@ -631,7 +631,7 @@
 }
 
 .misutech_series_related_item:hover {
-    border-color: #003b70;
+    border-color: #114574;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
@@ -653,7 +653,7 @@
 }
 
 .misutech_series_related_item:hover .rel_arrow {
-    color: #003b70;
+    color: #114574;
     transform: translateX(2px);
 }
 
@@ -843,7 +843,7 @@
    MISUTECH - Series Hub (List Page - Simple, Minimal, Sharp, Industrial)
    ========================================================================== */
 .misutech_series_hub_page {
-    background-color: var(--misutech_home_soft, #f4f9fb);
+    background-color: var(--misutech_home_soft, #f5f9fd);
     padding-bottom: 40px;
     font-size: 13px;
     line-height: 1.5;
@@ -852,7 +852,7 @@
 
 .misutech_series_hub_header {
     background: var(--misutech_home_white, #ffffff);
-    border-bottom: 1px solid var(--misutech_home_line, #dbe7ed);
+    border-bottom: 1px solid var(--misutech_home_line, #d8e5f1);
     padding: 18px 0 14px;
     margin-bottom: 14px;
 }
@@ -860,7 +860,7 @@
 .misutech_series_hub_title {
     font-size: 17px;
     font-weight: 700;
-    color: var(--misutech_home_primary_deep, #005b87);
+    color: var(--misutech_home_primary_deep, #114574);
     margin: 0 0 4px;
     text-transform: uppercase;
     letter-spacing: 0.3px;
@@ -874,7 +874,7 @@
 
 .misutech_series_hub_filter_wrap {
     background: var(--misutech_home_white, #ffffff);
-    border: 1px solid var(--misutech_home_line, #dbe7ed);
+    border: 1px solid var(--misutech_home_line, #d8e5f1);
     border-radius: 0;
     padding: 10px 12px;
     margin-bottom: 14px;
@@ -891,7 +891,7 @@
     flex: 1 1 240px;
     height: 36px;
     padding: 0 10px;
-    border: 1px solid var(--misutech_home_line, #dbe7ed);
+    border: 1px solid var(--misutech_home_line, #d8e5f1);
     background: #ffffff;
     font-size: 13px;
     color: var(--misutech_home_text, #1d2b34);
@@ -902,14 +902,14 @@
 }
 
 .misutech_series_hub_input:focus {
-    border-color: var(--misutech_home_primary, #009dde);
+    border-color: var(--misutech_home_primary, #1e73be);
 }
 
 .misutech_series_hub_select {
     flex: 0 1 180px;
     height: 36px;
     padding: 0 8px;
-    border: 1px solid var(--misutech_home_line, #dbe7ed);
+    border: 1px solid var(--misutech_home_line, #d8e5f1);
     background: #ffffff;
     font-size: 13px;
     color: var(--misutech_home_text, #1d2b34);
@@ -921,13 +921,13 @@
 }
 
 .misutech_series_hub_select:focus {
-    border-color: var(--misutech_home_primary, #009dde);
+    border-color: var(--misutech_home_primary, #1e73be);
 }
 
 .misutech_series_hub_btn {
     height: 36px;
     padding: 0 16px;
-    background: var(--misutech_home_primary, #009dde);
+    background: var(--misutech_home_primary, #1e73be);
     color: #ffffff;
     border: none;
     border-radius: 0;
@@ -942,7 +942,7 @@
 }
 
 .misutech_series_hub_btn:hover {
-    background: var(--misutech_home_primary_dark, #007fba);
+    background: var(--misutech_home_primary_dark, #165a96);
 }
 
 .misutech_series_hub_reset_btn {
@@ -950,7 +950,7 @@
     padding: 0 12px;
     background: transparent;
     color: var(--misutech_home_muted, #6d7d87);
-    border: 1px solid var(--misutech_home_line, #dbe7ed);
+    border: 1px solid var(--misutech_home_line, #d8e5f1);
     border-radius: 0;
     font-size: 12.5px;
     text-decoration: none;
@@ -972,7 +972,7 @@
 
 .misutech_series_hub_card {
     background: var(--misutech_home_white, #ffffff);
-    border: 1px solid var(--misutech_home_line, #dbe7ed);
+    border: 1px solid var(--misutech_home_line, #d8e5f1);
     border-radius: 0;
     padding: 12px 14px;
     text-decoration: none;
@@ -984,7 +984,7 @@
 }
 
 .misutech_series_hub_card:hover {
-    border-color: var(--misutech_home_primary, #009dde);
+    border-color: var(--misutech_home_primary, #1e73be);
     color: inherit;
 }
 
@@ -999,7 +999,7 @@
 
 .misutech_series_hub_card_brand {
     font-weight: 700;
-    color: var(--misutech_home_primary_deep, #005b87);
+    color: var(--misutech_home_primary_deep, #114574);
     text-transform: uppercase;
 }
 
@@ -1018,7 +1018,7 @@
 }
 
 .misutech_series_hub_card:hover .misutech_series_hub_card_name {
-    color: var(--misutech_home_primary, #009dde);
+    color: var(--misutech_home_primary, #1e73be);
 }
 
 .misutech_series_hub_card_desc {
@@ -1034,7 +1034,7 @@
 
 .misutech_series_hub_card_foot {
     font-size: 12px;
-    color: var(--misutech_home_primary, #009dde);
+    color: var(--misutech_home_primary, #1e73be);
     font-weight: 600;
     display: flex;
     align-items: center;

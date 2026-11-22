@@ -179,7 +179,17 @@ class WpContentRouterController extends Controller
             return $this->shopShow($request, $page);
         }
 
-        // Check if slug is a product category
+        // Check if slug is an active Brand (root /{brand-slug}/page/{page})
+        $brand = Brand::where('slug', $cleanSlug)->where('status', 'active')->first();
+        if ($brand) {
+            if ($page <= 1 && str_contains(WpUrl::rawRequestPath($request), '/page/1')) {
+                return $this->redirectPreservingQuery($request, "/{$brand->slug}", 301);
+            }
+
+            return response(app(ShopController::class)->index($request, $page, activeBrand: $brand));
+        }
+
+        // Check if slug is a product category (via SourceUrlRoute or direct Category lookup)
         $normRoot = SourceUrlRoute::normalizePath($cleanSlug);
         $routeEntry = SourceUrlRoute::where('path_hash', hash('sha256', $normRoot))->first();
         if ($routeEntry && $routeEntry->entity_type === 'product_category') {
@@ -194,6 +204,18 @@ class WpContentRouterController extends Controller
         }
         if ($routeEntry && str_starts_with($routeEntry->entity_type, 'reserved_')) {
             return $this->reservedBoundaryForExpectedPath($request, "/{$cleanSlug}/page/{$page}/");
+        }
+
+        $productCategory = Category::where('type', 'product')
+            ->where('status', 'active')
+            ->where('slug', $cleanSlug)
+            ->first();
+        if ($productCategory) {
+            if ($page <= 1 && str_contains(WpUrl::rawRequestPath($request), '/page/1')) {
+                return $this->redirectPreservingQuery($request, "/{$cleanSlug}/", 301);
+            }
+
+            return response(app(CategoryController::class)->show($request, $cleanSlug, $page));
         }
 
         $category = Category::where('type', 'post')
@@ -248,17 +270,22 @@ class WpContentRouterController extends Controller
     }
 
     /**
-     * Phase 2 Brand Archive handler with trailing-slash enforcement, pagination & brand SEO.
+     * Brand Archive handler:
+     * - Legacy /thuong_hieu/{slug} redirects 301 to /{slug} (or /{slug}/page/{page}).
+     * - Root /{slug} serves active brand directly.
      */
     public function brandShow(Request $request, string $slug, int $page = 1): Response
     {
         $cleanSlug = trim(mb_strtolower(rawurldecode($slug), 'UTF-8'), '/');
-        $expectedPath = $page <= 1 ? "/thuong_hieu/{$cleanSlug}/" : "/thuong_hieu/{$cleanSlug}/page/{$page}/";
-        if ($page === 1 && str_contains(WpUrl::rawRequestPath($request), '/page/1')) {
-            return $this->redirectPreservingQuery($request, "/thuong_hieu/{$cleanSlug}/", 301);
+        $rawPath = WpUrl::rawRequestPath($request);
+
+        if (str_starts_with($rawPath, '/thuong_hieu/')) {
+            $target = $page <= 1 ? "/{$cleanSlug}" : "/{$cleanSlug}/page/{$page}";
+            return $this->redirectPreservingQuery($request, $target, 301);
         }
-        if ($redirect = $this->enforceTrailingSlash($request, $expectedPath)) {
-            return $redirect;
+
+        if ($page === 1 && str_contains($rawPath, '/page/1')) {
+            return $this->redirectPreservingQuery($request, "/{$cleanSlug}", 301);
         }
 
         $brand = Brand::where('slug', $cleanSlug)->where('status', 'active')->first();
@@ -266,7 +293,7 @@ class WpContentRouterController extends Controller
             return response(app(ShopController::class)->index($request, $page, activeBrand: $brand));
         }
 
-        return $this->reservedBoundaryForExpectedPath($request, $expectedPath);
+        abort(404);
     }
 
     /**
@@ -329,9 +356,28 @@ class WpContentRouterController extends Controller
     {
         $normPath = SourceUrlRoute::normalizePath($path);
         $pathHash = hash('sha256', $normPath);
+        $cleanRootSlug = trim(mb_strtolower(rawurldecode($path), 'UTF-8'), '/');
+
+        // 0. Root Brand Archive: /{brand-slug} (ví dụ: /omron, /abb, /mitsubishi, ...)
+        if ($cleanRootSlug !== '' && !str_contains($cleanRootSlug, '/')) {
+            $brand = Brand::where('slug', $cleanRootSlug)->where('status', 'active')->first();
+            if ($brand) {
+                return response(app(ShopController::class)->index($request, 1, activeBrand: $brand));
+            }
+        }
 
         $routeEntry = SourceUrlRoute::where('path_hash', $pathHash)->first();
         if (!$routeEntry) {
+            // Fallback trực tiếp cho Danh mục sản phẩm / bài viết khi bảng source_url_routes trống
+            if ($cleanRootSlug !== '' && !str_contains($cleanRootSlug, '/')) {
+                $cat = Category::where('slug', $cleanRootSlug)->where('status', 'active')->first();
+                if ($cat) {
+                    if ($cat->type === 'post') {
+                        return $this->renderPostCategoryArchive($request, $cat, 1);
+                    }
+                    return response(app(CategoryController::class)->show($request, $cat->slug));
+                }
+            }
             abort(404);
         }
 

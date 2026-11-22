@@ -19,7 +19,7 @@ class ProductCatalogService
 
     public const PRODUCT_CARD_COLUMNS = [
         'id', 'name', 'slug', 'sku', 'price', 'sale_price',
-        'rating_average', 'reviews_count', 'category_id', 'brand_id',
+        'category_id', 'brand_id',
         'short_description', 'published_at', 'status',
     ];
 
@@ -152,7 +152,7 @@ class ProductCatalogService
                         ->orderBy('products.id', 'DESC');
                     break;
                 case 'bestseller':
-                    $query->orderBy('products.reviews_count', 'desc')->orderBy('products.id', 'desc');
+                    $query->orderBy('products.views_count', 'desc')->orderBy('products.id', 'desc');
                     break;
                 case 'name':
                     $query->orderBy('products.name', 'asc')->orderBy('products.id', 'desc');

@@ -3,60 +3,60 @@
 :root {
     --font-family: "Open Sans", sans-serif;
     /* =========================
-       HOME COLORS
+       HOME COLORS (#1e73be + White)
     ========================== */
 
     /* Màu thương hiệu chính */
-    --misutech_home_primary: #009dde;
+    --misutech_home_primary: #1e73be;
 
     /* Xanh đậm dùng hover / active */
-    --misutech_home_primary_dark: #007fba;
+    --misutech_home_primary_dark: #165a96;
 
     /* Xanh rất đậm dùng header, footer, title nổi bật */
-    --misutech_home_primary_deep: #005b87;
+    --misutech_home_primary_deep: #114574;
 
     /* Xanh nhạt */
-    --misutech_home_primary_light: #e8f7fd;
+    --misutech_home_primary_light: #e8f2fb;
 
     /* Xanh nền nhẹ */
-    --misutech_home_primary_soft: #f2fbfe;
+    --misutech_home_primary_soft: #f4f8fc;
 
-    /* Màu phụ */
-    --misutech_home_secondary: #647783;
+    /* Màu phụ trung tính xanh xám dễ nhìn */
+    --misutech_home_secondary: #4a637d;
 
-    /* Điểm nhấn vàng */
-    --misutech_home_accent: #ffc928;
+    /* Điểm nhấn nhẹ (sao đánh giá / badge phụ) */
+    --misutech_home_accent: #f59e0b;
 
-    /* Cam CTA / sale */
-    --misutech_home_orange: #ff7139;
+    /* Đồng bộ CTA / icon điểm nhấn về xanh chủ đạo */
+    --misutech_home_orange: #1e73be;
 
-    /* Text chính */
-    --misutech_home_text: #1d2b34;
+    /* Text chính (độ tương phản cao trên nền trắng) */
+    --misutech_home_text: #1a2938;
 
     /* Text phụ */
-    --misutech_home_muted: #6d7d87;
+    --misutech_home_muted: #5b6e82;
 
-    /* Border */
-    --misutech_home_line: #dbe7ed;
+    /* Border nhẹ tông xanh trắng */
+    --misutech_home_line: #d8e5f1;
 
     /* Background nhẹ */
-    --misutech_home_soft: #f4f9fb;
+    --misutech_home_soft: #f5f9fd;
 
     /* Trắng */
     --misutech_home_white: #ffffff;
 
-    /* Shadow theo màu primary */
+    /* Shadow theo màu primary #1e73be */
     --misutech_home_shadow:
-        0 8px 28px rgba(0, 157, 222, 0.12);
+        0 8px 28px rgba(30, 115, 190, 0.14);
 
     /* Text rất đậm */
-    --misutech_home_ink: #17242c;
+    --misutech_home_ink: #132231;
 
     /* Surface card */
-    --misutech_home_surface: #f7fafb;
+    --misutech_home_surface: #f8fbfe;
 
     /* Error */
-    --misutech_home_danger: #ef5350;
+    --misutech_home_danger: #dc2626;
 
 
     /* =========================
@@ -64,34 +64,34 @@
     ========================== */
 
     /* Đồng bộ với màu thương hiệu */
-    --misutech_product_primary: #009dde;
+    --misutech_product_primary: #1e73be;
 
     /* Hover */
-    --misutech_product_primary_dark: #007fba;
+    --misutech_product_primary_dark: #165a96;
 
     /* Xanh đậm cho tiêu đề / badge */
-    --misutech_product_primary_deep: #005b87;
+    --misutech_product_primary_deep: #114574;
 
     /* Màu phụ */
-    --misutech_product_secondary: #647783;
+    --misutech_product_secondary: #4a637d;
 
     /* Text */
-    --misutech_product_text: #263640;
+    --misutech_product_text: #1f3040;
 
     /* Text phụ */
-    --misutech_product_muted: #73838d;
+    --misutech_product_muted: #5f7285;
 
     /* Nền sản phẩm */
-    --misutech_product_light: #f3f9fb;
+    --misutech_product_light: #f4f8fc;
 
     /* Border */
-    --misutech_product_border: #dce8ed;
+    --misutech_product_border: #d8e5f1;
 
     /* White */
     --misutech_product_white: #ffffff;
 
     /* Sale / discount */
-    --misutech_product_accent: #ff6363;
+    --misutech_product_accent: #dc2626;
 
 
     /* =========================
@@ -347,10 +347,15 @@ a {
 .misutech_home_search_button {
     width: 54px;
     border: 0;
-    background: var(--misutech_home_accent);
-    color: var(--misutech_home_primary);
+    background: var(--misutech_home_primary_dark);
+    color: var(--misutech_home_white);
     font-size: 19px;
     font-weight: 900;
+    transition: background 0.15s ease;
+}
+
+.misutech_home_search_button:hover {
+    background: var(--misutech_home_primary_deep);
 }
 
 .misutech_home_header_actions {
@@ -397,10 +402,11 @@ a {
     place-items: center;
     padding: 0 4px;
     border-radius: 10px;
-    background: var(--misutech_home_accent);
+    background: var(--misutech_home_white);
     color: var(--misutech_home_primary);
     font-size: 10px;
     font-weight: 800;
+    box-shadow: 0 2px 6px rgba(17, 69, 116, 0.25);
 }
 
 .misutech_home_header_action_copy {
@@ -413,7 +419,7 @@ a {
     display: block;
     font-size: 13px;
     font-weight: 700;
-    color: var(--misutech_home_accent);
+    color: var(--misutech_home_white);
 }
 
 .misutech_home_nav {
@@ -564,7 +570,7 @@ a {
 
 .misutech_home_service_icon {
     font-size: 26px;
-    color: var(--misutech_home_accent);
+    color: var(--misutech_home_white);
 }
 
 .misutech_home_service_copy strong {
@@ -575,13 +581,13 @@ a {
 }
 
 .misutech_home_service_copy span {
-    color: #c7d9e8;
+    color: var(--misutech_home_primary_light);
     font-size: 10px;
 }
 
 .misutech_home_footer {
-    background: #f4f6f8;
-    color: #555;
+    background: var(--misutech_home_soft);
+    color: var(--misutech_home_text);
     font-size: 13px;
     line-height: 1.6;
 }
@@ -663,7 +669,7 @@ a {
     justify-content: center;
     width: 32px;
     height: 32px;
-    background: #89b5e5;
+    background: #5da0db;
     color: #fff;
     border-radius: 4px;
     font-size: 16px;
@@ -714,7 +720,7 @@ a {
 }
 
 .misutech_home_payment_amex {
-    color: #0070CE;
+    color: #1e73be;
 }
 
 .misutech_home_payment_cirrus {
@@ -770,7 +776,7 @@ a {
 
 .misutech_home_footer_newsletter_form button {
     padding: 0 24px;
-    background: #005bb5;
+    background: #1e73be;
     color: #fff;
     border: none;
     font-weight: 700;
@@ -782,7 +788,7 @@ a {
 }
 
 .misutech_home_footer_newsletter_form button:hover {
-    background: #00448a;
+    background: #114574;
 }
 
 .misutech_home_footer_middle_2 {
@@ -813,7 +819,7 @@ a {
 .misutech_home_footer_bottom {
     background: #e3ecf3;
     padding: 22px 0;
-    border-top: 1px solid #d4e1ec;
+    border-top: 1px solid #d8e5f1;
 }
 
 .misutech_home_footer_bottom_wrap {
@@ -899,16 +905,16 @@ a {
     justify-content: center;
     border: 0;
     border-radius: 50%;
-    background: var(--misutech_home_primary, #009dde);
+    background: var(--misutech_home_primary, #1e73be);
     color: #ffffff;
-    box-shadow: 0 4px 14px rgba(0, 157, 222, 0.25);
+    box-shadow: 0 4px 14px rgba(30, 115, 190, 0.25);
     cursor: pointer;
     transition: all 0.2s ease;
     position: relative;
 }
 
 .misutech_home_float_button:hover {
-    background: var(--misutech_home_primary_dark, #007fba);
+    background: var(--misutech_home_primary_dark, #165a96);
     transform: translateY(-2px);
 }
 
@@ -928,7 +934,7 @@ a {
 }
 
 .misutech_home_float_button[data-scroll-top].is-visible:hover {
-    background: var(--misutech_home_primary_dark, #007fba);
+    background: var(--misutech_home_primary_dark, #165a96);
     transform: translateY(-2px) scale(1.05);
 }
 
@@ -936,13 +942,13 @@ a {
     width: 48px;
     height: 48px;
     border-radius: 50%;
-    background: var(--misutech_home_primary, #009dde);
-    box-shadow: 0 4px 16px rgba(0, 157, 222, 0.3);
+    background: var(--misutech_home_primary, #1e73be);
+    box-shadow: 0 4px 16px rgba(30, 115, 190, 0.3);
     animation: misutech_float_pulse 2.2s infinite;
 }
 
 .misutech_float_contact_btn:hover {
-    background: var(--misutech_home_primary_dark, #007fba);
+    background: var(--misutech_home_primary_dark, #165a96);
 }
 
 .misutech_float_contact_btn img {
@@ -964,15 +970,15 @@ a {
 
 @keyframes misutech_float_pulse {
     0% {
-        box-shadow: 0 0 0 0 rgba(0, 157, 222, 0.5);
+        box-shadow: 0 0 0 0 rgba(30, 115, 190, 0.5);
     }
 
     70% {
-        box-shadow: 0 0 0 12px rgba(0, 157, 222, 0);
+        box-shadow: 0 0 0 12px rgba(30, 115, 190, 0);
     }
 
     100% {
-        box-shadow: 0 0 0 0 rgba(0, 157, 222, 0);
+        box-shadow: 0 0 0 0 rgba(30, 115, 190, 0);
     }
 }
 
@@ -1021,7 +1027,7 @@ a {
 }
 
 .support_popup_header {
-    background: var(--misutech_home_primary, #009dde);
+    background: var(--misutech_home_primary, #1e73be);
     color: #ffffff;
     padding: 14px 18px;
     display: flex;
@@ -1119,14 +1125,14 @@ a {
 }
 
 .support_call_link:hover {
-    color: var(--misutech_home_primary, #009dde);
+    color: var(--misutech_home_primary, #1e73be);
 }
 
 .support_zalo_icon_link {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    background: var(--misutech_home_primary, #009dde);
+    background: var(--misutech_home_primary, #1e73be);
     color: #ffffff !important;
     font-size: 11px;
     font-weight: 600;
@@ -1156,7 +1162,7 @@ a {
 }
 
 .support_warranty_header {
-    background: var(--misutech_home_primary, #009dde);
+    background: var(--misutech_home_primary, #1e73be);
     color: #ffffff;
     padding: 6px 10px;
     font-size: 12.5px;
@@ -1172,12 +1178,12 @@ a {
 }
 
 .support_other_dept_card {
-    border-left: 3px solid var(--misutech_home_primary, #009dde);
+    border-left: 3px solid var(--misutech_home_primary, #1e73be);
 }
 
 .support_other_dept_label {
     font-size: 12px;
-    color: var(--misutech_home_primary, #009dde);
+    color: var(--misutech_home_primary, #1e73be);
 }
 
 .support_popup_footer {
@@ -1190,7 +1196,7 @@ a {
 }
 
 .support_popup_footer a {
-    color: var(--misutech_home_primary, #009dde);
+    color: var(--misutech_home_primary, #1e73be);
     font-weight: 700;
     text-decoration: none;
 }
@@ -1224,9 +1230,9 @@ a {
 }
 
 .misutech_home_category_item:hover {
-    border-left-color: var(--misutech_home_primary, #009dde);
-    background: var(--misutech_home_primary_soft, #f2fbfe);
-    color: var(--misutech_home_primary, #009dde);
+    border-left-color: var(--misutech_home_primary, #1e73be);
+    background: var(--misutech_home_primary_soft, #f4f8fc);
+    color: var(--misutech_home_primary, #1e73be);
 }
 
 .misutech_home_category_label {
@@ -1256,7 +1262,7 @@ a {
 }
 
 .misutech_home_category_item:hover .misutech_home_category_arrow_icon {
-    color: var(--misutech_home_primary, #009dde);
+    color: var(--misutech_home_primary, #1e73be);
     transform: translateX(2px);
 }
 
@@ -1344,8 +1350,8 @@ a {
 
 .misutech_home_mega_column:hover {
     background: #ffffff;
-    border-color: var(--misutech_home_primary, #009dde);
-    box-shadow: 0 4px 12px rgba(0, 157, 222, 0.08);
+    border-color: var(--misutech_home_primary, #1e73be);
+    box-shadow: 0 4px 12px rgba(30, 115, 190, 0.08);
 }
 
 /* Category Card Title */
@@ -1386,11 +1392,11 @@ a {
 }
 
 .misutech_home_mega_title a:hover {
-    color: var(--misutech_home_primary, #009dde);
+    color: var(--misutech_home_primary, #1e73be);
 }
 
 .misutech_home_mega_title a:hover .misutech_mega_title_arrow {
-    color: var(--misutech_home_primary, #009dde);
+    color: var(--misutech_home_primary, #1e73be);
     transform: translateX(2px);
 }
 
@@ -1435,12 +1441,12 @@ a {
 }
 
 .misutech_home_mega_list li a:hover {
-    color: var(--misutech_home_primary, #009dde);
+    color: var(--misutech_home_primary, #1e73be);
     transform: translateX(3px);
 }
 
 .misutech_home_mega_list li a:hover::before {
-    color: var(--misutech_home_primary, #009dde);
+    color: var(--misutech_home_primary, #1e73be);
 }
 
 .misutech_home_category_icon {
@@ -1477,7 +1483,7 @@ a {
     color: var(--misutech_home_white);
     background: linear-gradient(90deg,
             rgba(0, 38, 73, 0.78),
-            rgba(0, 59, 112, 0.15) 65%,
+            rgba(17, 69, 116, 0.15) 65%,
             transparent);
 }
 
@@ -1487,7 +1493,7 @@ a {
 
 .misutech_home_hero_eyebrow {
     margin: 0 0 7px;
-    color: var(--misutech_home_accent);
+    color: var(--misutech_home_primary_light);
     font-size: 13px;
     font-weight: 900;
     letter-spacing: 1.8px;
@@ -1511,10 +1517,16 @@ a {
     border: 0;
     border-radius: 3px;
     padding: 11px 18px;
-    background: var(--misutech_home_accent);
+    background: var(--misutech_home_white);
     color: var(--misutech_home_primary);
-    font-weight: 900;
+    font-weight: 800;
     font-size: 12px;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.misutech_home_primary_button:hover {
+    background: var(--misutech_home_primary_light);
+    color: var(--misutech_home_primary_dark);
 }
 
 .misutech_home_hero_dots {
@@ -1533,13 +1545,13 @@ a {
     padding: 0;
     border: 0;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.65);
+    background: rgba(255, 255, 255, 0.55);
 }
 
 .misutech_home_hero_dot[aria-current="true"] {
     width: 18px;
     border-radius: 5px;
-    background: var(--misutech_home_accent);
+    background: var(--misutech_home_white);
 }
 
 .misutech_home_hero_strip {
@@ -1635,18 +1647,18 @@ a {
 }
 
 .misutech_page_link:hover:not(.dots) {
-    color: #003b70;
+    color: #114574;
     background: #f1f5f9;
     border-color: #94a3b8;
     transform: translateY(-1px);
 }
 
 .misutech_page_item.active .misutech_page_link {
-    background: #003b70;
-    border-color: #003b70;
+    background: #114574;
+    border-color: #114574;
     color: #ffffff;
     font-weight: 700;
-    box-shadow: 0 2px 6px rgba(0, 59, 112, 0.25);
+    box-shadow: 0 2px 6px rgba(17, 69, 116, 0.25);
 }
 
 .misutech_page_item.disabled .misutech_page_link {
@@ -2256,19 +2268,19 @@ a {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #0284c7;
+    background: #1e73be;
     color: #ffffff;
     text-decoration: none;
     font-weight: 800;
     font-size: 13.5px;
     padding: 9px 12px;
     border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
+    box-shadow: 0 2px 8px rgba(30, 115, 190, 0.3);
     transition: background 0.2s;
 }
 
 .misutech_drawer_hotline_btn:hover {
-    background: #0369a1;
+    background: #165a96;
 }
 
 .misutech_drawer_email {
@@ -2499,7 +2511,7 @@ a {
     }
 
     .misutech_home_footer_newsletter_form input:focus {
-        border-color: #005bb5;
+        border-color: #1e73be;
         box-shadow: 0 0 0 3px rgba(0, 91, 181, 0.12);
     }
 
@@ -2510,7 +2522,7 @@ a {
         font-weight: 700;
         letter-spacing: 0.5px;
         border-radius: 6px;
-        background: #005bb5;
+        background: #1e73be;
         color: #fff;
         border: none;
         cursor: pointer;
@@ -2522,7 +2534,7 @@ a {
     }
 
     .misutech_home_footer_newsletter_form button:active {
-        background: #00448a;
+        background: #114574;
         transform: scale(0.99);
     }
 
@@ -2539,7 +2551,7 @@ a {
     .misutech_home_footer_bottom {
         padding: 20px 0 24px;
         background: #e3ecf3;
-        border-top: 1px solid #d4e1ec;
+        border-top: 1px solid #d8e5f1;
     }
 
     .misutech_home_footer_bottom_wrap {
@@ -2680,7 +2692,7 @@ a {
 
     .misutech_mb_nav_item.active,
     .misutech_mb_nav_item:hover {
-        color: var(--misutech_home_primary, #009dde) !important;
+        color: var(--misutech_home_primary, #1e73be) !important;
         font-weight: 600 !important;
     }
 
@@ -2780,7 +2792,7 @@ a {
     padding: 13px 22px !important;
     color: #ffffff !important;
     border-radius: 8px !important;
-    background: #003b70 !important;
+    background: #114574 !important;
     box-shadow: 0 10px 35px rgba(0, 35, 67, 0.42), 0 2px 8px rgba(0, 0, 0, 0.15) !important;
     font-size: 13.5px !important;
     font-weight: 500 !important;

@@ -36,17 +36,6 @@
             <a href="{{ \App\Support\WpUrl::productUrl($product->slug) }}" style="color: inherit; text-decoration: none;">{{ $product->name }}</a>
         </h3>
 
-        <div class="misutech_home_product_rating">
-            @for ($i = 1; $i <= 5; $i++)
-                @if ($i <= round($product->rating_average ?? 5))
-                    <span class="star-filled">★</span>
-                @else
-                    <span class="star-empty">☆</span>
-                @endif
-            @endfor
-            <span class="rating_text">({{ number_format($product->rating_average ?? 5, 1) }})</span>
-        </div>
-
         {{-- Khung thông tin chỉ hiển thị ở Dạng Danh Sách (1 Cột) --}}
         <div class="misutech_home_product_list_desc">
             @if (!empty($product->short_description))
@@ -78,7 +67,7 @@
                 </div>
             @else
                 <div class="misutech_home_product_price_line">
-                    <strong class="misutech_home_product_price" style="color: var(--misutech_home_primary, #009dde);">Liên hệ báo giá</strong>
+                    <strong class="misutech_home_product_price" style="color: var(--misutech_home_primary, #1e73be);">Liên hệ báo giá</strong>
                 </div>
             @endif
         </div>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Clients;
 
 use App\Http\Controllers\Controller;
 use App\Models\Banner;
+use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Page;
 use App\Models\Product;
@@ -20,8 +21,7 @@ class HomeController extends Controller
      */
     const PRODUCT_CARD_COLUMNS = [
         'id', 'name', 'slug', 'sku', 'price', 'sale_price',
-        'rating_average', 'reviews_count', 'published_at',
-        'category_id', 'brand_id', 'status'
+        'published_at', 'category_id', 'brand_id', 'status'
     ];
 
     public function index()
@@ -32,18 +32,7 @@ class HomeController extends Controller
             ->get()
             ->groupBy('position');
 
-        // 2. Flash Sale: Cache danh sách 5 ID sản phẩm ngẫu nhiên trong ngày
-        $secondsUntilMidnight = max(60, now()->diffInSeconds(now()->endOfDay()));
-        $flashSaleProductIds = Cache::remember('home_flash_sale_product_ids', $secondsUntilMidnight, function () {
-            return Product::published()->inRandomOrder()->take(5)->pluck('id')->toArray();
-        });
-
-        // 3. Featured Products: Cache danh sách 17 ID sản phẩm mới nhất
-        $featuredProductIds = Cache::remember('home_featured_product_ids', 1800, function () {
-            return Product::published()->latest('published_at')->take(17)->pluck('id')->toArray();
-        });
-
-        // 4. Category Sections: Thuật toán gom nhóm In-memory siêu tốc, 0 đệ quy, giảm từ 300+ queries xuống 2 queries
+        // 2. Category Sections: Thuật toán gom nhóm In-memory siêu tốc, 0 đệ quy, giảm từ 300+ queries xuống 2 queries
         $categorySectionsData = Cache::remember('home_category_sections_map', 1800, function () {
             $allCats = Category::where('status', 'active')
                 ->where('type', 'product')
@@ -161,21 +150,16 @@ class HomeController extends Controller
             return $result;
         });
 
-        // 5. GOM TOÀN BỘ SẢN PHẨM TRANG CHỦ VÀO 1 CÂU QUERY DUY NHẤT (Batch Fetching)
-        $allSectionProductIds = [];
+        // 3. GOM TOÀN BỘ SẢN PHẨM DANH MỤC TRANG CHỦ VÀO 1 CÂU QUERY DUY NHẤT (Batch Fetching)
+        $allNeededProductIds = [];
         if (!empty($categorySectionsData)) {
             foreach ($categorySectionsData as $sec) {
                 if (!empty($sec['product_ids'])) {
-                    $allSectionProductIds = array_merge($allSectionProductIds, $sec['product_ids']);
+                    $allNeededProductIds = array_merge($allNeededProductIds, $sec['product_ids']);
                 }
             }
         }
-
-        $allNeededProductIds = array_values(array_unique(array_merge(
-            $flashSaleProductIds,
-            $featuredProductIds,
-            $allSectionProductIds
-        )));
+        $allNeededProductIds = array_values(array_unique($allNeededProductIds));
 
         $allProductsKeyed = !empty($allNeededProductIds)
             ? Product::published()
@@ -185,22 +169,6 @@ class HomeController extends Controller
                 ->get()
                 ->keyBy('id')
             : collect();
-
-        // Gán Flash Sale
-        $flashSaleProducts = collect();
-        foreach ($flashSaleProductIds as $id) {
-            if (isset($allProductsKeyed[$id])) {
-                $flashSaleProducts->push($allProductsKeyed[$id]);
-            }
-        }
-
-        // Gán Featured Products
-        $featuredProducts = collect();
-        foreach ($featuredProductIds as $id) {
-            if (isset($allProductsKeyed[$id])) {
-                $featuredProducts->push($allProductsKeyed[$id]);
-            }
-        }
 
         // Gán Category Sections (0 query vào bảng categories!)
         $categorySections = collect();
@@ -295,6 +263,35 @@ class HomeController extends Controller
             }
         }
 
+        // 5. Partner Brands (Đối tác hiển thị trên trang chủ - cache mảng thuần chuẩn Laravel 13)
+        $partnerBrandsData = Cache::remember('home_partner_brands', 3600, function () {
+            $prioritySlugs = [
+                'autonics', 'omron', 'panasonic', 'pro-face', 'keyence', 'mitsubishi',
+                'cognex', 'schneider', 'siemens', 'honeywell', 'delta', 'abb',
+                'fuji', 'ls', 'smc', 'airtac', 'sick', 'festo',
+            ];
+
+            $brands = Brand::where('status', 'active')
+                ->select(['id', 'name', 'slug', 'logo'])
+                ->orderBy('name', 'asc')
+                ->get();
+
+            return $brands->sortBy(function ($brand) use ($prioritySlugs) {
+                $idx = array_search(strtolower((string) $brand->slug), $prioritySlugs, true);
+                return $idx === false ? 999 . '_' . strtolower((string) $brand->name) : sprintf('%03d', $idx);
+            })->values()->map(function ($brand) {
+                return [
+                    'id' => $brand->id,
+                    'name' => $brand->name,
+                    'slug' => $brand->slug,
+                    'logo' => $brand->logo,
+                ];
+            })->all();
+        });
+
+        $partnerBrands = collect(is_array($partnerBrandsData) ? $partnerBrandsData : [])
+            ->map(fn ($item) => (object) (is_array($item) ? $item : (array) $item));
+
         $homePage = Schema::hasTable('pages')
             ? Page::where('page_role', 'home')->first()
             : null;
@@ -302,9 +299,8 @@ class HomeController extends Controller
         return view('clients.pages.home.index', compact(
             'homePage',
             'banners',
-            'flashSaleProducts',
-            'featuredProducts',
             'categorySections',
+            'partnerBrands',
             'blogSections'
         ));
     }

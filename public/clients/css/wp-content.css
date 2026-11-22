@@ -27,7 +27,7 @@
 }
 
 .hpt_breadcrumb_list a {
-    color: #005b87;
+    color: #114574;
     text-decoration: none;
     font-weight: 500;
 }
@@ -137,19 +137,19 @@
 }
 
 .hpt_wp_entry_content a {
-    color: #0066a2;
+    color: #165a96;
     text-decoration: underline;
 }
 
 .hpt_wp_entry_content a:hover {
-    color: #003b70;
+    color: #114574;
 }
 
 .hpt_plugin_placeholder {
     padding: 16px 20px;
     background-color: #f8fafc;
     border: 1px solid #cbd5e1;
-    border-left: 4px solid #007fba;
+    border-left: 4px solid #165a96;
     border-radius: 6px;
     color: #334155;
     margin: 16px 0;
@@ -185,9 +185,9 @@
 }
 
 .hpt_post_tag_chip:hover {
-    background-color: #007fba;
+    background-color: #165a96;
     color: #ffffff;
-    border-color: #007fba;
+    border-color: #165a96;
 }
 
 .hpt_contact_wp_intro {

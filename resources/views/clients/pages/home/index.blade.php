@@ -234,192 +234,6 @@
         </div>
     </section>
 
-    <section class="misutech_home_quick" aria-label="Danh mục nhanh">
-        <div class="misutech_home_container misutech_home_quick_grid">
-            @foreach ($mainCategories->take(9) as $category)
-                <a class="misutech_home_quick_item" href="{{ \App\Support\WpUrl::categoryUrl($category->slug) }}"
-                    style="text-decoration: none; color: inherit;">
-                    <span class="misutech_home_quick_icon">{!! !empty($category->icon)
-                        ? '<img src="' . \App\Support\WpUrl::resolveCategoryImage($category->icon) . '" alt="' . e($category->name) . '" width="36" height="36" loading="lazy" decoding="async">'
-                        : '▣' !!}</span> {{ $category->name }}
-                </a>
-            @endforeach
-            <a class="misutech_home_quick_item" href="/gioi-thieu/">
-                <span class="misutech_home_quick_icon">＋</span> Giới thiệu
-            </a>
-            <a class="misutech_home_quick_item" href="/tin-blog/">
-                <span class="misutech_home_quick_icon">📰</span> Tin Blog
-            </a>
-            <a class="misutech_home_quick_item" href="/tu-dong-hoa/">
-                <span class="misutech_home_quick_icon">⚙</span> Tự động hóa
-            </a>
-            <a class="misutech_home_quick_item" href="/lien-he/">
-                <span class="misutech_home_quick_icon">☎</span> Liên hệ
-            </a>
-        </div>
-    </section>
-
-    <section class="misutech_home_section" id="misutech_home_flash">
-        <div class="misutech_home_container misutech_home_flash_shell">
-            <div class="misutech_home_flash_header">
-                <h2 class="misutech_home_flash_title">
-                    <span class="misutech_home_flash_bolt">ϟ</span> ƯU ĐÃI HÔM NAY
-                </h2>
-                @php
-                    $diffSecs = max(0, now()->diffInSeconds(now()->endOfDay()));
-                    $initH = floor($diffSecs / 3600);
-                    $initM = floor(($diffSecs % 3600) / 60);
-                    $initS = $diffSecs % 60;
-                @endphp
-                <div class="misutech_home_countdown">
-                    <span>Kết thúc sau</span>
-                    <span class="misutech_home_countdown_box" data-countdown="hours">{{ sprintf('%02d', $initH) }}</span>:
-                    <span class="misutech_home_countdown_box" data-countdown="minutes">{{ sprintf('%02d', $initM) }}</span>:
-                    <span class="misutech_home_countdown_box" data-countdown="seconds">{{ sprintf('%02d', $initS) }}</span>
-                </div>
-            </div>
-            <div class="misutech_home_product_grid">
-                @foreach ($flashSaleProducts as $product)
-                    <article class="misutech_home_product_card" data-product-name="{{ strtolower($product->name) }}">
-                        <button class="misutech_home_product_favorite" type="button"
-                            aria-label="Thêm {{ $product->name }} vào yêu thích">
-                            ♡
-                        </button>
-                        @if ($product->sale_price && $product->price > 0)
-                            <span
-                                class="misutech_home_product_badge">-{{ round((($product->price - $product->sale_price) / $product->price) * 100) }}%</span>
-                        @endif
-                        <div class="misutech_home_product_image">
-                            <a href="{{ \App\Support\WpUrl::productUrl($product->slug) }}">
-                                <img src="{{ $product->thumbnailMedia->first()?->url ?? asset('storage/clients/imgs/products/no-image.png') }}"
-                                    alt="{{ $product->name }}"
-                                    width="220"
-                                    height="220"
-                                    loading="lazy"
-                                    decoding="async"
-                                    style="width:100%;height:100%;object-fit:cover;border-radius:4px;" />
-                            </a>
-                        </div>
-                        <h3 class="misutech_home_product_name">
-                            <a href="{{ \App\Support\WpUrl::productUrl($product->slug) }}"
-                                style="color:inherit;text-decoration:none;">{{ $product->name }}</a>
-                        </h3>
-                        <div class="misutech_home_product_rating"
-                            aria-label="Đánh giá {{ $product->rating_average }} trên 5">
-                            @for ($i = 1; $i <= 5; $i++)
-                                @if ($i <= round($product->rating_average))
-                                    ★
-                                @else
-                                    ☆
-                                @endif
-                            @endfor
-                            <span>({{ $product->reviews_count }})</span>
-                        </div>
-                        <div class="misutech_home_product_price_row">
-                            <div>
-                                <strong
-                                    class="misutech_home_product_price">{{ number_format($product->sale_price ?? $product->price, 0, ',', '.') }}
-                                    VNĐ</strong>
-                                @if ($product->sale_price)
-                                    <del class="misutech_home_product_old_price">{{ number_format($product->price, 0, ',', '.') }}
-                                        VNĐ</del>
-                                @endif
-                            </div>
-                            <button class="misutech_home_add_cart" type="button" data-cart
-                                data-product="{{ $product->name }}" aria-label="Thêm {{ $product->name }} vào giỏ hàng">
-                                +
-                            </button>
-                        </div>
-                    </article>
-                @endforeach
-            </div>
-            <div class="misutech_home_empty" aria-hidden="true">
-                Không tìm thấy sản phẩm phù hợp.
-            </div>
-        </div>
-    </section>
-
-    <section class="misutech_home_catalog_section" id="misutech_home_catalog_0">
-        <div class="misutech_home_container">
-            <header class="misutech_home_section_header">
-                <h2 class="misutech_home_section_title">
-                    <span class="misutech_home_section_title_mark"></span>Sản phẩm nổi bật
-                </h2>
-                <div class="misutech_home_section_tabs" role="tablist" aria-label="Bộ lọc Sản phẩm nổi bật">
-                    <button class="misutech_home_section_tab" type="button" role="tab" aria-selected="true"
-                        data-section="0">
-                        Bán chạy</button><button class="misutech_home_section_tab" type="button" role="tab"
-                        aria-selected="false" data-section="0">
-                        Mới nhất</button><button class="misutech_home_section_tab" type="button" role="tab"
-                        aria-selected="false" data-section="0">
-                        Giá tốt
-                    </button>
-                    <a class="misutech_home_view_all" href="/tin-blog/">Xem tin tức ›</a>
-                </div>
-            </header>
-            <div class="misutech_home_catalog_grid">
-                @foreach ($featuredProducts as $index => $product)
-                    <article class="misutech_home_product_card" data-product-name="{{ strtolower($product->name) }}">
-                        <button class="misutech_home_product_favorite" type="button"
-                            aria-label="Thêm {{ $product->name }} vào yêu thích">
-                            ♡
-                        </button>
-                        @if ($product->sale_price && $product->price > 0)
-                            <span
-                                class="misutech_home_product_badge">-{{ round((($product->price - $product->sale_price) / $product->price) * 100) }}%</span>
-                        @endif
-                        <div class="misutech_home_product_image">
-                            <a href="{{ \App\Support\WpUrl::productUrl($product->slug) }}">
-                                <img src="{{ $product->thumbnailMedia->first()?->url ?? asset('storage/clients/imgs/products/no-image.png') }}"
-                                    alt="{{ $product->name }}"
-                                    width="220"
-                                    height="220"
-                                    loading="lazy"
-                                    decoding="async"
-                                    style="width:100%;height:100%;object-fit:cover;border-radius:4px;" />
-                            </a>
-                        </div>
-                        <h3 class="misutech_home_product_name">
-                            <a href="{{ \App\Support\WpUrl::productUrl($product->slug) }}"
-                                style="color:inherit;text-decoration:none;">{{ $product->name }}</a>
-                        </h3>
-                        <div class="misutech_home_product_rating"
-                            aria-label="Đánh giá {{ $product->rating_average }} trên 5">
-                            @for ($i = 1; $i <= 5; $i++)
-                                @if ($i <= round($product->rating_average))
-                                    ★
-                                @else
-                                    ☆
-                                @endif
-                            @endfor
-                            <span>({{ $product->reviews_count }})</span>
-                        </div>
-                        @if ($index === 0)
-                            <div class="misutech_home_product_short_desc"
-                                style="font-size:13px; color:#666; margin:5px 0;">
-                                {{ Str::limit(strip_tags($product->content ?? 'Sản phẩm chất lượng cao, mang đến trải nghiệm tuyệt vời cho bạn.'), 120) }}
-                            </div>
-                        @endif
-                        <div class="misutech_home_product_price_row">
-                            <div>
-                                <strong
-                                    class="misutech_home_product_price">{{ number_format($product->sale_price ?? $product->price, 0, ',', '.') }}
-                                    VNĐ</strong>
-                                @if ($product->sale_price)
-                                    <del class="misutech_home_product_old_price">{{ number_format($product->price, 0, ',', '.') }}
-                                        VNĐ</del>
-                                @endif
-                            </div>
-                            <button class="misutech_home_add_cart" type="button" data-cart
-                                data-product="{{ $product->name }}" aria-label="Thêm {{ $product->name }} vào giỏ hàng">
-                                +
-                            </button>
-                        </div>
-                    </article>
-                @endforeach
-            </div>
-        </div>
-    </section>
     @foreach ($categorySections as $index => $section)
         <section class="misutech_home_catalog_section" id="misutech_home_catalog_{{ $index + 1 }}">
             <div class="misutech_home_container">
@@ -460,17 +274,6 @@
                                 <a href="{{ \App\Support\WpUrl::productUrl($product->slug) }}"
                                     style="color:inherit;text-decoration:none;">{{ $product->name }}</a>
                             </h3>
-                            <div class="misutech_home_product_rating"
-                                aria-label="Đánh giá {{ $product->rating_average }} trên 5">
-                                @for ($i = 1; $i <= 5; $i++)
-                                    @if ($i <= round($product->rating_average))
-                                        ★
-                                    @else
-                                        ☆
-                                    @endif
-                                @endfor
-                                <span>({{ $product->reviews_count }})</span>
-                            </div>
                             <div class="misutech_home_product_price_row">
                                 <div>
                                     <strong
@@ -494,35 +297,84 @@
         </section>
     @endforeach
 
-    @if($allCategories->isNotEmpty())
-    <section class="misutech_home_shop_categories" aria-labelledby="misutech_home_shop_categories_title">
+    @if(isset($partnerBrands) && $partnerBrands->isNotEmpty())
+    <section class="misutech_home_partners" aria-labelledby="misutech_home_partners_title">
         <div class="misutech_home_container">
-            <header class="misutech_home_section_header">
-                <h2 class="misutech_home_section_title" id="misutech_home_shop_categories_title">
-                    <span class="misutech_home_section_title_mark"></span>Mua sắm theo danh mục
+            <header class="misutech_home_partners_header">
+                <h2 class="misutech_home_partners_title" id="misutech_home_partners_title">
+                    CÁC ĐỐI TÁC CỦA CHÚNG TÔI
                 </h2>
-                <a class="misutech_home_view_all" href="/thiet-bi-dien/">Xem tất cả ›</a>
+                <span class="misutech_home_partners_divider" aria-hidden="true"></span>
             </header>
-            <div class="misutech_home_shop_category_grid"
-                style="display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 15px; padding: 20px 0;">
-                @foreach ($allCategories->take(14) as $category)
-                    <a href="{{ \App\Support\WpUrl::categoryUrl($category->slug) }}" class="misutech_home_shop_category_item">
-                        <span class="misutech_home_shop_category_icon_wrapper">
-                            @if (!empty($category->icon))
-                                <img src="{{ \App\Support\WpUrl::resolveCategoryImage($category->icon) }}"
-                                    alt="{{ $category->name }}"
-                                    width="35"
-                                    height="35"
-                                    loading="lazy"
-                                    decoding="async"
-                                    style="max-width: 35px; max-height: 35px; object-fit: contain;">
-                            @else
-                                <span style="font-size: 24px; color: #0052cc;">▣</span>
-                            @endif
-                        </span>
-                        <span style="font-size: 13px; font-weight: 500; line-height: 1.4;">{{ $category->name }}</span>
-                    </a>
-                @endforeach
+
+            <div class="misutech_home_partners_slider" data-partners-slider>
+                <button class="misutech_home_partners_nav misutech_home_partners_prev" type="button"
+                    aria-label="Xem đối tác trước" data-partners-prev>
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </button>
+
+                <div class="misutech_home_partners_viewport" data-partners-viewport>
+                    <div class="misutech_home_partners_track" data-partners-track>
+                        @foreach ($partnerBrands->chunk(12) as $pageIndex => $brandChunk)
+                            <div class="misutech_home_partners_page" data-partners-page="{{ $pageIndex }}">
+                                @foreach ($brandChunk as $brand)
+                                    @php
+                                        $brandLogoUrl = null;
+                                        if (!empty($brand->logo)) {
+                                            $brandLogoUrl = Str::startsWith($brand->logo, ['http://', 'https://', '/'])
+                                                ? $brand->logo
+                                                : asset('storage/clients/imgs/brands/' . ltrim($brand->logo, '/'));
+                                        }
+                                    @endphp
+                                    <a href="{{ \App\Support\WpUrl::brandUrl($brand->slug) }}"
+                                        class="misutech_home_partner_card"
+                                        title="Thiết bị {{ $brand->name }} chính hãng">
+                                        @if ($brandLogoUrl)
+                                            <img src="{{ $brandLogoUrl }}"
+                                                alt="{{ $brand->name }}"
+                                                width="140"
+                                                height="56"
+                                                loading="lazy"
+                                                decoding="async"
+                                                class="misutech_home_partner_logo">
+                                        @else
+                                            <span class="misutech_home_partner_wordmark">
+                                                <span class="misutech_home_partner_name">{{ $brand->name }}</span>
+                                                <span class="misutech_home_partner_tag">CHÍNH HÃNG</span>
+                                            </span>
+                                        @endif
+                                    </a>
+                                @endforeach
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                <button class="misutech_home_partners_nav misutech_home_partners_next" type="button"
+                    aria-label="Xem đối tác tiếp theo" data-partners-next>
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="misutech_home_partners_footer">
+                @if ($partnerBrands->count() > 12)
+                    <div class="misutech_home_partners_dots" data-partners-dots aria-label="Chọn trang đối tác">
+                        @foreach ($partnerBrands->chunk(12) as $dotIndex => $chunk)
+                            <button type="button"
+                                class="misutech_home_partners_dot"
+                                data-partners-dot="{{ $dotIndex }}"
+                                aria-current="{{ $dotIndex === 0 ? 'true' : 'false' }}"
+                                aria-label="Trang đối tác {{ $dotIndex + 1 }}"></button>
+                        @endforeach
+                    </div>
+                @endif
+                <a class="misutech_home_partners_all_link" href="{{ route('brands.index') }}">
+                    Xem tất cả {{ $partnerBrands->count() }} thương hiệu đối tác ›
+                </a>
             </div>
         </div>
     </section>

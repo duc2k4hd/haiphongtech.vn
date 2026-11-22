@@ -14,7 +14,7 @@
     font-size: 24px;
     font-weight: 700;
     margin: 0 0 10px;
-    color: var(--misutech_home_primary, #003b70);
+    color: var(--misutech_home_primary, #114574);
 }
 
 .misutech_brands_description {
@@ -44,8 +44,8 @@
 }
 
 .misutech_brands_item:hover {
-    border-color: #003b70;
-    box-shadow: 0 6px 18px rgba(0, 59, 112, 0.08);
+    border-color: #114574;
+    box-shadow: 0 6px 18px rgba(17, 69, 116, 0.08);
     transform: translateY(-3px);
 }
 
@@ -81,8 +81,8 @@
 }
 
 .misutech_brands_count {
-    background: #e0f2fe;
-    color: #0284c7;
+    background: #e8f2fb;
+    color: #1e73be;
     padding: 1px 7px;
     border-radius: 10px;
     font-size: 11px;

@@ -17,7 +17,6 @@ use App\Models\Category;
 use App\Models\Brand;
 use App\Models\Series;
 use App\Models\Media;
-use App\Models\Review;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
@@ -52,10 +51,6 @@ class DashboardController extends Controller
         $totalSeries          = Series::count();
         $totalMediaFiles      = Media::count();
         $totalMediaSize       = Media::sum('size');
-
-        $totalReviews         = Review::count();
-        $totalReviewsNew      = Review::where('status', 'pending')->count();
-        $avgRating            = round(Review::where('status', 'approved')->avg('rating') ?? 0, 1);
 
         // â”€â”€ ThÃ¡ng nÃ y vs thÃ¡ng trÆ°á»›c â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         $quotesThisMonth  = Quote::where('created_at', '>=', $startOfMonth)->count();
@@ -127,13 +122,6 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
-        // â”€â”€ Review gáº§n nháº¥t â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-        $recentReviews = Review::select('id', 'author_name', 'rating', 'comment', 'status', 'product_id', 'created_at')
-            ->with(['product:id,name,sku'])
-            ->orderByDesc('created_at')
-            ->limit(5)
-            ->get();
-
         // â”€â”€ Thá»‘ng kÃª bÃ¡o giÃ¡ theo tráº¡ng thÃ¡i â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         $quoteByStatus = Quote::select('status', DB::raw('count(*) as count'))
             ->groupBy('status')
@@ -157,13 +145,12 @@ class DashboardController extends Controller
             'totalPosts', 'totalPostsPublished',
             'totalCategories', 'totalBrands', 'totalSeries',
             'totalMediaFiles', 'mediaSizeHuman',
-            'totalReviews', 'totalReviewsNew', 'avgRating',
             'quotesThisMonth', 'quotesLastMonth', 'quoteGrowth',
             'contactsThisMonth', 'contactsLastMonth', 'contactGrowth',
             'chartMonths', 'chartQuotes', 'chartRevenue',
             'topQuotedProducts',
             'recentQuotes', 'recentContacts',
-            'recentPosts', 'recentProducts', 'recentReviews',
+            'recentPosts', 'recentProducts',
             'quoteByStatus', 'contactByDevice'
         ));
     }

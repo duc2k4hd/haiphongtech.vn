@@ -74,7 +74,7 @@ class WpUrl
     public static function brandUrl(string $slug, int $page = 1): string
     {
         $clean = trim($slug, '/');
-        return self::absolute($page > 1 ? "/thuong_hieu/{$clean}/page/{$page}/" : "/thuong_hieu/{$clean}/");
+        return self::absolute($page > 1 ? "/{$clean}/page/{$page}" : "/{$clean}");
     }
 
     public static function productTagUrl(string $slug, int $page = 1): string

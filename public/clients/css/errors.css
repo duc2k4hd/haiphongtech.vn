@@ -24,7 +24,7 @@
     background: #ffffff;
     border-radius: 16px;
     border: 1px solid #e2e8f0;
-    box-shadow: 0 10px 30px rgba(0, 59, 112, 0.06);
+    box-shadow: 0 10px 30px rgba(17, 69, 116, 0.06);
     padding: 45px 40px;
     text-align: center;
     position: relative;
@@ -38,7 +38,7 @@
     left: 0;
     right: 0;
     height: 5px;
-    background: linear-gradient(90deg, #003b70 0%, #0066c0 50%, #ff6b00 100%);
+    background: linear-gradient(90deg, #114574 0%, #1e73be 50%, #ff6b00 100%);
 }
 
 /* Badge Code & Illustration */
@@ -47,7 +47,7 @@
     align-items: center;
     gap: 8px;
     background: #f1f5f9;
-    color: #003b70;
+    color: #114574;
     padding: 6px 16px;
     border-radius: 30px;
     font-size: 13px;
@@ -69,7 +69,7 @@
     font-size: 80px;
     font-weight: 900;
     line-height: 1;
-    color: #003b70;
+    color: #114574;
     margin: 0 0 14px 0;
     letter-spacing: -0.03em;
     display: flex;
@@ -113,9 +113,9 @@
     transition: all 0.2s ease;
 }
 .error_search_form:focus-within {
-    border-color: #003b70;
+    border-color: #114574;
     background: #ffffff;
-    box-shadow: 0 0 0 4px rgba(0, 59, 112, 0.1);
+    box-shadow: 0 0 0 4px rgba(17, 69, 116, 0.1);
 }
 .error_search_input {
     flex: 1;
@@ -128,7 +128,7 @@
     font-family: inherit;
 }
 .error_search_btn {
-    background: #003b70;
+    background: #114574;
     color: #ffffff;
     border: none;
     padding: 0 22px;
@@ -141,7 +141,7 @@
     gap: 6px;
 }
 .error_search_btn:hover {
-    background: #00274d;
+    background: #0d3559;
 }
 
 /* Primary Action Buttons */
@@ -154,7 +154,7 @@
     margin-bottom: 35px;
 }
 .btn_error_primary {
-    background: #003b70;
+    background: #114574;
     color: #ffffff;
     padding: 11px 22px;
     border-radius: 8px;
@@ -167,7 +167,7 @@
     transition: all 0.2s ease;
 }
 .btn_error_primary:hover {
-    background: #00274d;
+    background: #0d3559;
     transform: translateY(-1px);
     color: #ffffff;
 }
@@ -216,7 +216,7 @@
 .suggestions_header {
     font-size: 13.5px;
     font-weight: 700;
-    color: #003b70;
+    color: #114574;
     margin: 0 0 14px 0;
     display: flex;
     align-items: center;
@@ -241,14 +241,14 @@
 }
 .suggestion_item:hover {
     background: #ffffff;
-    border-color: #003b70;
-    box-shadow: 0 4px 12px rgba(0, 59, 112, 0.08);
+    border-color: #114574;
+    box-shadow: 0 4px 12px rgba(17, 69, 116, 0.08);
     transform: translateY(-2px);
 }
 .suggestion_item_title {
     font-size: 13px;
     font-weight: 700;
-    color: #003b70;
+    color: #114574;
 }
 .suggestion_item_desc {
     font-size: 11.5px;
@@ -259,7 +259,7 @@
 .error_support_bar {
     margin-top: 30px;
     background: #f0f7ff;
-    border: 1px solid #bae6fd;
+    border: 1px solid #cfe0f0;
     border-radius: 10px;
     padding: 14px 20px;
     display: flex;
@@ -270,10 +270,10 @@
 }
 .support_bar_text {
     font-size: 13px;
-    color: #0369a1;
+    color: #165a96;
 }
 .support_bar_text strong {
-    color: #0c4a6e;
+    color: #114574;
 }
 .support_bar_actions {
     display: flex;
@@ -281,7 +281,7 @@
     flex-shrink: 0;
 }
 .support_btn_call {
-    background: #0284c7;
+    background: #1e73be;
     color: #ffffff;
     padding: 7px 14px;
     border-radius: 6px;
@@ -293,7 +293,7 @@
     gap: 6px;
 }
 .support_btn_call:hover {
-    background: #0369a1;
+    background: #165a96;
     color: #ffffff;
 }
 .support_btn_zalo {
@@ -309,7 +309,7 @@
     gap: 6px;
 }
 .support_btn_zalo:hover {
-    background: #006699;
+    background: #165a96;
     color: #ffffff;
 }
 

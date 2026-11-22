@@ -273,13 +273,6 @@
                         'merchantReturnLink' => route('home.index') . '#chinh-sach-doi-tra',
                     ],
                 ],
-                'aggregateRating' => [
-                    '@type' => 'AggregateRating',
-                    'ratingValue' => $product->rating_average > 0 ? (string) $product->rating_average : '5.0',
-                    'reviewCount' => $product->reviews_count > 0 ? (int) $product->reviews_count : 1,
-                    'bestRating' => '5',
-                    'worstRating' => '1',
-                ],
             ],
         ],
     ];
@@ -469,25 +462,6 @@
                 <article class="misutech_product_product_info">
                     <h1 class="misutech_product_title" id="misutech_product_title">{{ $product->name }}</h1>
 
-                    {{-- Đánh giá --}}
-                    <div class="misutech_product_rating_row">
-                        @php
-                            $rating = round($product->rating_average ?? 0, 1);
-                            $fullStars = floor($rating);
-                        @endphp
-                        <span class="misutech_product_stars" aria-label="{{ $rating }} trên 5 sao">
-                            @for ($i = 1; $i <= 5; $i++)
-                                {{ $i <= $fullStars ? '★' : '☆' }}
-                            @endfor
-                        </span>
-                        <span class="misutech_product_review_count">({{ number_format($product->reviews_count) }} đánh
-                            giá)</span>
-                        @if ($product->reviews_count > 0)
-                            <a class="misutech_product_view_reviews" href="#misutech_product_reviews">XEM TẤT CẢ ĐÁNH
-                                GIÁ</a>
-                        @endif
-                    </div>
-
                     {{-- Giá --}}
                     <div class="misutech_product_price" id="misutech_product_price_box">
                         @if ($product->sale_price && $product->sale_price < $product->price)
@@ -509,7 +483,7 @@
                             <div class="misutech_product_series_header">
                                 <span class="misutech_product_series_title">
                                     Dòng sản phẩm: <a href="{{ route('series.show', $product->series->slug) }}"
-                                        style="color: #003b70; text-decoration: none; font-weight: 700;"
+                                        style="color: #1e73be; text-decoration: none; font-weight: 700;"
                                         title="Xem toàn bộ dòng {{ $product->series->name }}">{{ $product->series->name }}
                                         ↗</a>
                                 </span>
@@ -927,11 +901,6 @@
                                     </div>
                                     <h3 class="misutech_product_related_name" title="{{ $related->name }}">
                                         {{ $related->name }}</h3>
-                                    <div class="misutech_product_related_stars">
-                                        @for ($i = 1; $i <= 5; $i++)
-                                            {{ $i <= round($related->rating_average ?? 0) ? '★' : '☆' }}
-                                        @endfor
-                                    </div>
                                     <strong class="misutech_product_related_price">
                                         @if ($related->sale_price && $related->sale_price < $related->price)
                                             <span
@@ -947,172 +916,6 @@
                 </div>
             </section>
         @endif
-
-        {{-- Đánh giá sản phẩm --}}
-        <section class="misutech_product_reviews" id="misutech_product_reviews">
-            <div class="misutech_product_container">
-                <div class="misutech_reviews_section_header">
-                    <h2 class="misutech_product_section_title">Khách hàng đánh giá</h2>
-                    <p class="misutech_reviews_section_subtitle">Đánh giá và nhận xét chân thực từ người dùng đã trải
-                        nghiệm sản phẩm</p>
-                </div>
-
-                <div class="misutech_product_review_layout">
-                    {{-- Cột trái: Thống kê điểm số --}}
-                    <aside class="misutech_product_review_summary">
-                        <div class="misutech_product_review_score_box">
-                            <div class="misutech_product_score_big">
-                                <span class="misutech_product_score_value"
-                                    id="misutech_summary_score">{{ number_format($product->rating_average ?? 5.0, 1) }}</span>
-                                <span class="misutech_product_score_star">★</span>
-                            </div>
-                            <div class="misutech_product_stars_visual">
-                                @for ($i = 1; $i <= 5; $i++)
-                                    <span
-                                        class="star-item {{ $i <= round($product->rating_average ?? 5.0) ? 'filled' : '' }}">★</span>
-                                @endfor
-                            </div>
-                            <div class="misutech_product_score_count">
-                                <span id="misutech_summary_count">{{ number_format($product->reviews_count) }}</span>
-                                lượt đánh giá
-                            </div>
-                        </div>
-
-                        <div class="misutech_product_review_bars">
-                            @foreach ([5, 4, 3, 2, 1] as $star)
-                                @php
-                                    $barData = $ratingBars[$star] ?? ['count' => 0, 'percent' => 0];
-                                @endphp
-                                <div class="misutech_product_review_bar_row">
-                                    <span class="bar_star_label">{{ $star }} <span
-                                            class="star_icon">★</span></span>
-                                    <div class="bar_track">
-                                        <div class="bar_fill" style="width: {{ $barData['percent'] }}%"></div>
-                                    </div>
-                                    <span class="bar_count">{{ $barData['count'] }}</span>
-                                </div>
-                            @endforeach
-                        </div>
-
-                        <div class="misutech_product_review_prompt">
-                            <h4 class="prompt_title">Bạn đã dùng sản phẩm này?</h4>
-                            <p class="prompt_desc">Hãy để lại đánh giá để giúp khách hàng khác có thêm thông tin</p>
-                            <button type="button" class="misutech_btn_open_review_form" id="misutech_btn_open_review">
-                                ✍ Viết đánh giá ngay
-                            </button>
-                        </div>
-                    </aside>
-
-                    {{-- Cột phải: Form viết đánh giá & Danh sách nhận xét --}}
-                    <div class="misutech_product_review_content">
-                        {{-- Form viết đánh giá --}}
-                        <div class="misutech_product_review_form_card" id="misutech_review_form_wrapper">
-                            <form class="misutech_product_review_form" id="misutech_review_form"
-                                action="{{ route('product.review.store', $product->slug) }}" method="POST">
-                                @csrf
-                                <input type="hidden" name="_review_time_token"
-                                    value="{{ \Illuminate\Support\Facades\Crypt::encryptString((string) (time() - 4)) }}">
-                                <input type="hidden" name="rating" id="misutech_selected_rating" value="5">
-
-                                {{-- Honeypot chống bot --}}
-                                <div style="display: none !important;">
-                                    <input type="text" name="review_hp_url" value="" tabindex="-1"
-                                        autocomplete="off">
-                                </div>
-
-                                <div class="form_header">
-                                    <h3 class="form_title">Gửi đánh giá của bạn</h3>
-                                    <div class="rating_picker">
-                                        <span class="picker_label">Đánh giá chung:</span>
-                                        <div class="misutech_star_picker" id="misutech_star_picker"
-                                            aria-label="Chọn số sao">
-                                            <button type="button" class="star_btn active" data-star="1"
-                                                title="1 sao - Rất tệ">★</button>
-                                            <button type="button" class="star_btn active" data-star="2"
-                                                title="2 sao - Tệ">★</button>
-                                            <button type="button" class="star_btn active" data-star="3"
-                                                title="3 sao - Bình thường">★</button>
-                                            <button type="button" class="star_btn active" data-star="4"
-                                                title="4 sao - Tốt">★</button>
-                                            <button type="button" class="star_btn active" data-star="5"
-                                                title="5 sao - Tuyệt vời">★</button>
-                                        </div>
-                                        <span class="star_rating_text" id="misutech_rating_label">Tuyệt vời (5/5)</span>
-                                    </div>
-                                </div>
-
-                                <div class="form_grid_fields">
-                                    <div class="field_group">
-                                        <label class="field_label">Họ và tên của bạn <span class="req">*</span></label>
-                                        <input class="misutech_product_review_input" type="text" name="author_name"
-                                            placeholder="Ví dụ: Anh Tuấn (Kỹ sư điện)" required maxlength="80">
-                                    </div>
-                                    <div class="field_group">
-                                        <label class="field_label">Số điện thoại / Zalo <span class="opt">(Bảo mật,
-                                                không hiện công khai)</span></label>
-                                        <input class="misutech_product_review_input" type="tel" name="author_phone"
-                                            placeholder="Ví dụ: 0987654321" maxlength="20">
-                                    </div>
-                                </div>
-
-                                <div class="field_group">
-                                    <label class="field_label">Nội dung đánh giá &amp; Trải nghiệm thực tế <span
-                                            class="req">*</span></label>
-                                    <textarea class="misutech_product_review_textarea" name="comment" rows="4"
-                                        placeholder="Chia sẻ cảm nhận về chất lượng thiết bị, độ chính xác, quy cách đóng gói, tiến độ giao hàng..."
-                                        required minlength="5" maxlength="1000"></textarea>
-                                </div>
-
-                                <div class="review_form_error" id="misutech_review_error" style="display: none;"></div>
-
-                                <div class="form_actions">
-                                    <button class="misutech_product_review_submit" type="submit"
-                                        id="misutech_review_submit_btn">
-                                        <span class="btn_text">GỬI ĐÁNH GIÁ</span>
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-
-                        {{-- Danh sách đánh giá đã có --}}
-                        <div class="misutech_reviews_list" id="misutech_reviews_list">
-                            @if ($product->reviews->isEmpty())
-                                <div class="misutech_product_review_empty" id="misutech_review_empty_notice">
-                                    <div class="empty_icon">💬</div>
-                                    <p>Chưa có đánh giá nào cho sản phẩm này.<br>Hãy là người đầu tiên chia sẻ cảm nhận!</p>
-                                </div>
-                            @else
-                                @foreach ($product->reviews as $review)
-                                    @php
-                                        $author =
-                                            $review->author_name ?: ($review->user?->name ?: 'Khách hàng Hải Phòng Tech');
-                                        $initial = mb_strtoupper(mb_substr($author, 0, 1));
-                                    @endphp
-                                    <article class="misutech_product_submitted_review">
-                                        <div class="review_avatar">{{ $initial }}</div>
-                                        <div class="review_body">
-                                            <div class="review_header">
-                                                <h4 class="review_author_name">{{ $author }}</h4>
-                                                <span class="review_verified_badge">✓ Đã mua tại Hải Phòng Tech</span>
-                                                <span
-                                                    class="review_time">{{ $review->created_at ? $review->created_at->diffForHumans() : 'Gần đây' }}</span>
-                                            </div>
-                                            <div class="review_stars">
-                                                @for ($i = 1; $i <= 5; $i++)
-                                                    <span
-                                                        class="star-item {{ $i <= $review->rating ? 'filled' : '' }}">★</span>
-                                                @endfor
-                                            </div>
-                                            <p class="review_comment_text">{{ $review->comment }}</p>
-                                        </div>
-                                    </article>
-                                @endforeach
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
     </div>
 
     <aside class="misutech_product_cart_drawer" aria-hidden="true">

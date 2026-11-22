@@ -36,7 +36,7 @@
 }
 
 .misutech_blog_breadcrumb_list li a:hover {
-    color: var(--misutech_home_primary, #009dde);
+    color: var(--misutech_home_primary, #1e73be);
 }
 
 .misutech_blog_breadcrumb_list .separator {
@@ -70,8 +70,8 @@
     display: inline-block;
     font-size: 11px;
     font-weight: 700;
-    color: var(--misutech_home_primary_dark, #007fba);
-    background: #e0f2fe;
+    color: var(--misutech_home_primary_dark, #165a96);
+    background: #e8f2fb;
     padding: 2px 8px;
     border-radius: 0;
     margin-bottom: 6px;
@@ -147,8 +147,8 @@
 .blog_tag {
     font-size: 11.5px;
     font-weight: 700;
-    color: var(--misutech_home_primary, #009dde);
-    background: var(--misutech_home_primary_soft, #f2fbfe);
+    color: var(--misutech_home_primary, #1e73be);
+    background: var(--misutech_home_primary_soft, #f4f8fc);
     padding: 2px 8px;
     border-radius: 0;
     text-decoration: none;
@@ -173,7 +173,7 @@
 }
 
 .featured_title a:hover {
-    color: var(--misutech_home_primary, #009dde);
+    color: var(--misutech_home_primary, #1e73be);
 }
 
 .featured_summary {
@@ -191,13 +191,13 @@
     display: inline-block;
     font-size: 13px;
     font-weight: 600;
-    color: var(--misutech_home_primary, #009dde);
+    color: var(--misutech_home_primary, #1e73be);
     text-decoration: none;
     transition: color 0.15s ease;
 }
 
 .btn_read_more:hover {
-    color: var(--misutech_home_primary_dark, #007fba);
+    color: var(--misutech_home_primary_dark, #165a96);
     text-decoration: underline;
 }
 
@@ -220,8 +220,8 @@
 }
 
 .misutech_blog_card:hover {
-    border-color: var(--misutech_home_primary, #009dde);
-    box-shadow: 0 4px 12px rgba(0, 157, 222, 0.08);
+    border-color: var(--misutech_home_primary, #1e73be);
+    box-shadow: 0 4px 12px rgba(30, 115, 190, 0.08);
     transform: translateY(-2px);
 }
 
@@ -264,8 +264,8 @@
 .blog_card_category {
     font-size: 11px;
     font-weight: 700;
-    color: var(--misutech_home_primary, #009dde);
-    background: var(--misutech_home_primary_soft, #f2fbfe);
+    color: var(--misutech_home_primary, #1e73be);
+    background: var(--misutech_home_primary_soft, #f4f8fc);
     padding: 2px 6px;
     border-radius: 0;
     text-decoration: none;
@@ -298,7 +298,7 @@
 }
 
 .blog_card_title a:hover {
-    color: var(--misutech_home_primary, #009dde);
+    color: var(--misutech_home_primary, #1e73be);
 }
 
 .blog_card_summary {
@@ -324,12 +324,12 @@
 .btn_card_read {
     font-size: 12.5px;
     font-weight: 600;
-    color: var(--misutech_home_primary, #009dde);
+    color: var(--misutech_home_primary, #1e73be);
     text-decoration: none;
 }
 
 .btn_card_read:hover {
-    color: var(--misutech_home_primary_dark, #007fba);
+    color: var(--misutech_home_primary_dark, #165a96);
     text-decoration: underline;
 }
 
@@ -357,8 +357,8 @@
     display: inline-block;
     font-size: 12px;
     font-weight: 700;
-    color: var(--misutech_home_primary, #009dde);
-    background: var(--misutech_home_primary_soft, #f2fbfe);
+    color: var(--misutech_home_primary, #1e73be);
+    background: var(--misutech_home_primary_soft, #f4f8fc);
     padding: 3px 10px;
     border-radius: 0;
     text-decoration: none;
@@ -419,7 +419,7 @@
 
 .blog_detail_summary {
     background: #f8fafc;
-    border-left: 4px solid var(--misutech_home_primary, #009dde);
+    border-left: 4px solid var(--misutech_home_primary, #1e73be);
     padding: 14px 18px;
     border-radius: 0 4px 4px 0;
     font-size: 13.5px;
@@ -465,7 +465,7 @@
 }
 
 .toc_toggle_btn:hover {
-    color: var(--misutech_home_primary, #009dde);
+    color: var(--misutech_home_primary, #1e73be);
 }
 
 .toc_body {
@@ -496,12 +496,12 @@
 }
 
 .toc_item a:hover {
-    color: var(--misutech_home_primary, #009dde);
+    color: var(--misutech_home_primary, #1e73be);
     text-decoration: underline;
 }
 
 .toc_item a.active {
-    color: var(--misutech_home_primary, #009dde);
+    color: var(--misutech_home_primary, #1e73be);
     font-weight: 600;
 }
 
@@ -658,7 +658,7 @@
 
 .mobile_toc_item a:hover,
 .mobile_toc_item a.active {
-    color: var(--misutech_home_primary, #009dde);
+    color: var(--misutech_home_primary, #1e73be);
     font-weight: 600;
     text-decoration: underline;
 }
@@ -790,7 +790,7 @@
 .btn_share.copy {
     background: #f1f5f9;
     color: #334155;
-    border-color: var(--misutech_home_primary, #009dde);
+    border-color: var(--misutech_home_primary, #1e73be);
 }
 
 .btn_share.copy:hover {
@@ -812,7 +812,7 @@
     color: #0f172a;
     margin: 0 0 16px;
     padding-bottom: 8px;
-    border-bottom: 2px solid var(--misutech_home_primary, #009dde);
+    border-bottom: 2px solid var(--misutech_home_primary, #1e73be);
     display: inline-block;
 }
 
@@ -830,7 +830,7 @@
 }
 
 .related_post_card:hover {
-    border-color: var(--misutech_home_primary, #009dde);
+    border-color: var(--misutech_home_primary, #1e73be);
     box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 
@@ -878,7 +878,7 @@
 }
 
 .rel_title a:hover {
-    color: var(--misutech_home_primary, #009dde);
+    color: var(--misutech_home_primary, #1e73be);
 }
 
 /* ─── Sidebar Widgets ──────────────────────────────────────────────────── */
@@ -953,12 +953,12 @@
 }
 
 .sidebar_toc_item a:hover {
-    color: var(--misutech_home_primary, #009dde);
+    color: var(--misutech_home_primary, #1e73be);
     text-decoration: underline;
 }
 
 .sidebar_toc_item a.active {
-    color: var(--misutech_home_primary, #009dde);
+    color: var(--misutech_home_primary, #1e73be);
     font-weight: 600;
 }
 
@@ -1002,7 +1002,7 @@
     left: 0;
     width: 36px;
     height: 2px;
-    background: var(--misutech_home_primary, #009dde);
+    background: var(--misutech_home_primary, #1e73be);
 }
 
 .sidebar_search_form {
@@ -1022,13 +1022,13 @@
 }
 
 .sidebar_search_form input:focus {
-    border-color: var(--misutech_home_primary, #009dde);
+    border-color: var(--misutech_home_primary, #1e73be);
 }
 
 .sidebar_search_form button {
     width: 40px;
     height: 36px;
-    background: var(--misutech_home_primary, #009dde);
+    background: var(--misutech_home_primary, #1e73be);
     color: #ffffff;
     border: none;
     border-radius: 0;
@@ -1037,7 +1037,7 @@
 }
 
 .sidebar_search_form button:hover {
-    background: var(--misutech_home_primary_dark, #007fba);
+    background: var(--misutech_home_primary_dark, #165a96);
 }
 
 .sidebar_cat_list,
@@ -1066,7 +1066,7 @@
 .sidebar_cat_list a:hover,
 .sidebar_cat_list a.active {
     background: #f1f5f9;
-    color: var(--misutech_home_primary, #009dde);
+    color: var(--misutech_home_primary, #1e73be);
     font-weight: 600;
 }
 
@@ -1152,7 +1152,7 @@
 
 .pop_title a:hover,
 .recent_title a:hover {
-    color: var(--misutech_home_primary, #009dde);
+    color: var(--misutech_home_primary, #1e73be);
 }
 
 .pop_date,
@@ -1164,7 +1164,7 @@
 /* Sidebar CTA Box */
 .sidebar_cta_box {
     background: #ffffff;
-    border-left: 4px solid var(--misutech_home_primary, #009dde);
+    border-left: 4px solid var(--misutech_home_primary, #1e73be);
     text-align: center;
     padding: 22px 18px;
 }
@@ -1192,7 +1192,7 @@
 .btn_sidebar_call {
     display: block;
     padding: 8px 14px;
-    background: var(--misutech_home_primary, #009dde);
+    background: var(--misutech_home_primary, #1e73be);
     color: #ffffff;
     border-radius: 0;
     font-size: 13px;
@@ -1202,7 +1202,7 @@
 }
 
 .btn_sidebar_call:hover {
-    background: var(--misutech_home_primary_dark, #007fba);
+    background: var(--misutech_home_primary_dark, #165a96);
 }
 
 /* ─── Empty & Pagination ───────────────────────────────────────────────── */
@@ -1236,7 +1236,7 @@
 .btn_reset_blog {
     display: inline-block;
     padding: 8px 18px;
-    background: var(--misutech_home_primary, #009dde);
+    background: var(--misutech_home_primary, #1e73be);
     color: #ffffff;
     border-radius: 0;
     font-size: 13px;
@@ -1246,7 +1246,7 @@
 }
 
 .btn_reset_blog:hover {
-    background: var(--misutech_home_primary_dark, #007fba);
+    background: var(--misutech_home_primary_dark, #165a96);
 }
 
 .misutech_blog_pagination {
@@ -1292,8 +1292,8 @@
 
 .misutech_blog_pagination .page-item.active .page-link,
 .misutech_blog_pagination .misutech_page_item.active .misutech_page_link {
-    background: var(--misutech_home_primary, #009dde);
-    border-color: var(--misutech_home_primary, #009dde);
+    background: var(--misutech_home_primary, #1e73be);
+    border-color: var(--misutech_home_primary, #1e73be);
     color: #ffffff;
     font-weight: 700;
 }

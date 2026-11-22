@@ -294,26 +294,6 @@
                 </div>
             </div>
 
-            {{-- Đánh giá --}}
-            <div class="card mini-info-card mb-3">
-                <div class="card-body">
-                    <div class="d-flex align-items-center mb-2">
-                        <div class="mini-info-icon mr-3" style="background:#fce7f3;">
-                            <i class="mdi mdi-star" style="color:var(--dash-pink);"></i>
-                        </div>
-                        <div>
-                            <div class="kpi-label">Đánh giá sản phẩm</div>
-                            <div style="font-size:22px; font-weight:700; line-height:1.1;">{{ number_format($totalReviews) }}</div>
-                        </div>
-                    </div>
-                    <div style="font-size:13px;">
-                        <span class="stars mr-2">★ {{ $avgRating }}</span>
-                        <span class="text-warning font-weight-bold">{{ $totalReviewsNew }}</span>
-                        <span class="text-muted"> chờ duyệt</span>
-                    </div>
-                </div>
-            </div>
-
             {{-- Media --}}
             <div class="card mini-info-card">
                 <div class="card-body">
@@ -592,11 +572,11 @@
         </div>
     </div>
 
-    {{-- ── ROW 6: Recent Products + Recent Reviews ──────── --}}
+    {{-- ── ROW 6: Recent Products ──────── --}}
     <div class="row mb-3">
 
         {{-- Products --}}
-        <div class="col-xl-6 mb-3">
+        <div class="col-xl-12 mb-3">
             <div class="card dash-card h-100">
                 <div class="card-header">
                     <h5><i class="mdi mdi-cube-outline text-info mr-1"></i> Sản phẩm mới thêm</h5>
@@ -632,52 +612,6 @@
                     <div class="text-center py-5 text-muted">
                         <i class="mdi mdi-inbox" style="font-size:40px;"></i>
                         <p class="mt-2 mb-0">Chưa có sản phẩm</p>
-                    </div>
-                    @endif
-                </div>
-            </div>
-        </div>
-
-        {{-- Reviews --}}
-        <div class="col-xl-6 mb-3">
-            <div class="card dash-card h-100">
-                <div class="card-header">
-                    <h5><i class="mdi mdi-star-outline text-warning mr-1"></i> Đánh giá gần nhất</h5>
-                    <span class="badge-count">{{ $totalReviewsNew }} chờ duyệt</span>
-                </div>
-                <div class="card-body p-0">
-                    @if($recentReviews->isNotEmpty())
-                    <ul class="list-group list-group-flush">
-                        @foreach($recentReviews as $review)
-                        <li class="list-group-item px-3 py-3">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div style="flex:1; min-width:0; padding-right:8px;">
-                                    <div class="d-flex align-items-center mb-1">
-                                        <strong style="font-size:13px; margin-right:8px;">{{ $review->author_name }}</strong>
-                                        <span class="stars" style="font-size:12px;">
-                                            @for($s=1;$s<=5;$s++){{ $s<=$review->rating?'★':'☆' }}@endfor
-                                        </span>
-                                    </div>
-                                    @if($review->product)
-                                    <div class="text-muted text-truncate" style="font-size:11px;">
-                                        <i class="mdi mdi-cube-outline"></i> {{ $review->product->name }}
-                                    </div>
-                                    @endif
-                                    @if($review->comment)
-                                    <div class="text-truncate text-muted" style="font-size:12px;" title="{{ $review->comment }}">{{ $review->comment }}</div>
-                                    @endif
-                                </div>
-                                <span class="status-badge {{ $review->status }}" style="flex-shrink:0;">
-                                    {{ ['pending'=>'Chờ duyệt','approved'=>'Đã duyệt','rejected'=>'Từ chối'][$review->status] ?? $review->status }}
-                                </span>
-                            </div>
-                        </li>
-                        @endforeach
-                    </ul>
-                    @else
-                    <div class="text-center py-5 text-muted">
-                        <i class="mdi mdi-inbox" style="font-size:40px;"></i>
-                        <p class="mt-2 mb-0">Chưa có đánh giá</p>
                     </div>
                     @endif
                 </div>

@@ -119,8 +119,6 @@ class AppServiceProvider extends ServiceProvider
 
         // Tự động xóa cache khi có thay đổi dữ liệu trong Admin
         Product::saved(function ($product) {
-            Cache::forget('home_flash_sale_product_ids');
-            Cache::forget('home_featured_product_ids');
             Cache::forget('home_category_sections_map');
             Cache::forget('shop_sidebar_categories');
             Cache::forget('shop_filter_brands');
@@ -138,8 +136,6 @@ class AppServiceProvider extends ServiceProvider
             }
         });
         Product::deleted(function ($product) {
-            Cache::forget('home_flash_sale_product_ids');
-            Cache::forget('home_featured_product_ids');
             Cache::forget('home_category_sections_map');
             Cache::forget('shop_sidebar_categories');
             Cache::forget('shop_filter_brands');

@@ -49,140 +49,6 @@
     font-weight: 900;
 }
 
-.misutech_home_quick {
-    padding: 20px 0 22px;
-}
-.misutech_home_quick_grid {
-    display: grid;
-    grid-template-columns: repeat(10, 1fr);
-    gap: 12px;
-}
-.misutech_home_quick_item {
-    border: 0;
-    background: transparent;
-    color: var(--misutech_home_text);
-    text-align: center;
-    font-size: 11px;
-}
-.misutech_home_quick_icon {
-    position: relative;
-    width: 66px;
-    height: 66px;
-    margin: 0 auto 8px;
-    display: grid;
-    place-items: center;
-    border: 1px solid var(--misutech_home_line);
-    border-radius: 14px;
-    background: var(--misutech_home_white);
-    color: var(--misutech_home_primary);
-    font-size: 27px;
-    transition: 0.2s ease;
-    overflow: hidden;
-    box-sizing: border-box;
-}
-.misutech_home_quick_icon img {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-.misutech_home_shop_category_item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    background: #fff;
-    padding: 15px 10px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    text-decoration: none;
-    color: #333;
-    transition: all 0.3s ease;
-}
-.misutech_home_shop_category_item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    color: #0052cc;
-}
-.misutech_home_shop_category_icon_wrapper {
-    width: 60px;
-    height: 60px;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #f8f9fa;
-    border-radius: 50%;
-    transition: all 0.3s ease;
-}
-.misutech_home_shop_category_item:hover
-    .misutech_home_shop_category_icon_wrapper {
-    background: #e3f2fd;
-}
-.misutech_home_quick_item:hover .misutech_home_quick_icon {
-    transform: translateY(-4px);
-    border-color: var(--misutech_home_primary);
-    box-shadow: var(--misutech_home_shadow);
-}
-
-.misutech_home_section {
-    padding: 10px 0 24px;
-}
-.misutech_home_flash_shell {
-    overflow: hidden;
-    border: 3px solid #209fe8;
-    border-radius: 4px;
-    background: #209fe8;
-    box-shadow: var(--misutech_home_shadow);
-}
-.misutech_home_flash_header {
-    min-height: 55px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    padding: 8px 14px;
-    color: var(--misutech_home_white);
-}
-.misutech_home_flash_title {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin: 0;
-    font-size: 19px;
-    text-transform: uppercase;
-}
-.misutech_home_flash_bolt {
-    width: 30px;
-    height: 30px;
-    display: grid;
-    place-items: center;
-    border-radius: 50%;
-    background: var(--misutech_home_accent);
-    color: var(--misutech_home_primary);
-}
-.misutech_home_countdown {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    font-size: 12px;
-}
-.misutech_home_countdown_box {
-    min-width: 34px;
-    height: 30px;
-    display: grid;
-    place-items: center;
-    border-radius: 3px;
-    background: var(--misutech_home_white);
-    color: var(--misutech_home_primary);
-    font-weight: 900;
-}
-.misutech_home_product_grid {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 2px;
-}
 .misutech_home_product_card {
     position: relative;
     min-width: 0;
@@ -199,7 +65,7 @@
 .misutech_home_product_card:hover {
     z-index: 3;
     transform: translateY(-4px);
-    box-shadow: 0 10px 25px rgba(0, 59, 112, 0.15);
+    box-shadow: 0 10px 25px rgba(17, 69, 116, 0.15);
 }
 .misutech_home_product_image {
     width: 100%;
@@ -241,11 +107,11 @@
     z-index: 2;
     left: 9px;
     top: 9px;
-    padding: 4px 6px;
-    background: var(--misutech_home_accent);
-    color: var(--misutech_home_primary_dark);
+    padding: 4px 7px;
+    background: var(--misutech_home_primary);
+    color: var(--misutech_home_white);
     font-size: 10px;
-    font-weight: 900;
+    font-weight: 800;
     border-radius: 3px;
 }
 .misutech_home_product_favorite {
@@ -283,15 +149,6 @@
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
 }
-.misutech_home_product_rating {
-    color: #ffb000;
-    font-size: 9px;
-    letter-spacing: 0.5px;
-}
-.misutech_home_product_rating span {
-    color: var(--misutech_home_secondary);
-    letter-spacing: 0;
-}
 .misutech_home_product_price_row {
     min-height: 42px;
     display: flex;
@@ -302,8 +159,9 @@
 }
 .misutech_home_product_price {
     display: block;
-    color: #e5422b;
+    color: var(--misutech_home_primary);
     font-size: 14px;
+    font-weight: 700;
 }
 .misutech_home_product_old_price {
     color: #9aa3aa;
@@ -315,7 +173,7 @@
     height: 29px;
     border: 0;
     border-radius: 50%;
-    background: #19a8e5;
+    background: #1e73be;
     color: var(--misutech_home_white);
     font-size: 20px;
     line-height: 1;
@@ -337,36 +195,35 @@
     contain-intrinsic-size: 1px 400px;
 }
 .misutech_home_catalog_section:nth-of-type(even) {
-    background: #fbfcfd;
+    background: var(--misutech_home_soft);
 }
 .misutech_home_section_header {
     min-height: 46px;
     display: flex;
-    align-items: end;
+    align-items: center;
     justify-content: space-between;
     gap: 24px;
-    margin-bottom: 12px;
-    border-bottom: 1px solid var(--misutech_home_line);
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--misutech_home_primary);
 }
 .misutech_home_section_title {
     display: flex;
     align-items: center;
     gap: 10px;
     margin: 0;
-    padding-bottom: 12px;
-    color: var(--misutech_home_text);
-    font-size: 20px;
+    color: var(--misutech_home_primary);
+    font-size: 18px;
+    font-weight: 700;
     text-transform: uppercase;
+    letter-spacing: 0.2px;
 }
 .misutech_home_section_title_mark {
-    width: 8px;
-    height: 25px;
+    width: 6px;
+    height: 22px;
     border-radius: 2px;
-    background: linear-gradient(
-        var(--misutech_home_primary),
-        var(--misutech_home_secondary)
-    );
-    transform: skew(-10deg);
+    background: var(--misutech_home_primary);
+    flex-shrink: 0;
 }
 .misutech_home_section_tabs {
     display: flex;
@@ -375,25 +232,16 @@
     gap: 6px;
     flex-wrap: wrap;
 }
-.misutech_home_section_tab {
-    border: 0;
-    border-bottom: 2px solid transparent;
-    padding: 9px 10px;
-    background: transparent;
-    color: var(--misutech_home_muted);
-    font-size: 11px;
-}
-.misutech_home_section_tab[aria-selected="true"] {
-    border-bottom-color: var(--misutech_home_primary);
-    color: var(--misutech_home_primary);
-    font-weight: 800;
-}
 .misutech_home_view_all {
     margin-left: 6px;
-    padding: 8px 10px;
-    color: var(--misutech_home_orange);
-    font-size: 11px;
-    font-weight: 800;
+    padding: 6px 10px;
+    color: var(--misutech_home_primary);
+    font-size: 12px;
+    font-weight: 700;
+    transition: color 0.15s ease;
+}
+.misutech_home_view_all:hover {
+    color: var(--misutech_home_primary_dark);
 }
 .misutech_home_catalog_grid {
     display: grid;
@@ -404,22 +252,6 @@
 }
 .misutech_home_catalog_grid .misutech_home_product_card {
     min-height: 282px;
-}
-#misutech_home_catalog_0 .misutech_home_product_card:first-child {
-    grid-column: span 2;
-    grid-row: span 2;
-}
-#misutech_home_catalog_0
-    .misutech_home_product_card:first-child
-    .misutech_home_product_image {
-    aspect-ratio: 1 / 1;
-    height: auto;
-}
-#misutech_home_catalog_0
-    .misutech_home_product_card:first-child
-    .misutech_home_product_name {
-    height: auto;
-    font-size: 16px;
 }
 .misutech_home_product_card[hidden] {
     display: none !important;
@@ -471,44 +303,195 @@
     opacity: 0.9;
 }
 
-.misutech_home_shop_categories {
-    padding: 26px 0 30px;
-    background: var(--misutech_home_soft);
+/* ═══════════════════════════════════════════════════════════════════════════
+   PARTNERS CAROUSEL ("CÁC ĐỐI TÁC CỦA CHÚNG TÔI")
+   ═══════════════════════════════════════════════════════════════════════════ */
+.misutech_home_partners {
+    padding: 36px 0 38px;
+    background: var(--misutech_home_white);
+    border-top: 1px solid var(--misutech_home_line);
+    border-bottom: 1px solid var(--misutech_home_line);
 }
-.misutech_home_shop_category_grid {
-    display: grid;
-    grid-template-columns: repeat(7, minmax(0, 1fr));
-    gap: 18px 14px;
-}
-.misutech_home_shop_category {
-    border: 0;
-    background: transparent;
+.misutech_home_partners_header {
     text-align: center;
-    color: var(--misutech_home_text);
-    font-size: 11px;
+    margin-bottom: 26px;
 }
-.misutech_home_shop_category_image {
-    width: 112px;
-    max-width: 100%;
-    aspect-ratio: 1;
+.misutech_home_partners_title {
+    margin: 0;
+    color: var(--misutech_home_primary);
+    font-size: 22px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+.misutech_home_partners_divider {
+    display: block;
+    width: 64px;
+    height: 3px;
+    margin: 10px auto 0;
+    border-radius: 3px;
+    background: var(--misutech_home_primary);
+}
+.misutech_home_partners_slider {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.misutech_home_partners_viewport {
+    width: 100%;
     overflow: hidden;
-    margin: 0 auto 8px;
-    border: 6px solid var(--misutech_home_white);
-    border-radius: 22px;
-    background: #d9edf6;
-    box-shadow: 0 6px 18px rgba(0, 59, 112, 0.08);
-    transition: 0.2s ease;
+    padding: 8px 2px 12px;
 }
-.misutech_home_shop_category:nth-child(3n + 2)
-    .misutech_home_shop_category_image {
-    background: #ffe0bd;
+.misutech_home_partners_track {
+    display: flex;
+    transition: transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
+    will-change: transform;
 }
-.misutech_home_shop_category:nth-child(3n) .misutech_home_shop_category_image {
-    background: #d8e2ee;
+.misutech_home_partners_page {
+    flex: 0 0 100%;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 16px;
+    padding: 0 34px;
+    box-sizing: border-box;
 }
-.misutech_home_shop_category:hover .misutech_home_shop_category_image {
-    transform: translateY(-4px);
-    border-color: #c8d9e6;
+.misutech_home_partner_card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 82px;
+    padding: 12px 14px;
+    background: var(--misutech_home_white);
+    border: 1px solid var(--misutech_home_line);
+    border-radius: 6px;
+    box-shadow: 0 4px 14px rgba(30, 115, 190, 0.08);
+    text-decoration: none;
+    transition:
+        transform 0.22s ease,
+        border-color 0.22s ease,
+        box-shadow 0.22s ease,
+        background-color 0.22s ease;
+    box-sizing: border-box;
+}
+.misutech_home_partner_card:hover {
+    transform: translateY(-3px);
+    border-color: var(--misutech_home_primary);
+    background: var(--misutech_home_primary_soft);
+    box-shadow: 0 8px 22px rgba(30, 115, 190, 0.16);
+}
+.misutech_home_partner_logo {
+    max-width: 100%;
+    max-height: 52px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: block;
+    transition: transform 0.22s ease;
+}
+.misutech_home_partner_card:hover .misutech_home_partner_logo {
+    transform: scale(1.04);
+}
+.misutech_home_partner_wordmark {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 4px;
+    width: 100%;
+}
+.misutech_home_partner_name {
+    color: var(--misutech_home_primary_deep);
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    line-height: 1.2;
+    word-break: break-word;
+    transition: color 0.2s ease;
+}
+.misutech_home_partner_card:hover .misutech_home_partner_name {
+    color: var(--misutech_home_primary);
+}
+.misutech_home_partner_tag {
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    color: var(--misutech_home_primary);
+    background: var(--misutech_home_primary_light);
+    padding: 2px 7px;
+    border-radius: 10px;
+}
+.misutech_home_partners_nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 4;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid var(--misutech_home_line);
+    background: var(--misutech_home_white);
+    color: var(--misutech_home_primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 10px rgba(30, 115, 190, 0.12);
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease;
+}
+.misutech_home_partners_nav:hover {
+    background: var(--misutech_home_primary);
+    border-color: var(--misutech_home_primary);
+    color: var(--misutech_home_white);
+}
+.misutech_home_partners_prev {
+    left: 0;
+}
+.misutech_home_partners_next {
+    right: 0;
+}
+.misutech_home_partners_footer {
+    margin-top: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+.misutech_home_partners_dots {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+.misutech_home_partners_dot {
+    width: 8px;
+    height: 8px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: var(--misutech_home_line);
+    transition: width 0.22s ease, background-color 0.22s ease;
+}
+.misutech_home_partners_dot[aria-current="true"] {
+    width: 22px;
+    background: var(--misutech_home_primary);
+}
+.misutech_home_partners_all_link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--misutech_home_primary);
+    font-size: 13px;
+    font-weight: 700;
+    transition: color 0.15s ease;
+}
+.misutech_home_partners_all_link:hover {
+    color: var(--misutech_home_primary_dark);
+    text-decoration: underline;
 }
 
 .misutech_home_content_area {
@@ -686,53 +669,7 @@
         padding: 5px 8px;
     }
 
-    /* Quick Categories: 5 columns x 2 rows (all 10 items fully shown) */
-    .misutech_home_quick {
-        padding: 16px 0 18px;
-    }
-    .misutech_home_quick_grid {
-        grid-template-columns: repeat(5, 1fr);
-        gap: 14px 10px;
-    }
-    .misutech_home_quick_icon {
-        width: 56px;
-        height: 56px;
-        font-size: 24px;
-        border-radius: 12px;
-        margin-bottom: 6px;
-    }
-    .misutech_home_quick_item {
-        font-size: 11.5px;
-        line-height: 1.3;
-    }
-
-    /* Flash Sale Section */
-    .misutech_home_flash_header {
-        align-items: center;
-        flex-direction: row;
-        justify-content: space-between;
-        gap: 10px;
-    }
-    .misutech_home_flash_title {
-        font-size: 18px;
-    }
-    .misutech_home_countdown {
-        font-size: 12.5px;
-    }
-    .misutech_home_countdown_box {
-        min-width: 28px;
-        height: 28px;
-        font-size: 13px;
-    }
-    .misutech_home_product_grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 12px;
-    }
-    .misutech_home_product_card:nth-child(n) {
-        display: flex !important;
-    }
-
-    /* Featured & Catalog Sections */
+    /* Catalog Sections */
     .misutech_home_section_header {
         align-items: center;
         flex-direction: row;
@@ -747,10 +684,6 @@
         flex-wrap: wrap;
         gap: 6px;
     }
-    .misutech_home_section_tab {
-        padding: 6px 12px;
-        font-size: 12px;
-    }
     .misutech_home_view_all {
         font-size: 12.5px;
     }
@@ -758,28 +691,25 @@
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 12px;
     }
-    #misutech_home_catalog_0 .misutech_home_product_card:first-child {
-        grid-column: span 1;
-        grid-row: span 1;
-    }
-    #misutech_home_catalog_0 .misutech_home_product_card:first-child .misutech_home_product_image {
-        height: auto;
-        aspect-ratio: 1 / 1;
-    }
 
-    /* Shop By Category (14 categories fully visible) */
-    .misutech_home_shop_category_grid {
-        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)) !important;
-        gap: 12px !important;
-        padding: 16px 0 !important;
+    /* Partners Carousel Tablet (4 columns x 3 rows per slide) */
+    .misutech_home_partners {
+        padding: 28px 0 30px;
     }
-    .misutech_home_shop_category_item {
-        padding: 12px 8px;
+    .misutech_home_partners_title {
+        font-size: 19px;
     }
-    .misutech_home_shop_category_icon_wrapper {
-        width: 48px;
-        height: 48px;
-        margin-bottom: 8px;
+    .misutech_home_partners_page {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        padding: 0 32px;
+    }
+    .misutech_home_partner_card {
+        height: 76px;
+        padding: 10px 12px;
+    }
+    .misutech_home_partner_name {
+        font-size: 13px;
     }
 
     /* Tech News & Blog Grid (2 columns side by side) */
@@ -838,9 +768,6 @@
    LARGE TABLET ENHANCEMENTS (900px - 1024px)
    ═══════════════════════════════════════════════════════════════════════════ */
 @media (min-width: 900px) and (max-width: 1024px) {
-    .misutech_home_product_grid {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
     .misutech_home_catalog_grid {
         grid-template-columns: repeat(4, minmax(0, 1fr));
     }
@@ -922,54 +849,6 @@
         inset: auto 6px 6px;
     }
 
-    /* Quick Categories: 5 columns x 2 rows (all 10 items fully shown) */
-    .misutech_home_quick {
-        padding: 12px 0 14px;
-    }
-    .misutech_home_quick_grid {
-        grid-template-columns: repeat(5, 1fr);
-        gap: 10px 4px;
-    }
-    .misutech_home_quick_icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 10px;
-        font-size: 20px;
-        margin-bottom: 4px;
-    }
-    .misutech_home_quick_item {
-        font-size: 10px;
-        line-height: 1.2;
-    }
-
-    /* Flash Sale Section */
-    .misutech_home_flash {
-        padding: 14px 0;
-    }
-    .misutech_home_flash_header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-        margin-bottom: 12px;
-    }
-    .misutech_home_flash_title {
-        font-size: 16px;
-    }
-    .misutech_home_countdown {
-        font-size: 11.5px;
-        gap: 4px;
-    }
-    .misutech_home_countdown_box {
-        min-width: 24px;
-        height: 24px;
-        font-size: 11.5px;
-        border-radius: 4px;
-    }
-    .misutech_home_product_grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 8px;
-    }
-
     /* Product Cards Mobile Optimization */
     .misutech_home_product_card {
         padding: 8px;
@@ -1021,12 +900,6 @@
     .misutech_home_section_tabs::-webkit-scrollbar {
         display: none;
     }
-    .misutech_home_section_tab {
-        padding: 4px 9px;
-        font-size: 11px;
-        white-space: nowrap;
-        flex-shrink: 0;
-    }
     .misutech_home_view_all {
         font-size: 11.5px;
         margin-top: 2px;
@@ -1035,34 +908,40 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 8px;
     }
-    #misutech_home_catalog_0 .misutech_home_product_card:first-child {
-        grid-column: auto;
-        grid-row: auto;
-    }
-    #misutech_home_catalog_0 .misutech_home_product_card:first-child .misutech_home_product_image {
-        height: auto;
-        aspect-ratio: 1 / 1;
-    }
 
-    /* Shop By Category Grid (14 categories) */
-    .misutech_home_shop_categories {
-        padding: 14px 0;
+    /* Partners Carousel Mobile (3 columns x 4 rows per slide) */
+    .misutech_home_partners {
+        padding: 22px 0 24px;
     }
-    .misutech_home_shop_category_grid {
-        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-        gap: 8px 6px !important;
-        padding: 10px 0 !important;
+    .misutech_home_partners_header {
+        margin-bottom: 16px;
     }
-    .misutech_home_shop_category_item {
-        padding: 8px 4px;
+    .misutech_home_partners_title {
+        font-size: 16px;
     }
-    .misutech_home_shop_category_icon_wrapper {
-        width: 40px;
-        height: 40px;
-        margin-bottom: 4px;
+    .misutech_home_partners_page {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+        padding: 0 28px;
     }
-    .misutech_home_shop_category_name {
-        font-size: 10.5px;
+    .misutech_home_partner_card {
+        height: 66px;
+        padding: 8px 6px;
+        border-radius: 5px;
+    }
+    .misutech_home_partner_logo {
+        max-height: 40px;
+    }
+    .misutech_home_partner_name {
+        font-size: 11px;
+        letter-spacing: 0.2px;
+    }
+    .misutech_home_partner_tag {
+        display: none;
+    }
+    .misutech_home_partners_nav {
+        width: 28px;
+        height: 28px;
     }
 
     /* Tech News & Blog Section */

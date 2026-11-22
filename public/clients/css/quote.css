@@ -34,7 +34,7 @@
 }
 
 .misutech_quote_breadcrumb_list li a:hover {
-    color: var(--misutech_home_primary, #009dde);
+    color: var(--misutech_home_primary, #1e73be);
 }
 
 .misutech_quote_breadcrumb_list li.separator {
@@ -78,9 +78,9 @@
 }
 
 .quote_badge {
-    background: var(--misutech_home_primary_soft, #f2fbfe);
-    color: var(--misutech_home_primary, #009dde);
-    border: 1px solid var(--misutech_home_primary_light, #e8f7fd);
+    background: var(--misutech_home_primary_soft, #f4f8fc);
+    color: var(--misutech_home_primary, #1e73be);
+    border: 1px solid var(--misutech_home_primary_light, #e8f2fb);
     font-size: 11px;
     font-weight: 700;
     padding: 2px 8px;
@@ -167,9 +167,9 @@
 }
 
 .q_input:focus {
-    border-color: var(--misutech_home_primary, #009dde);
+    border-color: var(--misutech_home_primary, #1e73be);
     background: #ffffff;
-    box-shadow: 0 0 0 2px rgba(0, 157, 222, 0.12);
+    box-shadow: 0 0 0 2px rgba(30, 115, 190, 0.12);
 }
 
 .q_row_2 {
@@ -211,7 +211,7 @@
     width: 16px;
     height: 16px;
     border: 2px solid #edf2f6;
-    border-top-color: var(--misutech_home_primary, #009dde);
+    border-top-color: var(--misutech_home_primary, #1e73be);
     border-radius: 50%;
     animation: spin 0.6s linear infinite;
 }
@@ -251,7 +251,7 @@
 }
 
 .search_item:hover {
-    background: var(--misutech_home_primary_soft, #f2fbfe);
+    background: var(--misutech_home_primary_soft, #f4f8fc);
 }
 
 .search_item_img {
@@ -289,12 +289,12 @@
 .search_item_price {
     font-size: 12px;
     font-weight: 700;
-    color: var(--misutech_home_primary, #009dde);
+    color: var(--misutech_home_primary, #1e73be);
     flex-shrink: 0;
 }
 
 .search_item_add_btn {
-    background: var(--misutech_home_primary, #009dde);
+    background: var(--misutech_home_primary, #1e73be);
     color: #ffffff;
     border: none;
     border-radius: 0;
@@ -307,7 +307,7 @@
 }
 
 .search_item_add_btn:hover {
-    background: var(--misutech_home_primary_dark, #007fba);
+    background: var(--misutech_home_primary_dark, #165a96);
 }
 
 .search_empty {
@@ -320,7 +320,7 @@
 /* ─── Custom Item Form ─────────────────────────────────────────────────── */
 .quote_custom_item_toggle {
     font-size: 12px;
-    color: var(--misutech_home_primary, #009dde);
+    color: var(--misutech_home_primary, #1e73be);
     font-weight: 600;
     cursor: pointer;
     background: none;
@@ -333,7 +333,7 @@
 }
 
 .quote_custom_item_toggle:hover {
-    color: var(--misutech_home_primary_dark, #007fba);
+    color: var(--misutech_home_primary_dark, #165a96);
 }
 
 .quote_custom_item_form {
@@ -377,9 +377,9 @@
 }
 
 .btn_quote_pdf {
-    background: var(--misutech_home_primary, #009dde);
+    background: var(--misutech_home_primary, #1e73be);
     color: #ffffff;
-    border: 1px solid var(--misutech_home_primary, #009dde);
+    border: 1px solid var(--misutech_home_primary, #1e73be);
     border-radius: 0;
     padding: 8px 16px;
     font-size: 13px;
@@ -392,15 +392,15 @@
 }
 
 .btn_quote_pdf:hover {
-    background: var(--misutech_home_primary_dark, #007fba);
-    border-color: var(--misutech_home_primary_dark, #007fba);
-    box-shadow: 0 2px 8px rgba(0, 157, 222, 0.25);
+    background: var(--misutech_home_primary_dark, #165a96);
+    border-color: var(--misutech_home_primary_dark, #165a96);
+    box-shadow: 0 2px 8px rgba(30, 115, 190, 0.25);
 }
 
 .btn_quote_print {
     background: #ffffff;
-    color: var(--misutech_home_primary, #009dde);
-    border: 1px solid var(--misutech_home_primary, #009dde);
+    color: var(--misutech_home_primary, #1e73be);
+    border: 1px solid var(--misutech_home_primary, #1e73be);
     border-radius: 0;
     padding: 8px 16px;
     font-size: 13px;
@@ -413,7 +413,7 @@
 }
 
 .btn_quote_print:hover {
-    background: var(--misutech_home_primary_soft, #f2fbfe);
+    background: var(--misutech_home_primary_soft, #f4f8fc);
 }
 
 .btn_quote_clear {
@@ -456,7 +456,7 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    border-bottom: 2px solid var(--misutech_home_primary, #009dde);
+    border-bottom: 2px solid var(--misutech_home_primary, #1e73be);
     padding-bottom: 18px;
     margin-bottom: 20px;
 }
@@ -468,7 +468,7 @@
 .paper_company_name {
     font-size: 16px;
     font-weight: 800;
-    color: var(--misutech_home_primary, #009dde);
+    color: var(--misutech_home_primary, #1e73be);
     margin: 0 0 4px 0;
     text-transform: uppercase;
 }
@@ -522,7 +522,7 @@
 }
 
 .paper_customer_row strong {
-    color: var(--misutech_home_primary, #009dde);
+    color: var(--misutech_home_primary, #1e73be);
     min-width: 100px;
     display: inline-block;
 }
@@ -543,12 +543,12 @@
 }
 
 .paper_table th {
-    background: var(--misutech_home_primary, #009dde);
+    background: var(--misutech_home_primary, #1e73be);
     color: #ffffff;
     font-weight: 700;
     padding: 9px 8px;
     text-align: center;
-    border: 1px solid var(--misutech_home_primary, #009dde);
+    border: 1px solid var(--misutech_home_primary, #1e73be);
     font-size: 12px;
 }
 
@@ -563,7 +563,7 @@
 }
 
 .paper_table tbody tr:hover {
-    background: var(--misutech_home_primary_soft, #f2fbfe);
+    background: var(--misutech_home_primary_soft, #f4f8fc);
 }
 
 .tbl_center {
@@ -605,7 +605,7 @@
 
 .tbl_qty_input:focus,
 .tbl_price_input:focus {
-    border-color: var(--misutech_home_primary, #009dde);
+    border-color: var(--misutech_home_primary, #1e73be);
 }
 
 .tbl_btn_del {
@@ -654,7 +654,7 @@
     margin: 0 0 6px 0;
     font-size: 12px;
     font-weight: 700;
-    color: var(--misutech_home_primary, #009dde);
+    color: var(--misutech_home_primary, #1e73be);
 }
 
 .paper_terms ul {
@@ -686,11 +686,11 @@
 }
 
 .paper_total_row.highlight {
-    background: var(--misutech_home_primary_soft, #f2fbfe);
+    background: var(--misutech_home_primary_soft, #f4f8fc);
     font-size: 14px;
     font-weight: 800;
-    color: var(--misutech_home_primary, #009dde);
-    border-top: 2px solid var(--misutech_home_primary, #009dde);
+    color: var(--misutech_home_primary, #1e73be);
+    border-top: 2px solid var(--misutech_home_primary, #1e73be);
 }
 
 .paper_in_words {
@@ -716,7 +716,7 @@
     margin: 0 0 4px 0;
     font-size: 12px;
     font-weight: 700;
-    color: var(--misutech_home_primary, #009dde);
+    color: var(--misutech_home_primary, #1e73be);
     text-transform: uppercase;
 }
 

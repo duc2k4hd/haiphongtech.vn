@@ -118,7 +118,7 @@ class ShopController extends Controller
         $forcedTagId = $activeProductTag?->id;
 
         if ($activeBrand) {
-            $basePath = "/thuong_hieu/{$activeBrand->slug}/";
+            $basePath = "/{$activeBrand->slug}/";
         } elseif ($activeProductTag) {
             $basePath = "/tag-san-pham/{$activeProductTag->slug}/";
         } else {
@@ -328,7 +328,10 @@ class ShopController extends Controller
 
         if ($brand) {
             $baseTitle = $brand->meta_title ?: ($brand->name . ' - Hải Phòng Tech');
-            $canon = !empty($brand->canonical_url) ? WpUrl::absolute($brand->canonical_url) : WpUrl::brandUrl($brand->slug);
+            $rawCanon = trim((string) ($brand->canonical_url ?? ''));
+            $canon = ($rawCanon !== '' && !str_contains($rawCanon, '/thuong-hieu/'))
+                ? WpUrl::absolute($rawCanon)
+                : WpUrl::brandUrl($brand->slug);
             return [
                 'h1'              => $brand->name,
                 'breadcrumb_name' => 'Thương hiệu: ' . $brand->name,

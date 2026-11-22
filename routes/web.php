@@ -49,7 +49,6 @@ Route::get('/shop/page/{page}', [WpContentRouterController::class, 'shopShow'])
     ->whereNumber('page')
     ->name('shop.index.paged');
 Route::get('/product/{slug}', [WpContentRouterController::class, 'productShow'])->name('product.show');
-Route::post('/product/{slug}/danh-gia', [ProductController::class, 'storeReview'])->name('product.review.store');
 Route::get('/thuong_hieu/{slug}', [WpContentRouterController::class, 'brandShow'])->name('brands.wp.show');
 Route::get('/thuong_hieu/{slug}/page/{page}', [WpContentRouterController::class, 'brandShow'])
     ->whereNumber('page')

@@ -61,9 +61,8 @@ class AuthController extends Controller
 
             // 2. Xóa các cache dữ liệu trang theo từng key (KHÔNG flush toàn bộ)
             $appCacheKeys = [
-                'home_flash_sale_product_ids',
-                'home_featured_product_ids',
                 'home_category_sections_map',
+                'home_partner_brands',
                 'home_blog_sections_map',
                 'home_banners_grouped',
                 'shop_sidebar_categories',

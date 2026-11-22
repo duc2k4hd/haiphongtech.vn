@@ -40,7 +40,6 @@ class Product extends Model
         return $this->belongsToMany(ProductTag::class, 'product_product_tag')
             ->withTimestamps();
     }
-    public function reviews() { return $this->hasMany(Review::class); }
 
     /**
      * Dòng/Series mà sản phẩm này thuộc về.

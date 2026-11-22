@@ -289,7 +289,7 @@
                     {{-- Sticky Action Bar --}}
                     <div class="quote_action_bar">
                         <div class="action_bar_left">
-                            <strong>Trạng thái:</strong> <span id="itemCountBadge" style="color: #003b70; font-weight: 700;">0 sản phẩm</span> trong báo giá
+                            <strong>Trạng thái:</strong> <span id="itemCountBadge" style="color: #1e73be; font-weight: 700;">0 sản phẩm</span> trong báo giá
                         </div>
                         <div class="action_bar_right">
                             <button type="button" class="btn_quote_clear" id="clearQuoteBtn" title="Xóa toàn bộ sản phẩm">Làm mới</button>

@@ -3,16 +3,10 @@
 namespace App\Http\Controllers\Clients;
 
 use App\Http\Controllers\Controller;
-use App\Models\Product;
-use App\Models\Review;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\Auth;
-
 use App\Models\Category;
+use App\Models\Product;
 use App\Support\WpUrl;
+use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
@@ -21,7 +15,7 @@ class ProductController extends Controller
      */
     const RELATED_CARD_COLUMNS = [
         'id', 'name', 'slug', 'price', 'sale_price',
-        'rating_average', 'reviews_count', 'category_id', 'series_id'
+        'category_id', 'series_id'
     ];
 
     public function show(Request $request, $slug)
@@ -35,11 +29,6 @@ class ProductController extends Controller
             'thumbnailMedia',
             'galleryMedia',
             'catalogMedia',
-            'reviews' => fn($q) => $q->where(fn($sub) => $sub->where('status', 'approved')->orWhereNull('status'))
-                ->select(['id', 'product_id', 'user_id', 'author_name', 'rating', 'comment', 'created_at'])
-                ->orderByDesc('created_at')
-                ->take(20),
-            'reviews.user:id,name',
         ])->where('slug', $slug)->firstOrFail();
 
         // Build full category ancestor breadcrumb chain for current product
@@ -139,18 +128,6 @@ class ProductController extends Controller
         // Lấy chính xác 10 sản phẩm liên quan (5 trước, 5 sau cùng danh mục nhỏ nhất, ưu tiên cùng series, bù trừ và mở rộng lên danh mục cha)
         $relatedProducts = $this->getRelatedProducts($product);
 
-        // Điểm rating theo từng sao
-        $ratingBars = [];
-        if ($product->reviews_count > 0) {
-            for ($star = 5; $star >= 1; $star--) {
-                $count = $product->reviews->where('rating', $star)->count();
-                $ratingBars[$star] = [
-                    'count' => $count,
-                    'percent' => $product->reviews_count > 0 ? round($count / $product->reviews_count * 100) : 0,
-                ];
-            }
-        }
-
         // Nếu là AJAX request (chuyển model tức thì không reload trang)
         if ($request->ajax() || $request->wantsJson() || $request->query('ajax')) {
             $gallery = $product->galleryMedia->map(fn($m) => [
@@ -197,87 +174,7 @@ class ProductController extends Controller
             ]);
         }
 
-        return view('clients.pages.product.index', compact('product', 'categoryBreadcrumbs', 'seriesProducts', 'embeddedSeriesModels', 'relatedProducts', 'ratingBars'));
-    }
-
-    /**
-     * Gửi đánh giá sản phẩm bảo mật, chống spam & chống XSS.
-     */
-    public function storeReview(Request $request, $slug)
-    {
-        $ip = $request->ip();
-        $rateLimitKey = 'review-submit:' . $ip;
-
-        // 1. Rate Limiting: Tối đa 3 lần gửi trong 10 phút trên 1 IP
-        if (RateLimiter::tooManyAttempts($rateLimitKey, 3)) {
-            $seconds = RateLimiter::availableIn($rateLimitKey);
-            $msg = 'Bạn đã gửi đánh giá quá thường xuyên. Vui lòng chờ ' . ceil($seconds / 60) . ' phút nữa.';
-            return response()->json(['success' => false, 'message' => $msg], 429);
-        }
-
-        // 2. Honeypot check (bẫy bot tự động)
-        $honeypot = $request->input('review_hp_url');
-        if (!empty($honeypot)) {
-            RateLimiter::hit($rateLimitKey, 600);
-            Log::warning("Spam bot review detected by honeypot from IP: {$ip}");
-            return response()->json(['success' => true, 'message' => 'Cảm ơn bạn đã gửi đánh giá!']);
-        }
-
-        // 3. Time-gate Check (Kiểm tra thời gian mở trang tối thiểu 2 giây)
-        $formToken = $request->input('_review_time_token');
-        if (!empty($formToken)) {
-            try {
-                $renderedTime = (int) Crypt::decryptString($formToken);
-                $timeDiff = time() - $renderedTime;
-                if ($timeDiff < 2) {
-                    RateLimiter::hit($rateLimitKey, 600);
-                    return response()->json(['success' => true, 'message' => 'Cảm ơn bạn đã gửi đánh giá!']);
-                }
-            } catch (\Exception $e) {
-                // Token không hợp lệ
-            }
-        }
-
-        // 4. Validate dữ liệu
-        $validated = $request->validate([
-            'rating'       => 'required|integer|min:1|max:5',
-            'author_name'  => 'required|string|min:2|max:80',
-            'author_phone' => 'nullable|string|max:20',
-            'comment'      => 'required|string|min:5|max:1000',
-        ], [
-            'rating.required'      => 'Vui lòng chọn số sao đánh giá.',
-            'rating.between'       => 'Số sao đánh giá phải từ 1 đến 5 sao.',
-            'author_name.required' => 'Vui lòng nhập họ và tên của bạn.',
-            'author_name.min'      => 'Họ tên phải có ít nhất 2 ký tự.',
-            'comment.required'     => 'Vui lòng nhập nội dung đánh giá.',
-            'comment.min'          => 'Nội dung đánh giá phải có ít nhất 5 ký tự.',
-        ]);
-
-        $product = Product::where('slug', $slug)->firstOrFail();
-
-        // 5. Làm sạch XSS
-        $cleanName = strip_tags(trim($validated['author_name']));
-        $cleanPhone = isset($validated['author_phone']) ? strip_tags(trim($validated['author_phone'])) : null;
-        $cleanComment = strip_tags(trim($validated['comment']));
-
-        // 6. Lưu Review ở trạng thái 'pending' (CHỜ KIỂM DUYỆT) - Tuyệt đối không tin tưởng đầu vào người dùng
-        $review = Review::create([
-            'product_id'   => $product->id,
-            'user_id'      => Auth::id() ?? null,
-            'author_name'  => $cleanName,
-            'author_phone' => $cleanPhone,
-            'rating'       => (int)$validated['rating'],
-            'comment'      => $cleanComment,
-            'status'       => 'pending', // Phải qua kiểm duyệt của Admin mới được hiển thị
-        ]);
-
-        RateLimiter::hit($rateLimitKey, 300);
-
-        return response()->json([
-            'success'   => true,
-            'pending'   => true,
-            'message'   => 'Cảm ơn bạn đã gửi đánh giá! Đánh giá của bạn đã được tiếp nhận và sẽ được hiển thị công khai sau khi ban quản trị kiểm duyệt nội dung.',
-        ]);
+        return view('clients.pages.product.index', compact('product', 'categoryBreadcrumbs', 'seriesProducts', 'embeddedSeriesModels', 'relatedProducts'));
     }
 
     /**

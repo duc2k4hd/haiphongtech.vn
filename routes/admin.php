@@ -70,12 +70,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('api/contacts/{id}', [\App\Http\Controllers\Admins\ContactController::class, 'apiDestroy'])->name('api.contacts.destroy');
     Route::post('api/contacts-bulk-delete', [\App\Http\Controllers\Admins\ContactController::class, 'apiBulkDestroy'])->name('api.contacts.bulk.destroy');
 
-    // Reviews Management (Kiểm duyệt đánh giá sản phẩm)
-    Route::get('reviews', [\App\Http\Controllers\Admins\ReviewController::class, 'index'])->name('reviews.index');
-    Route::get('api/reviews', [\App\Http\Controllers\Admins\ReviewController::class, 'apiList'])->name('api.reviews.list');
-    Route::put('api/reviews/{id}/status', [\App\Http\Controllers\Admins\ReviewController::class, 'apiUpdateStatus'])->name('api.reviews.status');
-    Route::delete('api/reviews/{id}', [\App\Http\Controllers\Admins\ReviewController::class, 'apiDestroy'])->name('api.reviews.destroy');
-    
     // Products
     Route::get('products', [\App\Http\Controllers\Admins\ProductController::class, 'index'])->name('products.index');
     Route::match(['get', 'post'], 'api/products-list', [\App\Http\Controllers\Admins\ProductController::class, 'apiList'])->name('api.products.list');
