@@ -16,6 +16,10 @@ Route::prefix('v1')->group(function () {
     Route::get('/products/count', [ShopController::class, 'countProducts'])
         ->middleware('throttle:120,1')
         ->name('api.products.count');
+
+    Route::get('/products/suggest', [ShopController::class, 'suggestProducts'])
+        ->middleware('throttle:60,1')
+        ->name('api.products.suggest');
         
     // Session-backed cart endpoints (view & contact only, no online checkout)
     Route::post('/cart/add', [ShopController::class, 'addCart'])

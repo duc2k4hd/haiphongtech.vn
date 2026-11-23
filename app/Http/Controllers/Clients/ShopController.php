@@ -104,6 +104,63 @@ class ShopController extends Controller
         return response()->json(['count' => $count]);
     }
 
+    /**
+     * API gợi ý tìm kiếm nhanh trên thanh header (chỉ tìm từ 3 ký tự trở lên).
+     */
+    public function suggestProducts(Request $request)
+    {
+        $q = trim((string) $request->query('q', ''));
+        if (mb_strlen($q, 'UTF-8') < 3) {
+            return response()->json([
+                'query' => $q,
+                'items' => [],
+                'view_all_url' => '/shop/',
+            ]);
+        }
+
+        $escaped = addcslashes($q, '%_\\');
+        $prefixLike = $escaped . '%';
+        $containsLike = '%' . $escaped . '%';
+
+        $products = Product::published()
+            ->select(['id', 'name', 'slug', 'sku', 'price', 'sale_price'])
+            ->with('thumbnailMedia')
+            ->where(function ($sub) use ($prefixLike, $containsLike) {
+                $sub->where('sku', 'like', $prefixLike)
+                    ->orWhere('name', 'like', $containsLike)
+                    ->orWhere('sku', 'like', $containsLike);
+            })
+            ->orderByRaw(
+                'CASE WHEN sku = ? THEN 1 WHEN sku LIKE ? THEN 2 WHEN name LIKE ? THEN 3 ELSE 4 END ASC, id DESC',
+                [$q, $prefixLike, $prefixLike]
+            )
+            ->take(8)
+            ->get();
+
+        $fallbackThumb = asset('storage/clients/imgs/products/no-image.png');
+
+        $items = $products->map(static function (Product $p) use ($fallbackThumb): array {
+            $hasSale = $p->sale_price && $p->sale_price > 0 && $p->sale_price < $p->price;
+            $effectivePrice = $hasSale ? (float) $p->sale_price : (float) ($p->price ?? 0);
+
+            return [
+                'id' => $p->id,
+                'name' => $p->name,
+                'sku' => (string) ($p->sku ?? ''),
+                'url' => WpUrl::productUrl($p->slug),
+                'thumbnail' => $p->thumbnailMedia->first()?->url ?? $fallbackThumb,
+                'price_formatted' => $effectivePrice > 0 ? number_format($effectivePrice, 0, ',', '.') . ' VNĐ' : 'Liên hệ báo giá',
+                'old_price_formatted' => $hasSale ? number_format((float) $p->price, 0, ',', '.') . ' VNĐ' : null,
+            ];
+        })->values()->all();
+
+        return response()->json([
+            'query' => $q,
+            'items' => $items,
+            'view_all_url' => '/shop/?q=' . urlencode($q),
+        ]);
+    }
+
     public function index(
         Request $request,
         int $page = 1,

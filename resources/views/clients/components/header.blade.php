@@ -32,7 +32,7 @@
                         <line x1="20.5" y1="20.5" x2="16.35" y2="16.35"></line>
                     </svg>
                 </span>
-                <input class="misutech_home_search_input" name="q" type="search" placeholder="Tìm kiếm sản phẩm, mã SKU, tài liệu kỹ thuật..."
+                <input class="misutech_home_search_input" name="q" type="search" autocomplete="off" placeholder="Tìm kiếm sản phẩm, mã SKU, tài liệu kỹ thuật..."
                     aria-label="Tìm kiếm" value="{{ request('q') }}" />
                 <button class="misutech_home_search_button" type="submit" aria-label="Tìm kiếm">
                     <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -108,7 +108,7 @@
 
     <div class="misutech_drawer_search_wrap">
         <form class="misutech_drawer_search" role="search" action="/shop" method="GET">
-            <input class="misutech_drawer_search_input" name="q" type="search" placeholder="Tìm kiếm sản phẩm, mã SKU..."
+            <input class="misutech_drawer_search_input" name="q" type="search" autocomplete="off" placeholder="Tìm kiếm sản phẩm, mã SKU..."
                 aria-label="Tìm kiếm" value="{{ request('q') }}" />
             <button class="misutech_drawer_search_btn" type="submit" aria-label="Tìm kiếm">
                 <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

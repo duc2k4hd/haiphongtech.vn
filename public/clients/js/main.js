@@ -390,5 +390,222 @@
             closeMobileDrawer();
         }
     });
+
+    /* ═══════════════════════════════════════════════════════════════════════════
+       HEADER SEARCH AUTOCOMPLETE (>= 3 ký tự, đợi 1s sau khi ngừng gõ, khóa tuần tự)
+       ═══════════════════════════════════════════════════════════════════════════ */
+    const escapeHtml = (str) =>
+        String(str ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+
+    const initSearchAutocomplete = (formEl, inputEl) => {
+        if (!formEl || !inputEl) return;
+
+        const MIN_CHARS = 3;
+        const DELAY_MS = 1000;
+
+        let dropdown = formEl.querySelector(".misutech_search_suggest_box");
+        if (!dropdown) {
+            dropdown = document.createElement("div");
+            dropdown.className = "misutech_search_suggest_box";
+            dropdown.setAttribute("role", "listbox");
+            dropdown.hidden = true;
+            formEl.appendChild(dropdown);
+        }
+
+        let debounceTimer = null;
+        let isFetching = false;
+        let hasPendingInput = false;
+        let lastFetchedQuery = "";
+
+        const hideDropdown = () => {
+            dropdown.hidden = true;
+        };
+
+        const showDropdown = () => {
+            dropdown.hidden = false;
+        };
+
+        const renderLoading = () => {
+            dropdown.innerHTML = '<div class="misutech_search_suggest_status">Đang tìm kiếm gợi ý...</div>';
+            showDropdown();
+        };
+
+        const renderResults = (data, query) => {
+            const items = Array.isArray(data?.items) ? data.items : [];
+            const viewAllUrl = data?.view_all_url || `/shop/?q=${encodeURIComponent(query)}`;
+
+            if (items.length === 0) {
+                dropdown.innerHTML = `<div class="misutech_search_suggest_status">Không tìm thấy sản phẩm phù hợp với “${escapeHtml(query)}”</div>`;
+                showDropdown();
+                return;
+            }
+
+            const listHtml = items
+                .map((item) => {
+                    const skuHtml = item.sku
+                        ? `<span class="misutech_search_suggest_sku">SKU: ${escapeHtml(item.sku)}</span>`
+                        : "";
+                    const oldPriceHtml = item.old_price_formatted
+                        ? `<span class="misutech_search_suggest_old">${escapeHtml(item.old_price_formatted)}</span>`
+                        : "";
+
+                    return `
+                        <li class="misutech_search_suggest_item">
+                            <a href="${escapeHtml(item.url)}">
+                                <img class="misutech_search_suggest_thumb" src="${escapeHtml(item.thumbnail)}" alt="${escapeHtml(item.name)}" loading="lazy" decoding="async" />
+                                <div class="misutech_search_suggest_meta">
+                                    <div class="misutech_search_suggest_name">${escapeHtml(item.name)}</div>
+                                    <div class="misutech_search_suggest_sub">
+                                        <span class="misutech_search_suggest_price">${escapeHtml(item.price_formatted)}</span>
+                                        ${oldPriceHtml}
+                                        ${skuHtml}
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+                    `;
+                })
+                .join("");
+
+            dropdown.innerHTML = `
+                <ul class="misutech_search_suggest_list">${listHtml}</ul>
+                <div class="misutech_search_suggest_footer">
+                    <a href="${escapeHtml(viewAllUrl)}">Xem tất cả kết quả cho “${escapeHtml(query)}” ›</a>
+                </div>
+            `;
+            showDropdown();
+        };
+
+        const scheduleSearch = () => {
+            if (debounceTimer) {
+                clearTimeout(debounceTimer);
+            }
+            debounceTimer = setTimeout(() => {
+                debounceTimer = null;
+                executeSearch();
+            }, DELAY_MS);
+        };
+
+        const executeSearch = async () => {
+            if (isFetching) return;
+
+            const currentQuery = inputEl.value.trim();
+            if (currentQuery.length < MIN_CHARS) {
+                lastFetchedQuery = "";
+                hasPendingInput = false;
+                hideDropdown();
+                return;
+            }
+
+            if (currentQuery === lastFetchedQuery) {
+                if (dropdown.innerHTML.trim() !== "") {
+                    showDropdown();
+                }
+                return;
+            }
+
+            isFetching = true;
+            hasPendingInput = false;
+            lastFetchedQuery = currentQuery;
+            renderLoading();
+
+            try {
+                const resp = await fetch(`/api/v1/products/suggest?q=${encodeURIComponent(currentQuery)}`, {
+                    headers: { Accept: "application/json" },
+                });
+                if (!resp.ok) {
+                    throw new Error("Search suggest failed");
+                }
+                const data = await resp.json();
+                // Chỉ hiển thị nếu ô tìm kiếm vẫn đang đủ >= 3 ký tự
+                if (inputEl.value.trim().length >= MIN_CHARS) {
+                    renderResults(data, currentQuery);
+                } else {
+                    hideDropdown();
+                }
+            } catch {
+                if (inputEl.value.trim().length >= MIN_CHARS) {
+                    dropdown.innerHTML = '<div class="misutech_search_suggest_status">Không thể tải gợi ý lúc này.</div>';
+                    showDropdown();
+                }
+            } finally {
+                isFetching = false;
+
+                const latestQuery = inputEl.value.trim();
+                if (latestQuery.length < MIN_CHARS) {
+                    lastFetchedQuery = "";
+                    hasPendingInput = false;
+                    hideDropdown();
+                } else if (hasPendingInput && latestQuery !== lastFetchedQuery) {
+                    // Sau khi request trước chạy xong hoàn toàn, mới bắt đầu đợi 1s cho lần gõ cuối cùng
+                    hasPendingInput = false;
+                    scheduleSearch();
+                }
+            }
+        };
+
+        inputEl.addEventListener("input", () => {
+            const q = inputEl.value.trim();
+
+            if (q.length < MIN_CHARS) {
+                if (debounceTimer) {
+                    clearTimeout(debounceTimer);
+                    debounceTimer = null;
+                }
+                hasPendingInput = false;
+                lastFetchedQuery = "";
+                hideDropdown();
+                return;
+            }
+
+            // Nếu đang có request chạy: không đặt timer mới, chỉ ghi nhận để sau khi chạy xong mới đợi 1s
+            if (isFetching) {
+                hasPendingInput = true;
+                return;
+            }
+
+            // Nếu quay lại đúng từ khóa vừa tìm xong thì hiện lại ngay không cần gọi API
+            if (q === lastFetchedQuery && dropdown.innerHTML.trim() !== "") {
+                if (debounceTimer) {
+                    clearTimeout(debounceTimer);
+                    debounceTimer = null;
+                }
+                showDropdown();
+                return;
+            }
+
+            scheduleSearch();
+        });
+
+        inputEl.addEventListener("focus", () => {
+            const q = inputEl.value.trim();
+            if (q.length >= MIN_CHARS && q === lastFetchedQuery && dropdown.innerHTML.trim() !== "") {
+                showDropdown();
+            }
+        });
+
+        inputEl.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") {
+                hideDropdown();
+            }
+        });
+
+        document.addEventListener("click", (e) => {
+            if (!formEl.contains(e.target)) {
+                hideDropdown();
+            }
+        });
+    };
+
+    initSearchAutocomplete(searchForm, searchInput);
+    initSearchAutocomplete(
+        document.querySelector(".misutech_drawer_search"),
+        document.querySelector(".misutech_drawer_search_input")
+    );
 })();
 
