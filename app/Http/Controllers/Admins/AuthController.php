@@ -11,6 +11,11 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
+    /**
+     * Thời hạn ghi nhớ đăng nhập quản trị: 1 tháng (30 ngày = 43.200 phút).
+     */
+    private const ADMIN_REMEMBER_MINUTES = 43200;
+
     public function showLoginForm()
     {
         return view('admins.pages.auth.login');
@@ -23,17 +28,22 @@ class AuthController extends Controller
             'password' => ['required'],
         ]);
 
-        $remember = $request->has('remember');
+        $remember = $request->boolean('remember');
+        $guard = Auth::guard('admin');
 
-        if (Auth::attempt($credentials, $remember)) {
-            $user = Auth::user();
-            if ($user->role === 'admin') {
+        if ($remember && method_exists($guard, 'setRememberDuration')) {
+            $guard->setRememberDuration(self::ADMIN_REMEMBER_MINUTES);
+        }
+
+        if ($guard->attempt($credentials, $remember)) {
+            $user = $guard->user();
+            if ($user && $user->role === 'admin') {
                 $request->session()->regenerate();
                 return redirect()->intended(route('admin.dashboard'));
-            } else {
-                Auth::logout();
-                return back()->with('error', 'Bạn không có quyền truy cập trang quản trị.');
             }
+
+            $guard->logout();
+            return back()->with('error', 'Bạn không có quyền truy cập trang quản trị.');
         }
 
         return back()->with('error', 'Email hoặc mật khẩu không chính xác.');
@@ -41,7 +51,7 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        Auth::logout();
+        Auth::guard('admin')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect()->route('admin.login')->with('success', 'Đã đăng xuất thành công.');
@@ -118,7 +128,7 @@ class AuthController extends Controller
             'new_password.confirmed'    => 'Xác nhận mật khẩu mới không khớp.',
         ]);
 
-        $user = Auth::user();
+        $user = Auth::guard('admin')->user();
 
         if (!Hash::check($request->current_password, $user->password)) {
             return response()->json([

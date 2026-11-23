@@ -75,7 +75,7 @@ class PostController extends Controller
     public function apiStore(PostStoreRequest $request): JsonResponse
     {
         $data = $request->validated();
-        $data['author_id'] = auth()->id() ?? 1;
+        $data['author_id'] = auth('admin')->id() ?? 1;
 
         $post = $this->postService->savePost($data);
 
@@ -398,7 +398,7 @@ class PostController extends Controller
         $postsById = $allPosts->keyBy('id');
         $postsBySlug = $allPosts->keyBy('slug');
 
-        $defaultAuthorId = auth()->id() ?? 1;
+        $defaultAuthorId = auth('admin')->id() ?? 1;
 
         DB::beginTransaction();
         try {

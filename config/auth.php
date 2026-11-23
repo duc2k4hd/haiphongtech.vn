@@ -42,6 +42,13 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        'admin' => [
+            'driver' => 'session',
+            'provider' => 'users',
+            // Thời hạn ghi nhớ đăng nhập quản trị: 30 ngày (1 tháng = 43.200 phút)
+            'remember' => 43200,
+        ],
     ],
 
     /*

@@ -8,12 +8,12 @@ Route::get('/', function () {
     return redirect()->route('admin.dashboard');
 });
 
-Route::middleware('guest')->group(function () {
+Route::middleware('guest:admin')->group(function () {
     Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
     Route::post('login', [AuthController::class, 'login'])->name('login.post');
 });
 
-Route::middleware('auth')->group(function () {
+Route::middleware('auth:admin')->group(function () {
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('logout', [AuthController::class, 'logout'])->name('logout.get');
     Route::post('api/clear-cache', [AuthController::class, 'clearCache'])->name('clear_cache');

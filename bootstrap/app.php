@@ -13,7 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
         then: function () {
-            Route::middleware('web')
+            Route::middleware([\App\Http\Middleware\AdminSessionMiddleware::class, 'web'])
                 ->prefix('admin')
                 ->name('admin.')
                 ->group(base_path('routes/admin.php'));
@@ -27,7 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->redirectGuestsTo(fn (Request $request) =>
-            $request->is('admin/*') ? route('admin.login') : route('login')
+            ($request->is('admin') || $request->is('admin/*')) ? route('admin.login') : route('login')
         );
         $middleware->redirectUsersTo(fn (Request $request) =>
             $request->is('admin/*') || $request->is('admin') ? route('admin.dashboard') : '/'

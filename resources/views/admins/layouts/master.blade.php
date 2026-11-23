@@ -182,19 +182,20 @@
                             </li>
                             <li class="nav-item dropdown header-profile">
                                 <a class="nav-link d-flex align-items-center" href="#" role="button" data-toggle="dropdown">
+                                    @php $adminUser = Auth::guard('admin')->user(); @endphp
                                     <div class="header-profile-avatar mr-2 d-none d-sm-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: #003b70; color: #fff; border-radius: 50%; font-weight: 700; font-size: 13px;">
-                                        {{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}
+                                        {{ strtoupper(substr($adminUser->name ?? 'A', 0, 1)) }}
                                     </div>
                                     <span class="d-none d-md-inline-block font-weight-bold text-dark mr-1" style="font-size: 13px;">
-                                        {{ Auth::user()->name ?? 'Administrator' }}
+                                        {{ $adminUser->name ?? 'Administrator' }}
                                     </span>
                                     <i class="mdi mdi-chevron-down text-muted"></i>
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-right" style="min-width: 250px; padding: 0; overflow: hidden; border-radius: 8px;">
                                     <!-- User Info Header -->
                                     <div class="p-3 bg-light border-bottom">
-                                        <div class="font-weight-bold text-dark" style="font-size: 14px;">{{ Auth::user()->name ?? 'Quản Trị Viên' }}</div>
-                                        <small class="text-muted d-block">{{ Auth::user()->email ?? 'kinhdoanhhpt@haiphongtech.vn' }}</small>
+                                        <div class="font-weight-bold text-dark" style="font-size: 14px;">{{ $adminUser->name ?? 'Quản Trị Viên' }}</div>
+                                        <small class="text-muted d-block">{{ $adminUser->email ?? 'kinhdoanhhpt@haiphongtech.vn' }}</small>
                                         <span class="badge badge-success mt-1" style="font-size: 10px; font-weight: 600;">● Online • Quản trị viên</span>
                                     </div>
 
