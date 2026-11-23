@@ -1171,7 +1171,7 @@ class ProductsImportCsvCommand extends Command
             $rawImages = $this->getCol($row, $colMap, 'images');
             foreach ($this->parseCommaSeparatedUrls($rawImages) as $u) {
                 $norm = $this->normalizeUrl($u);
-                if (! isset($this->prefetchedResponses[$norm])) {
+                if ($this->isValidHttpUrl($norm) && ! isset($this->prefetchedResponses[$norm])) {
                     $urlSet[$norm] = $norm;
                 }
             }
@@ -1183,7 +1183,7 @@ class ProductsImportCsvCommand extends Command
                     if (preg_match_all('/(?:src|data-src)\s*=\s*["\'](https?:\/\/[^"\']+)["\']/i', $html, $matches)) {
                         foreach ($matches[1] as $inlineUrl) {
                             $norm = $this->normalizeUrl(html_entity_decode($inlineUrl, ENT_QUOTES | ENT_HTML5, 'UTF-8'));
-                            if (! isset($this->inlineImageCache[$norm]) && ! isset($this->prefetchedResponses[$norm])) {
+                            if ($this->isValidHttpUrl($norm) && ! isset($this->inlineImageCache[$norm]) && ! isset($this->prefetchedResponses[$norm])) {
                                 $urlSet[$norm] = $norm;
                             }
                         }
@@ -1195,7 +1195,7 @@ class ProductsImportCsvCommand extends Command
             $rawCatalog = $this->getCol($row, $colMap, 'catalog');
             if ($rawCatalog !== '' && ! $this->isGoogleDriveUrl($rawCatalog) && preg_match('/^https?:\/\//i', $rawCatalog)) {
                 $norm = $this->normalizeUrl($rawCatalog);
-                if (! isset($this->catalogUrlCache[$norm]) && ! isset($this->prefetchedResponses[$norm])) {
+                if ($this->isValidHttpUrl($norm) && ! isset($this->catalogUrlCache[$norm]) && ! isset($this->prefetchedResponses[$norm])) {
                     $urlSet[$norm] = $norm;
                 }
             }
@@ -1209,21 +1209,31 @@ class ProductsImportCsvCommand extends Command
         $chunks = array_chunk($urls, $this->concurrency);
 
         foreach ($chunks as $chunkUrls) {
-            $responses = Http::pool(function (\Illuminate\Http\Client\Pool $pool) use ($chunkUrls) {
-                $reqs = [];
-                foreach ($chunkUrls as $idx => $url) {
-                    $reqs[$idx] = $pool->as((string) $idx)
-                        ->withoutVerifying()
-                        ->connectTimeout(5)
-                        ->timeout($this->timeout)
-                        ->withHeaders([
-                            'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                        ])
-                        ->get($url);
-                }
+            try {
+                $responses = Http::pool(function (\Illuminate\Http\Client\Pool $pool) use ($chunkUrls) {
+                    $reqs = [];
+                    foreach ($chunkUrls as $idx => $url) {
+                        if (! $this->isValidHttpUrl($url)) {
+                            continue;
+                        }
+                        $reqs[$idx] = $pool->as((string) $idx)
+                            ->withoutVerifying()
+                            ->connectTimeout(5)
+                            ->timeout($this->timeout)
+                            ->withHeaders([
+                                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                            ])
+                            ->get($url);
+                    }
 
-                return $reqs;
-            });
+                    return $reqs;
+                });
+            } catch (\Throwable) {
+                foreach ($chunkUrls as $url) {
+                    $this->prefetchedResponses[$url] = null;
+                }
+                continue;
+            }
 
             foreach ($chunkUrls as $idx => $url) {
                 $resp = $responses[(string) $idx] ?? null;
@@ -1250,6 +1260,9 @@ class ProductsImportCsvCommand extends Command
     protected function fetchBinary(string $url): ?array
     {
         $normUrl = $this->normalizeUrl($url);
+        if (! $this->isValidHttpUrl($normUrl)) {
+            return null;
+        }
         if (array_key_exists($normUrl, $this->prefetchedResponses)) {
             return $this->prefetchedResponses[$normUrl];
         }
@@ -1724,6 +1737,41 @@ class ProductsImportCsvCommand extends Command
     protected function normalizeUrl(string $url): string
     {
         return trim($url);
+    }
+
+    /**
+     * Kiểm tra URL HTTP/HTTPS hợp lệ trước khi đưa vào Guzzle/Http::pool
+     * để tránh MalformedUriException với các URL lỗi (host chứa khoảng trắng, tiếng Việt, ký tự lạ...).
+     */
+    protected function isValidHttpUrl(string $url): bool
+    {
+        if ($url === '' || ! preg_match('/^https?:\/\//i', $url)) {
+            return false;
+        }
+
+        $parts = @parse_url($url);
+        if (! is_array($parts)) {
+            return false;
+        }
+
+        $scheme = strtolower((string) ($parts['scheme'] ?? ''));
+        $host = (string) ($parts['host'] ?? '');
+        if (! in_array($scheme, ['http', 'https'], true) || $host === '') {
+            return false;
+        }
+
+        // Loại bỏ host chứa khoảng trắng, ký tự non-ASCII hoặc không giống tên miền/IP hợp lệ
+        if (preg_match('/[\s\x80-\xFF]/', $host) || ! str_contains($host, '.')) {
+            return false;
+        }
+
+        try {
+            new \GuzzleHttp\Psr7\Uri($url);
+
+            return true;
+        } catch (\Throwable) {
+            return false;
+        }
     }
 
     /**
