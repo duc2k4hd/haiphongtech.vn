@@ -263,11 +263,10 @@
                                 <a href="{{ \App\Support\WpUrl::productUrl($product->slug) }}">
                                     <img src="{{ $product->thumbnailMedia->first()?->url ?? asset('storage/clients/imgs/products/no-image.png') }}"
                                         alt="{{ $product->name ?? 'Sản phẩm' }}"
-                                        width="220"
-                                        height="220"
+                                        width="260"
+                                        height="260"
                                         loading="lazy"
-                                        decoding="async"
-                                        style="width:100%;height:100%;object-fit:cover;border-radius:4px;" />
+                                        decoding="async" />
                                 </a>
                             </div>
                             <h3 class="misutech_home_product_name">
