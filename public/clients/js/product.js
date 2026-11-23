@@ -78,6 +78,9 @@
   function openModal(name) {
     const target = document.querySelector(`[data-modal="${name}"]`);
     if (!target) return;
+    if (name === "image") {
+      syncLightboxGallery(activeImageIndex);
+    }
     target.hidden = false;
     document.body.classList.add("misutech_product_no_scroll");
     const closeButton = target.querySelector("[data-close-modal]");
@@ -86,11 +89,297 @@
 
   function closeModal(target) {
     if (!target) return;
+    if (target === imageModal) {
+      stopLightboxSlideshow();
+      if (document.fullscreenElement === imageModal) {
+        document.exitFullscreen?.().catch(() => {});
+      }
+      resetLightboxTransform();
+    }
     target.hidden = true;
     if (!document.querySelector(".misutech_product_modal:not([hidden])")) {
       document.body.classList.remove("misutech_product_no_scroll");
     }
   }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     FULLSCREEN PRODUCT LIGHTBOX (Zoom, Pan, Rotate, Slideshow, Fullscreen, Swipe)
+     ═══════════════════════════════════════════════════════════════════════════ */
+  const lbCounter = imageModal?.querySelector("[data-lb-counter]");
+  const lbCaption = imageModal?.querySelector("[data-lb-caption]");
+  const lbZoomLevel = imageModal?.querySelector("[data-lb-zoom-level]");
+  const lbStage = imageModal?.querySelector("[data-lb-stage]");
+  const lbViewport = imageModal?.querySelector("[data-lb-viewport]");
+  const lbPrevBtn = imageModal?.querySelector("[data-lb-prev]");
+  const lbNextBtn = imageModal?.querySelector("[data-lb-next]");
+  const lbThumbsBar = imageModal?.querySelector("[data-lb-thumbs-bar]");
+  const lbThumbsWrap = imageModal?.querySelector("[data-lb-thumbs]");
+  const lbDownloadBtn = imageModal?.querySelector("[data-lb-download]");
+  const lbSlideshowBtn = imageModal?.querySelector("[data-lb-slideshow]");
+  const lbFullscreenBtn = imageModal?.querySelector("[data-lb-fullscreen]");
+
+  let lbImages = [];
+  let lbIndex = 0;
+  let lbScale = 1;
+  let lbRotate = 0;
+  let lbPanX = 0;
+  let lbPanY = 0;
+  let lbSlideshowTimer = null;
+  let lbIsDragging = false;
+  let lbDragStartX = 0;
+  let lbDragStartY = 0;
+  let lbTouchStartX = 0;
+  let lbTouchStartY = 0;
+
+  function applyLightboxTransform() {
+    if (!modalImage) return;
+    modalImage.style.transform = `translate3d(${lbPanX}px, ${lbPanY}px, 0) scale(${lbScale}) rotate(${lbRotate}deg)`;
+    if (lbZoomLevel) lbZoomLevel.textContent = `${Math.round(lbScale * 100)}%`;
+    if (lbViewport) {
+      lbViewport.classList.toggle("is-zoomed", lbScale > 1.01);
+    }
+  }
+
+  function resetLightboxTransform() {
+    lbScale = 1;
+    lbRotate = 0;
+    lbPanX = 0;
+    lbPanY = 0;
+    applyLightboxTransform();
+  }
+
+  function setLightboxZoom(nextScale) {
+    lbScale = Math.min(4, Math.max(1, Number(nextScale.toFixed(2))));
+    if (lbScale <= 1) {
+      lbPanX = 0;
+      lbPanY = 0;
+    }
+    applyLightboxTransform();
+  }
+
+  function collectProductGalleryImages() {
+    const thumbs = Array.from(document.querySelectorAll(".misutech_product_thumbnail"));
+    const items = [];
+    const seen = new Set();
+    const fallbackAlt = document.querySelector(".misutech_product_title")?.textContent?.trim() || "Ảnh sản phẩm";
+
+    thumbs.forEach((btn) => {
+      const src = (btn.dataset.image || btn.querySelector("img")?.src || "").trim();
+      if (!src || seen.has(src)) return;
+      seen.add(src);
+      items.push({
+        src,
+        alt: btn.querySelector("img")?.alt?.trim() || fallbackAlt,
+      });
+    });
+
+    if (items.length === 0 && mainImage?.src) {
+      items.push({
+        src: mainImage.src,
+        alt: mainImage.alt || fallbackAlt,
+      });
+    }
+
+    return items;
+  }
+
+  function showLightboxImage(index) {
+    if (!lbImages.length || !modalImage) return;
+    lbIndex = (index + lbImages.length) % lbImages.length;
+    const item = lbImages[lbIndex];
+
+    resetLightboxTransform();
+    modalImage.style.opacity = "0.35";
+    modalImage.src = item.src;
+    modalImage.alt = item.alt;
+    window.requestAnimationFrame(() => {
+      modalImage.style.opacity = "1";
+    });
+
+    if (lbCounter) lbCounter.textContent = `${lbIndex + 1} / ${lbImages.length}`;
+    if (lbCaption) lbCaption.textContent = item.alt;
+    if (lbDownloadBtn) lbDownloadBtn.href = item.src;
+
+    if (lbThumbsWrap) {
+      const thumbBtns = lbThumbsWrap.querySelectorAll(".misutech_lb_thumb");
+      thumbBtns.forEach((el, idx) => {
+        const active = idx === lbIndex;
+        el.classList.toggle("is-active", active);
+        if (active) {
+          el.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+        }
+      });
+    }
+
+    // Đồng bộ ảnh chính trên trang sản phẩm
+    if (productImages.length > lbIndex && lbIndex !== activeImageIndex) {
+      setMainImage(lbIndex);
+    }
+  }
+
+  function syncLightboxGallery(startIndex = 0) {
+    lbImages = collectProductGalleryImages();
+    const hasMultiple = lbImages.length > 1;
+
+    if (lbPrevBtn) lbPrevBtn.hidden = !hasMultiple;
+    if (lbNextBtn) lbNextBtn.hidden = !hasMultiple;
+    if (lbThumbsBar) lbThumbsBar.hidden = !hasMultiple;
+    if (lbSlideshowBtn) lbSlideshowBtn.hidden = !hasMultiple;
+
+    if (lbThumbsWrap) {
+      lbThumbsWrap.innerHTML = "";
+      if (hasMultiple) {
+        lbImages.forEach((img, idx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "misutech_lb_thumb";
+          btn.setAttribute("aria-label", `Xem ảnh ${idx + 1}`);
+          btn.innerHTML = `<img src="${img.src}" alt="${img.alt.replace(/"/g, "&quot;")}" loading="lazy" decoding="async">`;
+          btn.addEventListener("click", () => {
+            stopLightboxSlideshow();
+            showLightboxImage(idx);
+          });
+          lbThumbsWrap.appendChild(btn);
+        });
+      }
+    }
+
+    showLightboxImage(startIndex);
+  }
+
+  function stopLightboxSlideshow() {
+    if (lbSlideshowTimer) {
+      window.clearInterval(lbSlideshowTimer);
+      lbSlideshowTimer = null;
+    }
+    if (lbSlideshowBtn) {
+      lbSlideshowBtn.classList.remove("is-active");
+      lbSlideshowBtn.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+    }
+  }
+
+  function toggleLightboxSlideshow() {
+    if (lbImages.length <= 1) return;
+    if (lbSlideshowTimer) {
+      stopLightboxSlideshow();
+      return;
+    }
+    if (lbSlideshowBtn) {
+      lbSlideshowBtn.classList.add("is-active");
+      lbSlideshowBtn.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
+    }
+    lbSlideshowTimer = window.setInterval(() => {
+      showLightboxImage(lbIndex + 1);
+    }, 2800);
+  }
+
+  function toggleLightboxFullscreen() {
+    if (!imageModal) return;
+    if (document.fullscreenElement === imageModal) {
+      document.exitFullscreen?.().catch(() => {});
+    } else {
+      imageModal.requestFullscreen?.().catch(() => {});
+    }
+  }
+
+  if (imageModal) {
+    imageModal.querySelector("[data-lb-zoom-in]")?.addEventListener("click", () => setLightboxZoom(lbScale + 0.5));
+    imageModal.querySelector("[data-lb-zoom-out]")?.addEventListener("click", () => setLightboxZoom(lbScale - 0.5));
+    imageModal.querySelector("[data-lb-rotate-left]")?.addEventListener("click", () => {
+      lbRotate -= 90;
+      applyLightboxTransform();
+    });
+    imageModal.querySelector("[data-lb-rotate-right]")?.addEventListener("click", () => {
+      lbRotate += 90;
+      applyLightboxTransform();
+    });
+    imageModal.querySelector("[data-lb-reset]")?.addEventListener("click", resetLightboxTransform);
+    lbSlideshowBtn?.addEventListener("click", toggleLightboxSlideshow);
+    lbFullscreenBtn?.addEventListener("click", toggleLightboxFullscreen);
+
+    lbPrevBtn?.addEventListener("click", () => {
+      stopLightboxSlideshow();
+      showLightboxImage(lbIndex - 1);
+    });
+    lbNextBtn?.addEventListener("click", () => {
+      stopLightboxSlideshow();
+      showLightboxImage(lbIndex + 1);
+    });
+
+    // Cuộn chuột để zoom mượt
+    lbViewport?.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      const delta = e.deltaY < 0 ? 0.25 : -0.25;
+      setLightboxZoom(lbScale + delta);
+    }, { passive: false });
+
+    // Nhấp đúp chuột vào ảnh để phóng to 220% hoặc đặt lại 100%
+    modalImage?.addEventListener("dblclick", () => {
+      if (lbScale > 1.05) {
+        resetLightboxTransform();
+      } else {
+        setLightboxZoom(2.2);
+      }
+    });
+
+    // Kéo di chuyển ảnh khi đang zoom
+    lbViewport?.addEventListener("mousedown", (e) => {
+      if (lbScale <= 1.01) return;
+      e.preventDefault();
+      lbIsDragging = true;
+      lbDragStartX = e.clientX - lbPanX;
+      lbDragStartY = e.clientY - lbPanY;
+      lbViewport.classList.add("is-dragging");
+    });
+
+    window.addEventListener("mousemove", (e) => {
+      if (!lbIsDragging) return;
+      lbPanX = e.clientX - lbDragStartX;
+      lbPanY = e.clientY - lbDragStartY;
+      applyLightboxTransform();
+    });
+
+    window.addEventListener("mouseup", () => {
+      if (!lbIsDragging) return;
+      lbIsDragging = false;
+      lbViewport?.classList.remove("is-dragging");
+    });
+
+    // Vuốt trái/phải trên thiết bị cảm ứng để chuyển ảnh
+    lbViewport?.addEventListener("touchstart", (e) => {
+      if (e.touches.length !== 1) return;
+      lbTouchStartX = e.touches[0].clientX;
+      lbTouchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    lbViewport?.addEventListener("touchend", (e) => {
+      if (lbScale > 1.05 || e.changedTouches.length !== 1) return;
+      const dx = e.changedTouches[0].clientX - lbTouchStartX;
+      const dy = e.changedTouches[0].clientY - lbTouchStartY;
+      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
+        stopLightboxSlideshow();
+        showLightboxImage(dx > 0 ? lbIndex - 1 : lbIndex + 1);
+      }
+    }, { passive: true });
+
+    // Bấm vào nền tối xung quanh ảnh để đóng modal
+    lbStage?.addEventListener("click", (e) => {
+      if (e.target === lbStage || e.target === lbViewport) {
+        closeModal(imageModal);
+      }
+    });
+
+    document.addEventListener("fullscreenchange", () => {
+      if (lbFullscreenBtn) {
+        lbFullscreenBtn.classList.toggle("is-active", document.fullscreenElement === imageModal);
+      }
+    });
+  }
+
+  // Cho phép bấm trực tiếp vào ảnh chính sản phẩm để mở lightbox toàn màn hình
+  mainImage?.addEventListener("click", () => {
+    openModal("image");
+  });
 
   function openCart() {
     if (!cartDrawer) return;
@@ -677,12 +966,42 @@
   });
 
   document.addEventListener("keydown", (event) => {
+    const isLightboxOpen = imageModal && !imageModal.hidden;
     if (event.key === "Escape") {
       document.querySelectorAll(".misutech_product_modal:not([hidden])").forEach(closeModal);
       closeCart();
+      return;
     }
-    if (event.key === "ArrowLeft" && imageModal && !imageModal.hidden) setMainImage(activeImageIndex - 1);
-    if (event.key === "ArrowRight" && imageModal && !imageModal.hidden) setMainImage(activeImageIndex + 1);
+    if (!isLightboxOpen) return;
+
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      stopLightboxSlideshow();
+      showLightboxImage(lbIndex - 1);
+    } else if (event.key === "ArrowRight") {
+      event.preventDefault();
+      stopLightboxSlideshow();
+      showLightboxImage(lbIndex + 1);
+    } else if (event.key === "+" || event.key === "=") {
+      event.preventDefault();
+      setLightboxZoom(lbScale + 0.5);
+    } else if (event.key === "-") {
+      event.preventDefault();
+      setLightboxZoom(lbScale - 0.5);
+    } else if (event.key === "0") {
+      event.preventDefault();
+      resetLightboxTransform();
+    } else if (event.key.toLowerCase() === "r") {
+      event.preventDefault();
+      lbRotate += 90;
+      applyLightboxTransform();
+    } else if (event.key.toLowerCase() === "f") {
+      event.preventDefault();
+      toggleLightboxFullscreen();
+    } else if (event.key === " ") {
+      event.preventDefault();
+      toggleLightboxSlideshow();
+    }
   });
 
   // Tự động tối ưu bảng trong nội dung mô tả sản phẩm (30/70 cho 2 cột & cuộn ngang mượt cho >= 3 cột)

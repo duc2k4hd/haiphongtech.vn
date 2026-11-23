@@ -917,13 +917,64 @@
     </aside>
     <div class="misutech_product_drawer_overlay" hidden></div>
 
-    <div class="misutech_product_modal" data-modal="image" hidden>
+    <div class="misutech_product_modal misutech_product_lightbox" data-modal="image" hidden>
         <div class="misutech_product_modal_dialog misutech_product_image_dialog" role="dialog" aria-modal="true"
-            aria-label="Ảnh sản phẩm">
-            <button class="misutech_product_modal_close" type="button" data-close-modal aria-label="Đóng">×</button>
-            <img class="misutech_product_modal_image"
-                src="{{ $product->thumbnailMedia->first()?->url ?? asset('storage/clients/imgs/products/no-image.png') }}"
-                alt="{{ $product->name }}">
+            aria-label="Trình xem ảnh sản phẩm">
+            <header class="misutech_lb_topbar">
+                <div class="misutech_lb_info">
+                    <span class="misutech_lb_counter" data-lb-counter>1 / 1</span>
+                    <span class="misutech_lb_caption" data-lb-caption>{{ $product->name }}</span>
+                </div>
+                <div class="misutech_lb_toolbar">
+                    <button type="button" class="misutech_lb_btn" data-lb-zoom-out title="Thu nhỏ (-)" aria-label="Thu nhỏ">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                    </button>
+                    <span class="misutech_lb_zoom_level" data-lb-zoom-level>100%</span>
+                    <button type="button" class="misutech_lb_btn" data-lb-zoom-in title="Phóng to (+)" aria-label="Phóng to">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                    </button>
+                    <button type="button" class="misutech_lb_btn" data-lb-rotate-left title="Xoay trái 90°" aria-label="Xoay trái">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                    </button>
+                    <button type="button" class="misutech_lb_btn" data-lb-rotate-right title="Xoay phải 90° (R)" aria-label="Xoay phải">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                    </button>
+                    <button type="button" class="misutech_lb_btn" data-lb-reset title="Đặt lại góc & tỷ lệ (0)" aria-label="Đặt lại">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                    </button>
+                    <button type="button" class="misutech_lb_btn" data-lb-slideshow title="Trình chiếu tự động (Space)" aria-label="Trình chiếu">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                    </button>
+                    <button type="button" class="misutech_lb_btn" data-lb-fullscreen title="Toàn màn hình (F)" aria-label="Toàn màn hình">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+                    </button>
+                    <a class="misutech_lb_btn" data-lb-download href="{{ $product->thumbnailMedia->first()?->url ?? asset('storage/clients/imgs/products/no-image.png') }}" download title="Tải ảnh về máy" aria-label="Tải ảnh">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    </a>
+                    <button class="misutech_lb_btn misutech_lb_close_btn" type="button" data-close-modal title="Đóng (Esc)" aria-label="Đóng">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+            </header>
+
+            <div class="misutech_lb_stage" data-lb-stage>
+                <button type="button" class="misutech_lb_nav misutech_lb_prev" data-lb-prev aria-label="Ảnh trước">
+                    <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                </button>
+                <div class="misutech_lb_viewport" data-lb-viewport>
+                    <img class="misutech_product_modal_image"
+                        src="{{ $product->thumbnailMedia->first()?->url ?? asset('storage/clients/imgs/products/no-image.png') }}"
+                        alt="{{ $product->name }}"
+                        draggable="false">
+                </div>
+                <button type="button" class="misutech_lb_nav misutech_lb_next" data-lb-next aria-label="Ảnh tiếp theo">
+                    <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+            </div>
+
+            <footer class="misutech_lb_thumbs_bar" data-lb-thumbs-bar>
+                <div class="misutech_lb_thumbs" data-lb-thumbs></div>
+            </footer>
         </div>
     </div>
 
