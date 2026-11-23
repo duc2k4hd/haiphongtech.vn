@@ -1,5 +1,7 @@
 @extends('admins.layouts.master')
 
+@section('title', 'Quản lý Liên hệ')
+
 @section('styles')
     <style>
         /* ═════════════════════════════════════════════════════════════════════

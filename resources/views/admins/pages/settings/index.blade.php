@@ -1,5 +1,7 @@
 @extends('admins.layouts.master')
 
+@section('title', 'Cấu hình Hệ thống')
+
 @section('styles')
     <style>
         /* ═════════════════════════════════════════════════════════════════════

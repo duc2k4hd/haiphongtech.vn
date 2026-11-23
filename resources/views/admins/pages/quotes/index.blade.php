@@ -1,5 +1,7 @@
 @extends('admins.layouts.master')
 
+@section('title', 'Quản lý Báo giá')
+
 @section('styles')
     <style>
         /* ═════════════════════════════════════════════════════════════════════
@@ -1173,7 +1175,7 @@
             printWindow.document.write(`
                 <html>
                 <head>
-                    <title>In Báo Giá - Hải Phòng Tech</title>
+                    <title>{{ \App\Support\PageTitle::format('In Báo Giá', $settings ?? null) }}</title>
                     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
                     <style>
                         body { padding: 30px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }

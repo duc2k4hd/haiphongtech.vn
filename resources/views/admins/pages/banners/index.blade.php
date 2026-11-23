@@ -1,5 +1,7 @@
 @extends('admins.layouts.master')
 
+@section('title', 'Quản lý Banner')
+
 @section('styles')
     <style>
         /* ═════════════════════════════════════════════════════════════════════

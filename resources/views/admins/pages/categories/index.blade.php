@@ -1,5 +1,7 @@
 @extends('admins.layouts.master')
 
+@section('title', 'Quản lý Danh mục')
+
 @section('styles')
     <style>
         .tox-promotion { display: none !important; }

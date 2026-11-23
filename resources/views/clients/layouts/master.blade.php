@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     @include('clients.components.head')
-    <title>@yield('title', $settings->meta_title ?? ('Hải Phòng Tech – ' . ($settings->company ?? 'CÔNG TY TNHH HẢI PHÒNG TECH')))</title>
+    <title>{{ \App\Support\PageTitle::format(trim((string) $__env->yieldContent('title')), $settings ?? null, $settings->meta_title ?? 'Trang chủ') }}</title>
     @stack('meta')
     @yield('styles')
     @stack('styles')

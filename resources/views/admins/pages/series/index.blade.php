@@ -1,5 +1,7 @@
 @extends('admins.layouts.master')
 
+@section('title', 'Quản lý Dòng sản phẩm (Series)')
+
 @section('styles')
     <style>
         /* ═════════════════════════════════════════════════════════════════════

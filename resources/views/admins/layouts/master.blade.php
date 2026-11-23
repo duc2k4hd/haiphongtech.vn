@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Hải Phòng Tech Admin')</title>
+    <title>{{ \App\Support\PageTitle::format(trim((string) $__env->yieldContent('title')), $settings ?? null, 'Quản trị') }}</title>
     <!-- Favicon icon -->
     @php
         $faviconUrl = !empty($settings->site_favicon) 
