@@ -6,47 +6,50 @@
  * ============================================================================
  *
  * 1. Chạy import TOÀN BỘ file CSV (bỏ qua sản phẩm đã có để chạy tiếp nếu ngắt):
- *    php artisan products:import-csv "D:\File\Full sản phẩm HPT.csv" --skip-existing
+ *    php artisan products:import-csv "E:\Project\Laravel\haiphongtech.vn\Full sản phẩm HPT.csv" --skip-existing
  *
  * 2. Chạy import TOÀN BỘ và GHI ĐÈ / CẬP NHẬT lại sản phẩm đã có:
- *    php artisan products:import-csv "D:\File\Full sản phẩm HPT.csv"
+ *    php artisan products:import-csv "E:\Project\Laravel\haiphongtech.vn\Full sản phẩm HPT.csv"
  *
  * 3. Chạy thử 1 sản phẩm đầu tiên để kiểm tra nhanh:
- *    php artisan products:import-csv "D:\File\Full sản phẩm HPT.csv" --limit=1
+ *    php artisan products:import-csv "E:\Project\Laravel\haiphongtech.vn\Full sản phẩm HPT.csv" --limit=1
  *
  * 4. Chạy theo từng đợt (ví dụ bỏ qua 1000 dòng đầu, import tiếp 2000 sản phẩm):
- *    php artisan products:import-csv "D:\File\Full sản phẩm HPT.csv" --offset=1000 --limit=2000 --skip-existing
+ *    php artisan products:import-csv "E:\Project\Laravel\haiphongtech.vn\Full sản phẩm HPT.csv" --offset=1000 --limit=2000 --skip-existing
  *
  * 5. Chỉ import / cập nhật riêng 1 mã SKU cụ thể:
- *    php artisan products:import-csv "D:\File\Full sản phẩm HPT.csv" --sku="S8FS-C35024"
+ *    php artisan products:import-csv "E:\Project\Laravel\haiphongtech.vn\Full sản phẩm HPT.csv" --sku="S8FS-C35024"
  *
  * 6. Chạy thử chế độ Dry-Run (không ghi DB, không tải ảnh/tài liệu):
- *    php artisan products:import-csv "D:\File\Full sản phẩm HPT.csv" --limit=10 --dry-run
+ *    php artisan products:import-csv "E:\Project\Laravel\haiphongtech.vn\Full sản phẩm HPT.csv" --limit=10 --dry-run
  *
  * 7. Tăng timeout tải ảnh/catalog nếu mạng chậm (mặc định 20 giây):
- *    php artisan products:import-csv "D:\File\Full sản phẩm HPT.csv" --skip-existing --timeout=45
+ *    php artisan products:import-csv "E:\Project\Laravel\haiphongtech.vn\Full sản phẩm HPT.csv" --skip-existing --timeout=45
  *
  * 8. Chạy CHẾ ĐỘ CRON JOB tự động ngày đêm (an toàn tuyệt đối cho web nguồn):
  *    - Tự động bật --only-new (TUYỆT ĐỐI không sửa/không đè SKU đã có, chỉ tạo sản phẩm mới)
  *    - Tự lưu vị trí dòng đã chạy (byte-offset) để lần sau chạy tiếp trong 0.001s
  *    - Tự khóa chống chạy chồng (file lock) & tự nghỉ nhẹ giữa mỗi request tránh làm sập web nguồn
- *    php artisan products:import-csv "D:\File\Full sản phẩm HPT.csv" --cron --only-new --limit=15 --sleep-ms=1200 --delay-product-ms=800
+ *    php artisan products:import-csv "E:\Project\Laravel\haiphongtech.vn\Full sản phẩm HPT.csv" --cron --only-new --limit=15 --sleep-ms=1200 --delay-product-ms=800
  *
  * 9. Chạy Laravel Scheduler liên tục ngày đêm trên máy local (Windows):
  *    php artisan schedule:work
  *
  * 10. Đặt lại vị trí dòng cron về đầu file (vẫn giữ --only-new, không đè SKU cũ):
- *    php artisan products:import-csv "D:\File\Full sản phẩm HPT.csv" --cron --reset-cursor --limit=15
+ *    php artisan products:import-csv "E:\Project\Laravel\haiphongtech.vn\Full sản phẩm HPT.csv" --cron --reset-cursor --limit=15
  *
  * 11. Cron Linux / cPanel (chạy mỗi phút, Laravel tự điều phối mỗi 5 phút):
  *    * * * * * cd /duong-dan-du-an && php artisan schedule:run >> /dev/null 2>&1
  *
  * Ghi chú:
- * - Đường dẫn file mặc định là "D:\File\Full sản phẩm HPT.csv" (có thể bỏ qua tham số file).
+ * - Đường dẫn file mặc định là "E:\Project\Laravel\haiphongtech.vn\Full sản phẩm HPT.csv" (có thể bỏ qua tham số file).
  * - Ảnh sản phẩm & ảnh trong mô tả được lưu tại: storage/app/public/clients/imgs/products/ (đặt tên theo SKU).
  * - Tài liệu catalog được lưu tại: storage/app/public/clients/imgs/catalogs/ (tự bỏ qua Google Drive & chống trùng file).
  * - Log chạy cron lưu tại: storage/logs/products-import-cron.log
  * ============================================================================
+ * 
+ * - Đồng bộ lại danh mục nhanh từ file CSV
+ *   php artisan products:import-csv "E:\Project\Laravel\haiphongtech.vn\Full sản phẩm HPT.csv" --sync-categories-only
  */
 
 namespace App\Console\Commands;
@@ -55,11 +58,13 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Media;
 use App\Models\Product;
+use App\Services\Catalog\CategoryMatcherService;
 use Carbon\Carbon;
 use DOMDocument;
 use DOMElement;
 use DOMNode;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
@@ -78,6 +83,7 @@ class ProductsImportCsvCommand extends Command
         {--delay-product-ms=0 : Nghỉ N ms giữa mỗi sản phẩm (--cron mặc định 800ms)}
         {--cursor-file= : Đường dẫn file lưu checkpoint dòng đang chạy cho --cron}
         {--reset-cursor : Đặt lại checkpoint cron về đầu file CSV}
+        {--sync-categories-only : Chỉ đồng bộ lại danh mục (category_id & category_product) cho các sản phẩm đã có trong DB, không tải ảnh/catalog}
         {--dry-run : Chạy thử không ghi DB và không tải file}
         {--timeout=20 : Timeout tải ảnh/tài liệu tính bằng giây}';
 
@@ -130,9 +136,12 @@ class ProductsImportCsvCommand extends Command
 
     protected string $batchId = '';
 
+    protected ?CategoryMatcherService $categoryMatcher = null;
+
     public function handle(): int
     {
         $filePath = (string) $this->argument('file');
+        $syncCategoriesOnly = (bool) $this->option('sync-categories-only');
         $isCron = (bool) $this->option('cron');
         $onlyNew = (bool) $this->option('only-new') || (bool) $this->option('skip-existing') || $isCron;
         $limit = max(0, (int) $this->option('limit'));
@@ -162,6 +171,10 @@ class ProductsImportCsvCommand extends Command
             $this->error("Không tìm thấy file CSV: {$filePath}");
 
             return self::FAILURE;
+        }
+
+        if ($syncCategoriesOnly) {
+            return $this->runSyncCategoriesOnly($filePath);
         }
 
         // Khóa chống chạy chồng khi chạy Cron Job
@@ -413,6 +426,10 @@ class ProductsImportCsvCommand extends Command
             ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
         }
 
+        if ($processed > 0 && ! $this->dryRun) {
+            $this->clearCatalogCaches();
+        }
+
         $this->newLine();
         $this->info('=== KẾT QUẢ IMPORT SẢN PHẨM CSV ===');
         $this->table(
@@ -495,6 +512,8 @@ class ProductsImportCsvCommand extends Command
                 $this->existingWpIds[(int) $existingProd->source_wp_id] = true;
             }
         }
+
+        $this->categoryMatcher = new CategoryMatcherService();
     }
 
     /**
@@ -613,7 +632,7 @@ class ProductsImportCsvCommand extends Command
 
         $price = $this->parsePrice($rawPrice);
         $brandId = $this->resolveBrandId($rawBrand);
-        [$primaryCategoryId, $categoryIds] = $this->resolveCategories($rawCategories);
+        [$primaryCategoryId, $categoryIds] = $this->resolveCategories($rawCategories, $name);
         $canonicalUrl = $this->extractCanonicalPath($permalink, $slug);
 
         // Làm sạch & gộp 3 phần: Mô tả + Kích thước sản phẩm + Sơ đồ đấu nối điện
@@ -1071,6 +1090,10 @@ class ProductsImportCsvCommand extends Command
             }
 
             $ext = $this->resolveExtension($url, (string) $resp->header('Content-Type'), 'webp');
+            $converted = $this->ensureWebpImage($body, $ext);
+            $body = $converted['body'];
+            $ext = $converted['ext'];
+
             $filename = $baseFilename . '.' . $ext;
             $absPath = $this->productsImgDir . DIRECTORY_SEPARATOR . $filename;
             file_put_contents($absPath, $body);
@@ -1117,6 +1140,10 @@ class ProductsImportCsvCommand extends Command
 
             $contentType = (string) $resp->header('Content-Type');
             $ext = $this->resolveExtension($url, $contentType, 'webp');
+            $converted = $this->ensureWebpImage($body, $ext);
+            $body = $converted['body'];
+            $ext = $converted['ext'];
+
             $filename = $targetBaseName . '.' . $ext;
             $absPath = $this->productsImgDir . DIRECTORY_SEPARATOR . $filename;
 
@@ -1127,9 +1154,10 @@ class ProductsImportCsvCommand extends Command
             $imgInfo = @getimagesize($absPath);
             $width = is_array($imgInfo) ? ($imgInfo[0] ?? null) : null;
             $height = is_array($imgInfo) ? ($imgInfo[1] ?? null) : null;
-            $mime = is_array($imgInfo) && ! empty($imgInfo['mime'])
-                ? $imgInfo['mime']
-                : ($contentType !== '' ? explode(';', $contentType)[0] : 'image/' . $ext);
+            $mime = $converted['mime']
+                ?? (is_array($imgInfo) && ! empty($imgInfo['mime'])
+                    ? $imgInfo['mime']
+                    : ($contentType !== '' ? explode(';', $contentType)[0] : 'image/' . $ext));
 
             $media = Media::updateOrCreate(
                 [
@@ -1273,55 +1301,155 @@ class ProductsImportCsvCommand extends Command
     }
 
     /**
-     * Khớp danh mục theo đúng cây cha > con trong bảng categories hiện có.
+     * Khớp danh mục từ chuỗi CSV (cấu trúc Hãng > Thiết bị) về đúng cây danh mục thiết bị trong DB.
      *
      * @return array{0: int|null, 1: array<int, int>} [primaryCategoryId, allMatchedCategoryIds]
      */
-    protected function resolveCategories(string $rawCategories): array
+    protected function resolveCategories(string $rawCategories, string $productName = ''): array
     {
-        if (trim($rawCategories) === '') {
-            return [null, []];
+        if ($this->categoryMatcher === null) {
+            $this->categoryMatcher = new CategoryMatcherService();
         }
 
-        $paths = array_filter(array_map('trim', explode(',', $rawCategories)));
-        $matchedIds = [];
-        $deepestId = null;
-        $maxDepth = -1;
+        return $this->categoryMatcher->resolve($rawCategories, $productName);
+    }
 
-        foreach ($paths as $path) {
-            $segments = array_values(array_filter(array_map('trim', explode('>', $path))));
-            if (empty($segments)) {
+    /**
+     * Chỉ đồng bộ lại danh mục (category_id và bảng category_product) cho toàn bộ sản phẩm đã có trong DB.
+     * Không tải ảnh/catalog, không ghi đè mô tả hay SKU.
+     */
+    protected function runSyncCategoriesOnly(string $filePath): int
+    {
+        $matcher = new CategoryMatcherService();
+
+        $byWpId = [];
+        $bySlug = [];
+        $bySku = [];
+        foreach (Product::select(['id', 'source_wp_id', 'slug', 'sku'])->cursor() as $p) {
+            $pid = (int) $p->id;
+            if (! empty($p->source_wp_id)) {
+                $byWpId[(int) $p->source_wp_id] = $pid;
+            }
+            if (! empty($p->slug)) {
+                $bySlug[strtolower((string) $p->slug)] = $pid;
+            }
+            if (! empty($p->sku)) {
+                $bySku[strtoupper((string) $p->sku)] = $pid;
+            }
+        }
+
+        if (empty($byWpId) && empty($bySlug) && empty($bySku)) {
+            $this->warn('Không có sản phẩm nào trong cơ sở dữ liệu để đồng bộ danh mục.');
+
+            return self::SUCCESS;
+        }
+
+        $fh = fopen($filePath, 'rb');
+        if ($fh === false) {
+            $this->error("Không thể mở file: {$filePath}");
+
+            return self::FAILURE;
+        }
+
+        $bom = fread($fh, 3);
+        if ($bom !== "\xEF\xBB\xBF") {
+            rewind($fh);
+        }
+
+        $headers = fgetcsv($fh);
+        if (! is_array($headers) || count($headers) < 5) {
+            fclose($fh);
+            $this->error('Header file CSV không hợp lệ.');
+
+            return self::FAILURE;
+        }
+
+        $colMap = $this->buildColumnMap($headers);
+        $updated = 0;
+        $unmatched = 0;
+        $processedIds = [];
+        $now = Carbon::now('Asia/Ho_Chi_Minh');
+
+        while (($row = fgetcsv($fh)) !== false) {
+            $sourceWpId = (int) $this->getCol($row, $colMap, 'id') ?: null;
+            $slug = strtolower($this->getCol($row, $colMap, 'slug'));
+            $sku = strtoupper($this->getCol($row, $colMap, 'sku'));
+
+            $productId = null;
+            if ($sourceWpId !== null && isset($byWpId[$sourceWpId])) {
+                $productId = $byWpId[$sourceWpId];
+            } elseif ($slug !== '' && isset($bySlug[$slug])) {
+                $productId = $bySlug[$slug];
+            } elseif ($sku !== '' && isset($bySku[$sku])) {
+                $productId = $bySku[$sku];
+            }
+
+            if ($productId === null || isset($processedIds[$productId])) {
+                continue;
+            }
+            $processedIds[$productId] = true;
+
+            $name = $this->getCol($row, $colMap, 'name');
+            $rawCategories = $this->getCol($row, $colMap, 'categories');
+            [$primaryCategoryId, $categoryIds] = $matcher->resolve($rawCategories, $name);
+
+            if ($primaryCategoryId === null) {
+                $unmatched++;
                 continue;
             }
 
-            $parentId = 0;
-            $lastId = null;
-            foreach ($segments as $depth => $segName) {
-                $lower = mb_strtolower($segName, 'UTF-8');
-                $foundId = $this->categoryByParentAndName["{$parentId}|{$lower}"]
-                    ?? $this->categoryByLowerName[$lower]
-                    ?? $this->categoryBySlug[Str::slug($segName)]
-                    ?? null;
+            if (! $this->dryRun) {
+                DB::transaction(function () use ($productId, $primaryCategoryId, $categoryIds, $now) {
+                    DB::table('products')
+                        ->where('id', $productId)
+                        ->update(['category_id' => $primaryCategoryId]);
 
-                if ($foundId !== null) {
-                    $matchedIds[$foundId] = $foundId;
-                    $parentId = $foundId;
-                    $lastId = $foundId;
-                    if ($depth > $maxDepth) {
-                        $maxDepth = $depth;
-                        $deepestId = $foundId;
+                    DB::table('category_product')->where('product_id', $productId)->delete();
+                    $pivots = [];
+                    foreach ($categoryIds as $cid) {
+                        $pivots[] = [
+                            'category_id' => $cid,
+                            'product_id' => $productId,
+                            'is_primary' => $cid === $primaryCategoryId ? 1 : 0,
+                            'created_at' => $now,
+                            'updated_at' => $now,
+                        ];
                     }
-                } else {
-                    break;
-                }
+                    if (! empty($pivots)) {
+                        DB::table('category_product')->insert($pivots);
+                    }
+                });
             }
 
-            if ($lastId !== null && $deepestId === null) {
-                $deepestId = $lastId;
-            }
+            $updated++;
         }
 
-        return [$deepestId, array_values($matchedIds)];
+        fclose($fh);
+
+        if ($updated > 0 && ! $this->dryRun) {
+            $this->clearCatalogCaches();
+        }
+
+        $this->info("Đồng bộ danh mục hoàn tất: Đã cập nhật {$updated} sản phẩm | Chưa khớp {$unmatched} sản phẩm.");
+
+        return self::SUCCESS;
+    }
+
+    /**
+     * Xóa bộ nhớ đệm danh mục/trang chủ/cửa hàng để sản phẩm mới hiển thị ngay lập tức.
+     */
+    protected function clearCatalogCaches(): void
+    {
+        foreach ([
+            'home_category_sections_map',
+            'catalog_category_product_counts_v1',
+            'shop_sidebar_categories',
+            'shop_filter_brands_nonempty_v1',
+            'shop_max_price',
+            'all_brands_page',
+        ] as $key) {
+            Cache::forget($key);
+        }
     }
 
     protected function parsePrice(string $raw): float
@@ -1402,6 +1530,75 @@ class ProductsImportCsvCommand extends Command
     protected function normalizeUrl(string $url): string
     {
         return trim($url);
+    }
+
+    /**
+     * Đảm bảo ảnh đầu ra ở định dạng WebP:
+     * - Nếu dữ liệu ảnh đã là WebP thực sự (kiểm tra chữ ký nhị phân RIFF...WEBP): giữ nguyên, không nén lại.
+     * - Nếu không phải WebP (JPG, PNG, GIF, BMP, ...): chuyển đổi sang WebP ngay trong RAM bằng GD, giữ kênh alpha.
+     * - Bỏ qua chuyển đổi đối với ảnh vector SVG hoặc khi không giải mã được (giữ nguyên an toàn).
+     *
+     * @return array{body: string, ext: string, mime: string|null}
+     */
+    protected function ensureWebpImage(string $body, string $ext, int $quality = 85): array
+    {
+        $extLower = strtolower($ext);
+
+        // Kiểm tra chữ ký nhị phân thực tế của định dạng WebP (RIFF....WEBP)
+        if (strlen($body) >= 12 && substr($body, 0, 4) === 'RIFF' && substr($body, 8, 4) === 'WEBP') {
+            return [
+                'body' => $body,
+                'ext' => 'webp',
+                'mime' => 'image/webp',
+            ];
+        }
+
+        // Ảnh vector SVG hoặc môi trường không có GD imagewebp -> giữ nguyên định dạng gốc
+        if ($extLower === 'svg' || ! function_exists('imagewebp') || ! function_exists('imagecreatefromstring')) {
+            return [
+                'body' => $body,
+                'ext' => $extLower,
+                'mime' => null,
+            ];
+        }
+
+        $img = @imagecreatefromstring($body);
+        if ($img === false) {
+            return [
+                'body' => $body,
+                'ext' => $extLower,
+                'mime' => null,
+            ];
+        }
+
+        try {
+            // Chuyển ảnh bảng màu (PNG-8 / GIF) sang truecolor vì GD imagewebp yêu cầu truecolor
+            if (! imageistruecolor($img)) {
+                imagepalettetotruecolor($img);
+            }
+            imagealphablending($img, true);
+            imagesavealpha($img, true);
+
+            ob_start();
+            $ok = @imagewebp($img, null, $quality);
+            $webpBody = (string) ob_get_clean();
+
+            if ($ok && $webpBody !== '' && strlen($webpBody) >= 12 && substr($webpBody, 0, 4) === 'RIFF' && substr($webpBody, 8, 4) === 'WEBP') {
+                return [
+                    'body' => $webpBody,
+                    'ext' => 'webp',
+                    'mime' => 'image/webp',
+                ];
+            }
+        } finally {
+            unset($img);
+        }
+
+        return [
+            'body' => $body,
+            'ext' => $extLower,
+            'mime' => null,
+        ];
     }
 
     protected function resolveExtension(string $url, string $contentType, string $fallback): string
