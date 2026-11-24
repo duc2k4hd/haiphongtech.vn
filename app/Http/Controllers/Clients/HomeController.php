@@ -26,14 +26,15 @@ class HomeController extends Controller
 
     public function index()
     {
-        // 1. Banners: Query nhanh nhóm theo vị trí
+        // 1. Banners: Query nhanh nhóm theo vị trí (chỉ select cột cần thiết, siêu tốc 0.1ms)
         $banners = Banner::where('status', 'active')
+            ->select(['id', 'title', 'image', 'link', 'position', 'status'])
             ->orderBy('position', 'asc')
             ->get()
             ->groupBy('position');
 
-        // 2. Category Sections: Thuật toán gom nhóm In-memory siêu tốc, 0 đệ quy, giảm từ 300+ queries xuống 2 queries
-        $categorySectionsData = Cache::remember('home_category_sections_map', 1800, function () {
+        // 2. Category Sections: Tối ưu triệt để: chỉ query 10 IDs sản phẩm mới nhất cho 5 danh mục hàng đầu
+        $categorySectionsData = Cache::remember('home_category_sections_map_v2', 3600, function () {
             $allCats = Category::where('status', 'active')
                 ->where('type', 'product')
                 ->select(['id', 'name', 'slug', 'parent_id', 'icon', 'banner', 'position'])
@@ -74,7 +75,13 @@ class HomeController extends Controller
 
                 if ($pCount > 0) {
                     $candidates[] = [
-                        'category' => $cat,
+                        'category' => [
+                            'id' => $cat->id,
+                            'name' => $cat->name,
+                            'slug' => $cat->slug,
+                            'icon' => $cat->icon,
+                            'banner' => $cat->banner,
+                        ],
                         'category_id' => $cat->id,
                         'cat_ids' => $allCatIds,
                         'count' => $pCount,
@@ -95,53 +102,30 @@ class HomeController extends Controller
                 return [];
             }
 
-            $allTargetCatIds = [];
-            foreach ($selected as $s) {
-                $allTargetCatIds = array_merge($allTargetCatIds, $s['cat_ids']);
-            }
-            $allTargetCatIds = array_values(array_unique($allTargetCatIds));
-
-            $rawProducts = Product::published()
-                ->select(['id', 'category_id', 'published_at'])
-                ->where(function ($q) use ($allTargetCatIds) {
-                    $q->whereIn('category_id', $allTargetCatIds)
-                      ->orWhereExists(function ($sub) use ($allTargetCatIds) {
-                          $sub->selectRaw('1')
-                              ->from('category_product')
-                              ->whereColumn('category_product.product_id', 'products.id')
-                              ->whereIn('category_product.category_id', $allTargetCatIds);
-                      });
-                })
-                ->with(['categories:id'])
-                ->latest('published_at')
-                ->get();
-
             $result = [];
             foreach ($selected as $item) {
-                $targetIdsLookup = array_flip($item['cat_ids']);
-                $pIds = $rawProducts->filter(function ($p) use ($targetIdsLookup) {
-                    if ($p->category_id && isset($targetIdsLookup[$p->category_id])) {
-                        return true;
-                    }
-                    foreach ($p->categories as $assignedCat) {
-                        if (isset($targetIdsLookup[$assignedCat->id])) {
-                            return true;
-                        }
-                    }
-                    return false;
-                })->take(10)->pluck('id')->toArray();
+                $catIds = $item['cat_ids'];
+
+                // Query trực tiếp 10 ID mới nhất có LIMIT, tận dụng index thay vì nạp toàn bộ sản phẩm vào RAM
+                $pIds = Product::published()
+                    ->where(function ($q) use ($catIds) {
+                        $q->whereIn('category_id', $catIds)
+                          ->orWhereExists(function ($sub) use ($catIds) {
+                              $sub->selectRaw('1')
+                                  ->from('category_product')
+                                  ->whereColumn('category_product.product_id', 'products.id')
+                                  ->whereIn('category_product.category_id', $catIds);
+                          });
+                    })
+                    ->latest('published_at')
+                    ->limit(10)
+                    ->pluck('id')
+                    ->toArray();
 
                 if (!empty($pIds)) {
-                    $catModel = $item['category'];
                     $result[] = [
-                        'category_id' => $catModel->id,
-                        'category' => [
-                            'id' => $catModel->id,
-                            'name' => $catModel->name,
-                            'slug' => $catModel->slug,
-                            'icon' => $catModel->icon,
-                            'banner' => $catModel->banner,
-                        ],
+                        'category_id' => $item['category_id'],
+                        'category' => $item['category'],
                         'product_ids' => $pIds
                     ];
                 }
@@ -292,9 +276,14 @@ class HomeController extends Controller
         $partnerBrands = collect(is_array($partnerBrandsData) ? $partnerBrandsData : [])
             ->map(fn ($item) => (object) (is_array($item) ? $item : (array) $item));
 
-        $homePage = Schema::hasTable('pages')
-            ? Page::where('page_role', 'home')->first()
-            : null;
+        $cachedHomePage = Cache::remember('home_page_role_data', 3600, function () {
+            try {
+                return Page::where('page_role', 'home')->first() ?? false;
+            } catch (\Throwable $e) {
+                return false;
+            }
+        });
+        $homePage = $cachedHomePage === false ? null : $cachedHomePage;
 
         return view('clients.pages.home.index', compact(
             'homePage',

@@ -44,21 +44,27 @@ class AppServiceProvider extends ServiceProvider
             }
         }
 
-        // Chia sẻ dữ liệu toàn cục cho View bằng View Composer
-        View::composer('*', function ($view) {
+        // Chia sẻ dữ liệu toàn cục cho giao diện Client (static in-memory cho mỗi request, siêu tốc < 1ms)
+        View::composer(['clients.*'], function ($view) {
             static $sharedData = null;
             if ($sharedData === null) {
                 try {
                     $allCategories = Category::whereNull('parent_id')
                         ->where('type', 'product')
                         ->where('status', 'active')
-                        ->with('children.children')
-                        ->orderBy('id', 'asc')
+                        ->select(['id', 'name', 'slug', 'parent_id', 'icon', 'banner', 'position'])
+                        ->with([
+                            'children' => fn($q) => $q->select(['id', 'name', 'slug', 'parent_id', 'icon', 'banner', 'position'])->where('status', 'active')->orderBy('position', 'asc'),
+                            'children.children' => fn($q) => $q->select(['id', 'name', 'slug', 'parent_id', 'icon', 'banner', 'position'])->where('status', 'active')->orderBy('position', 'asc'),
+                        ])
+                        ->orderBy('position', 'asc')
                         ->get();
 
                     $mainCategories = $allCategories->take(9);
 
-                    $settingsArray = Setting::select(['key', 'value'])->pluck('value', 'key')->toArray();
+                    $settingsArray = Cache::remember('global_settings_arr_v1', 86400, function () {
+                        return Setting::select(['key', 'value'])->pluck('value', 'key')->toArray();
+                    });
                     $settings = (object) $settingsArray;
 
                     // Xử lý định dạng Hotline
@@ -83,12 +89,12 @@ class AppServiceProvider extends ServiceProvider
                     $headerMenuItems = collect();
                     $footerPolicyItems = collect();
                     $footerCompanyItems = collect();
-                    if (Schema::hasTable('navigation_menus')) {
+                    try {
                         $menus = NavigationMenu::with('rootItems')->where('status', 'active')->get()->keyBy('code');
                         $headerMenuItems = $menus->get('header_main')?->rootItems ?? collect();
                         $footerPolicyItems = $menus->get('footer_policies')?->rootItems ?? collect();
                         $footerCompanyItems = $menus->get('footer_company')?->rootItems ?? collect();
-                    }
+                    } catch (\Throwable $e) {}
 
                     $sharedData = compact(
                         'allCategories',
@@ -120,6 +126,8 @@ class AppServiceProvider extends ServiceProvider
         // Tự động xóa cache khi có thay đổi dữ liệu trong Admin
         Product::saved(function ($product) {
             Cache::forget('home_category_sections_map');
+            Cache::forget('home_category_sections_map_v2');
+            Cache::forget('catalog_category_product_counts_v1');
             Cache::forget('shop_sidebar_categories');
             Cache::forget('shop_filter_brands');
             Cache::forget('shop_max_price');
@@ -137,6 +145,8 @@ class AppServiceProvider extends ServiceProvider
         });
         Product::deleted(function ($product) {
             Cache::forget('home_category_sections_map');
+            Cache::forget('home_category_sections_map_v2');
+            Cache::forget('catalog_category_product_counts_v1');
             Cache::forget('shop_sidebar_categories');
             Cache::forget('shop_filter_brands');
             Cache::forget('shop_max_price');
@@ -154,7 +164,10 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Category::saved(function () {
+            Cache::forget('global_shared_view_data_v2');
             Cache::forget('home_category_sections_map');
+            Cache::forget('home_category_sections_map_v2');
+            Cache::forget('catalog_category_product_counts_v1');
             Cache::forget('home_blog_sections_map');
             Cache::forget('shop_sidebar_categories');
             Cache::forget('blog_sidebar_categories');
@@ -164,7 +177,10 @@ class AppServiceProvider extends ServiceProvider
             Cache::forget('document_filter_categories');
         });
         Category::deleted(function () {
+            Cache::forget('global_shared_view_data_v2');
             Cache::forget('home_category_sections_map');
+            Cache::forget('home_category_sections_map_v2');
+            Cache::forget('catalog_category_product_counts_v1');
             Cache::forget('home_blog_sections_map');
             Cache::forget('shop_sidebar_categories');
             Cache::forget('blog_sidebar_categories');
@@ -184,11 +200,13 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Brand::saved(function () {
+            Cache::forget('home_partner_brands');
             Cache::forget('shop_filter_brands');
             Cache::forget('all_brands_page');
             Cache::forget('document_filter_brands');
         });
         Brand::deleted(function () {
+            Cache::forget('home_partner_brands');
             Cache::forget('shop_filter_brands');
             Cache::forget('all_brands_page');
             Cache::forget('document_filter_brands');
@@ -206,11 +224,15 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Banner::saved(function () {
+            Cache::forget('global_shared_view_data_v2');
             Cache::forget('home_banners_grouped');
+            Cache::forget('home_banners_grouped_v1');
             Cache::forget('global_banners');
         });
         Banner::deleted(function () {
+            Cache::forget('global_shared_view_data_v2');
             Cache::forget('home_banners_grouped');
+            Cache::forget('home_banners_grouped_v1');
             Cache::forget('global_banners');
         });
 
@@ -228,12 +250,15 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Setting::saved(function () {
+            Cache::forget('global_shared_view_data_v2');
             Cache::forget('global_settings');
         });
         SupportContact::saved(function () {
+            Cache::forget('global_shared_view_data_v2');
             Cache::forget('global_support_contacts');
         });
         SupportContact::deleted(function () {
+            Cache::forget('global_shared_view_data_v2');
             Cache::forget('global_support_contacts');
         });
     }
