@@ -135,6 +135,9 @@ class AppServiceProvider extends ServiceProvider
             Cache::forget('document_filter_brands');
             Cache::forget('document_filter_categories');
             Cache::forget('document_total_count');
+            for ($i = 1; $i <= 10; $i++) {
+                Cache::forget("document_default_page_data_p{$i}");
+            }
             if ($product->series_id) {
                 Cache::forget("series_models_embedded_{$product->series_id}");
                 Cache::forget("series_related_{$product->series_id}");
@@ -154,6 +157,9 @@ class AppServiceProvider extends ServiceProvider
             Cache::forget('document_filter_brands');
             Cache::forget('document_filter_categories');
             Cache::forget('document_total_count');
+            for ($i = 1; $i <= 10; $i++) {
+                Cache::forget("document_default_page_data_p{$i}");
+            }
             if ($product->series_id) {
                 Cache::forget("series_models_embedded_{$product->series_id}");
                 Cache::forget("series_related_{$product->series_id}");
@@ -216,11 +222,17 @@ class AppServiceProvider extends ServiceProvider
             Cache::forget('document_filter_brands');
             Cache::forget('document_filter_categories');
             Cache::forget('document_total_count');
+            for ($i = 1; $i <= 10; $i++) {
+                Cache::forget("document_default_page_data_p{$i}");
+            }
         });
         Media::deleted(function () {
             Cache::forget('document_filter_brands');
             Cache::forget('document_filter_categories');
             Cache::forget('document_total_count');
+            for ($i = 1; $i <= 10; $i++) {
+                Cache::forget("document_default_page_data_p{$i}");
+            }
         });
 
         Banner::saved(function () {
@@ -260,6 +272,13 @@ class AppServiceProvider extends ServiceProvider
         SupportContact::deleted(function () {
             Cache::forget('global_shared_view_data_v2');
             Cache::forget('global_support_contacts');
+        });
+
+        NavigationMenu::saved(function () {
+            Cache::forget('global_shared_view_data_v2');
+        });
+        NavigationMenu::deleted(function () {
+            Cache::forget('global_shared_view_data_v2');
         });
     }
 }
