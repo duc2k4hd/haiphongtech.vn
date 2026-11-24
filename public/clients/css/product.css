@@ -281,13 +281,13 @@ body.misutech_product_no_scroll {
 
 @media (max-width: 991px) {
     .misutech_product_product {
-        padding: 16px 0 24px;
+        padding: 8px 0 24px;
     }
 
     .misutech_product_product_grid {
         display: flex;
         flex-direction: column;
-        gap: 24px;
+        gap: 16px;
     }
 
     .misutech_product_gallery {
@@ -2965,6 +2965,44 @@ body.misutech_product_no_scroll {
    MOBILE & TABLET RESPONSIVE REFINEMENTS FOR PRODUCT PAGE
    ========================================================================== */
 @media (max-width: 768px) {
+    .misutech_product_breadcrumb {
+        min-height: unset;
+        padding: 6px 0;
+        background: #ffffff;
+    }
+
+    .misutech_product_breadcrumb_inner {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        overflow-x: auto;
+        overflow-y: hidden;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        gap: 6px;
+        font-size: 12.5px;
+        padding-bottom: 2px;
+    }
+
+    .misutech_product_breadcrumb_inner::-webkit-scrollbar {
+        display: none;
+        width: 0;
+        height: 0;
+    }
+
+    .misutech_product_breadcrumb_link,
+    .misutech_product_breadcrumb_separator,
+    #misutech_breadcrumb_current {
+        flex-shrink: 0;
+        white-space: nowrap;
+    }
+
+    .misutech_product_product {
+        padding: 4px 0 20px;
+    }
+
     .misutech_product_container {
         width: calc(100% - 24px);
     }
@@ -3079,6 +3117,14 @@ body.misutech_product_no_scroll {
 }
 
 @media (max-width: 480px) {
+    .misutech_product_breadcrumb {
+        padding: 5px 0;
+    }
+
+    .misutech_product_product {
+        padding: 2px 0 16px;
+    }
+
     .misutech_product_container {
         width: calc(100% - 20px);
     }
