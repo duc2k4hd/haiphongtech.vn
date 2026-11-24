@@ -142,17 +142,14 @@
 
                     @php
                         $cleanedContent = (string) $post->content;
-                        // Thay thế shortcode [hptech_products ...] bằng hộp giới thiệu sản phẩm liên quan đẹp mắt
+                        // Thay thế shortcode [hptech_products ...] bằng thanh thông tin sản phẩm liên quan gọn gàng
                         $cleanedContent = preg_replace_callback('/\[hptech_products(?:\s+category="([^"]*)")?(?:\s+limit="(\d*)")?[^\]]*\]/i', function($matches) {
                             $catSlug = trim($matches[1] ?? '');
                             $shopUrl = $catSlug ? "/{$catSlug}/" : "/cua-hang/";
                             return '<div class="hpt_content_product_callout">
-                                <div class="hpt_callout_icon">
-                                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-                                </div>
                                 <div class="hpt_callout_body">
-                                    <div class="hpt_callout_title">Sản phẩm liên quan tại Hải Phòng Tech</div>
-                                    <p class="hpt_callout_desc">Xem ngay các dòng thiết bị và phụ kiện công nghiệp có sẵn tại kho với giá ưu đãi & CO/CQ đầy đủ.</p>
+                                    <strong class="hpt_callout_title">Sản phẩm liên quan:</strong>
+                                    <span class="hpt_callout_desc">Thiết bị & phụ kiện công nghiệp chính hãng tại kho Hải Phòng Tech.</span>
                                 </div>
                                 <a href="' . e($shopUrl) . '" class="hpt_callout_btn">Xem sản phẩm →</a>
                             </div>';

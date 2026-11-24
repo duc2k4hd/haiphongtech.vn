@@ -146,75 +146,61 @@
 .hpt_content_product_callout {
     display: flex;
     align-items: center;
-    gap: 16px;
-    padding: 16px 20px;
-    margin: 24px 0;
-    border-radius: 10px;
-    background: linear-gradient(135deg, #f0f7ff 0%, #e6f0fa 100%);
-    border: 1.5px solid #bddaf5;
-    box-shadow: 0 4px 12px rgba(30, 115, 190, 0.08);
-}
-
-.hpt_callout_icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 10px;
-    background: #1e73be;
-    color: #ffffff;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 12px;
+    margin: 14px 0;
+    border-radius: 4px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-left: 3px solid #1e73be;
 }
 
 .hpt_callout_body {
     flex: 1 1 auto;
     min-width: 0;
+    font-size: 13px;
+    color: #334155;
+    line-height: 1.45;
 }
 
 .hpt_callout_title {
-    font-size: 15px;
     font-weight: 700;
     color: #114574;
-    margin-bottom: 4px;
+    margin-right: 4px;
 }
 
 .hpt_callout_desc {
-    margin: 0 !important;
-    font-size: 13px !important;
-    color: #475569 !important;
-    line-height: 1.45 !important;
+    color: #64748b;
 }
 
 .hpt_callout_btn {
     flex-shrink: 0;
-    padding: 9px 16px;
-    border-radius: 6px;
+    padding: 5px 12px;
+    border-radius: 3px;
     background: #1e73be;
     color: #ffffff !important;
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 600;
     text-decoration: none !important;
     white-space: nowrap;
-    transition: background 0.16s ease, transform 0.16s ease;
+    transition: background 0.15s ease;
 }
 
 .hpt_callout_btn:hover {
     background: #165a96;
     color: #ffffff !important;
-    transform: translateY(-1px);
 }
 
 @media (max-width: 640px) {
     .hpt_content_product_callout {
         flex-direction: column;
         align-items: flex-start;
-        gap: 12px;
-        padding: 14px 16px;
+        gap: 8px;
+        padding: 8px 10px;
     }
     .hpt_callout_btn {
-        width: 100%;
-        text-align: center;
+        align-self: flex-start;
     }
 }
 
