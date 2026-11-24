@@ -85,6 +85,7 @@ class ProductsImportCsvCommand extends Command
         {--cursor-file= : Đường dẫn file lưu checkpoint dòng đang chạy cho --cron}
         {--reset-cursor : Đặt lại checkpoint cron về đầu file CSV}
         {--sync-categories-only : Chỉ đồng bộ lại danh mục (category_id & category_product) cho các sản phẩm đã có trong DB, không tải ảnh/catalog}
+        {--sync-brands-only : Chỉ đồng bộ lại thương hiệu (brand_id) cho các sản phẩm đã có trong DB từ file CSV, không tải ảnh/catalog}
         {--dry-run : Chạy thử không ghi DB và không tải file}
         {--timeout=12 : Timeout tải ảnh/tài liệu tính bằng giây}';
 
@@ -148,6 +149,7 @@ class ProductsImportCsvCommand extends Command
     {
         $filePath = (string) $this->argument('file');
         $syncCategoriesOnly = (bool) $this->option('sync-categories-only');
+        $syncBrandsOnly = (bool) $this->option('sync-brands-only');
         $isCron = (bool) $this->option('cron');
         $onlyNew = (bool) $this->option('only-new') || (bool) $this->option('skip-existing') || $isCron;
         $limit = max(0, (int) $this->option('limit'));
@@ -174,6 +176,10 @@ class ProductsImportCsvCommand extends Command
 
         if ($syncCategoriesOnly) {
             return $this->runSyncCategoriesOnly($filePath);
+        }
+
+        if ($syncBrandsOnly) {
+            return $this->runSyncBrandsOnly($filePath, $limit);
         }
 
         // Khóa chống chạy chồng khi chạy Cron Job
@@ -1638,6 +1644,115 @@ class ProductsImportCsvCommand extends Command
         }
 
         $this->info("Đồng bộ danh mục hoàn tất: Đã cập nhật {$updated} sản phẩm | Chưa khớp {$unmatched} sản phẩm.");
+
+        return self::SUCCESS;
+    }
+
+    protected function runSyncBrandsOnly(string $filePath, int $limit = 0): int
+    {
+        $this->preloadLookupData();
+
+        $byWpId = [];
+        $bySlug = [];
+        $bySku = [];
+        foreach (Product::select(['id', 'source_wp_id', 'slug', 'sku', 'brand_id'])->cursor() as $p) {
+            $pid = (int) $p->id;
+            if (! empty($p->source_wp_id)) {
+                $byWpId[(int) $p->source_wp_id] = $pid;
+            }
+            if (! empty($p->slug)) {
+                $bySlug[strtolower((string) $p->slug)] = $pid;
+            }
+            if (! empty($p->sku)) {
+                $bySku[strtoupper((string) $p->sku)] = $pid;
+            }
+        }
+
+        if (empty($byWpId) && empty($bySlug) && empty($bySku)) {
+            $this->warn('Không có sản phẩm nào trong cơ sở dữ liệu để đồng bộ thương hiệu.');
+
+            return self::SUCCESS;
+        }
+
+        $fh = fopen($filePath, 'rb');
+        if ($fh === false) {
+            $this->error("Không thể mở file: {$filePath}");
+
+            return self::FAILURE;
+        }
+
+        $bom = fread($fh, 3);
+        if ($bom !== "\xEF\xBB\xBF") {
+            rewind($fh);
+        }
+
+        $headers = fgetcsv($fh);
+        if (! is_array($headers) || count($headers) < 3) {
+            fclose($fh);
+            $this->error('Header file CSV không hợp lệ.');
+
+            return self::FAILURE;
+        }
+
+        $colMap = $this->buildColumnMap($headers);
+        if ($colMap['brand'] === null) {
+            fclose($fh);
+            $this->error("Không tìm thấy cột 'Thương hiệu' hoặc 'brand' trong file CSV.");
+
+            return self::FAILURE;
+        }
+
+        $updated = 0;
+        $unmatched = 0;
+        $processedIds = [];
+
+        while (($row = fgetcsv($fh)) !== false) {
+            $sourceWpId = (int) $this->getCol($row, $colMap, 'id') ?: null;
+            $slug = strtolower($this->getCol($row, $colMap, 'slug'));
+            $sku = strtoupper($this->getCol($row, $colMap, 'sku'));
+
+            $productId = null;
+            if ($sourceWpId !== null && isset($byWpId[$sourceWpId])) {
+                $productId = $byWpId[$sourceWpId];
+            } elseif ($slug !== '' && isset($bySlug[$slug])) {
+                $productId = $bySlug[$slug];
+            } elseif ($sku !== '' && isset($bySku[$sku])) {
+                $productId = $bySku[$sku];
+            }
+
+            if ($productId === null || isset($processedIds[$productId])) {
+                continue;
+            }
+
+            $rawBrand = $this->getCol($row, $colMap, 'brand');
+            $brandId = $this->resolveBrandId($rawBrand);
+
+            if ($brandId === null) {
+                $unmatched++;
+                continue;
+            }
+
+            $processedIds[$productId] = true;
+
+            if (! $this->dryRun) {
+                DB::table('products')->where('id', $productId)->update(['brand_id' => $brandId]);
+            }
+
+            $updated++;
+
+            if ($limit > 0 && $updated >= $limit) {
+                $this->warn("Đã đạt giới hạn --limit={$limit} sản phẩm kiểm thử.");
+                break;
+            }
+        }
+
+        fclose($fh);
+
+        if ($updated > 0 && ! $this->dryRun) {
+            $this->clearCatalogCaches();
+        }
+
+        $this->info("Đồng bộ thương hiệu hoàn tất: Đã cập nhật hãng cho {$updated} sản phẩm | Chưa khớp hãng {$unmatched} sản phẩm.");
 
         return self::SUCCESS;
     }
