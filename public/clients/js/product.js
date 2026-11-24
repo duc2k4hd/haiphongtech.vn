@@ -345,14 +345,36 @@
       lbViewport?.classList.remove("is-dragging");
     });
 
-    // Vuốt trái/phải trên thiết bị cảm ứng để chuyển ảnh
+    // Vuốt trái/phải trên thiết bị cảm ứng hoặc kéo di chuyển khi đang zoom
+    let lbIsTouchDragging = false;
+    let lbTouchDragStartX = 0;
+    let lbTouchDragStartY = 0;
+
     lbViewport?.addEventListener("touchstart", (e) => {
       if (e.touches.length !== 1) return;
       lbTouchStartX = e.touches[0].clientX;
       lbTouchStartY = e.touches[0].clientY;
+      if (lbScale > 1.05) {
+        lbIsTouchDragging = true;
+        lbTouchDragStartX = e.touches[0].clientX - lbPanX;
+        lbTouchDragStartY = e.touches[0].clientY - lbPanY;
+        lbViewport.classList.add("is-dragging");
+      }
     }, { passive: true });
 
+    lbViewport?.addEventListener("touchmove", (e) => {
+      if (!lbIsTouchDragging || lbScale <= 1.05 || e.touches.length !== 1) return;
+      e.preventDefault();
+      lbPanX = e.touches[0].clientX - lbTouchDragStartX;
+      lbPanY = e.touches[0].clientY - lbTouchDragStartY;
+      applyLightboxTransform();
+    }, { passive: false });
+
     lbViewport?.addEventListener("touchend", (e) => {
+      if (lbIsTouchDragging) {
+        lbIsTouchDragging = false;
+        lbViewport?.classList.remove("is-dragging");
+      }
       if (lbScale > 1.05 || e.changedTouches.length !== 1) return;
       const dx = e.changedTouches[0].clientX - lbTouchStartX;
       const dy = e.changedTouches[0].clientY - lbTouchStartY;

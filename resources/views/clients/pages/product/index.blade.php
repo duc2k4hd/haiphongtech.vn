@@ -924,7 +924,7 @@
     <div class="misutech_product_drawer_overlay" hidden></div>
 
     <div class="misutech_product_modal misutech_product_lightbox" data-modal="image" hidden>
-        <div class="misutech_product_modal_dialog misutech_product_image_dialog" role="dialog" aria-modal="true"
+        <div class="misutech_product_image_dialog" role="dialog" aria-modal="true"
             aria-label="Trình xem ảnh sản phẩm">
             <header class="misutech_lb_topbar">
                 <div class="misutech_lb_info">
