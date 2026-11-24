@@ -581,7 +581,10 @@
                 onerror="this.src='${fallbackImage}'">
         </button>
       `;
+      const dirWrapper = document.getElementById("misutech_product_direction_wrapper");
       if (data.gallery && data.gallery.length > 0) {
+        thumbWrapper.style.display = "";
+        if (dirWrapper) dirWrapper.style.display = "";
         data.gallery.forEach((img, i) => {
           thumbsHtml += `
             <button class="misutech_product_thumbnail"
@@ -595,6 +598,9 @@
             </button>
           `;
         });
+      } else {
+        thumbWrapper.style.display = "none";
+        if (dirWrapper) dirWrapper.style.display = "none";
       }
       thumbWrapper.innerHTML = thumbsHtml;
       rebindGalleryEvents();

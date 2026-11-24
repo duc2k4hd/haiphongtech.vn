@@ -380,7 +380,7 @@
                     </button>
 
                     <div class="misutech_product_thumbnails" id="misutech_product_thumbnails_wrapper" role="list"
-                        aria-label="Ảnh sản phẩm">
+                        aria-label="Ảnh sản phẩm" @if ($product->galleryMedia->isEmpty()) style="display: none;" @endif>
                         <button class="misutech_product_thumbnail misutech_product_active" type="button"
                             data-image="{{ $product->thumbnailMedia->first()?->url ?? asset('clients/imgs/no-image.webp') }}"
                             aria-label="Ảnh chính">
@@ -399,7 +399,8 @@
                         @endforeach
                     </div>
 
-                    <div class="misutech_product_direction" aria-label="Điều hướng sản phẩm">
+                    <div class="misutech_product_direction" id="misutech_product_direction_wrapper" aria-label="Điều hướng sản phẩm"
+                        @if ($product->galleryMedia->isEmpty()) style="display: none;" @endif>
                         <button class="misutech_product_direction_button" type="button" data-image-direction="-1"
                             aria-label="Ảnh trước">‹</button>
                         <button class="misutech_product_direction_button" type="button"
