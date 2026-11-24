@@ -364,7 +364,7 @@ class WpContentRouterController extends Controller
         $pathHash = hash('sha256', $normPath);
         $cleanRootSlug = trim(mb_strtolower(rawurldecode($path), 'UTF-8'), '/');
 
-        // 0. Root Brand & Category Archive: /{slug} (áp dụng cho cả danh mục cha, danh mục con và thương hiệu)
+        // 0. Root Brand, Category & Post Archive: /{slug} (áp dụng cho danh mục, thương hiệu và bài viết trực tiếp)
         if ($cleanRootSlug !== '' && !str_contains($cleanRootSlug, '/')) {
             $brand = Brand::where('slug', $cleanRootSlug)->where('status', 'active')->first();
             if ($brand) {
@@ -378,9 +378,28 @@ class WpContentRouterController extends Controller
                 }
                 return response(app(CategoryController::class)->show($request, $cat->slug));
             }
+
+            // 0c. Root Blog Post Detail
+            $post = Post::with([
+                'category:id,name,slug,parent_id',
+                'categories:id,name,slug',
+                'tags:id,name,slug',
+                'thumbnailMedia',
+                'author:id,name',
+            ])
+            ->where('slug', $cleanRootSlug)
+            ->whereIn('status', ['published', 'active'])
+            ->first();
+
+            if ($post) {
+                if ($redirect = $this->enforceTrailingSlash($request, "/{$cleanRootSlug}/")) {
+                    return $redirect;
+                }
+                return $this->renderPostDetail($post);
+            }
         }
 
-        // 0b. Nếu người dùng truy cập URL danh mục lồng nhiều cấp (/cha/con) -> 301 về /{con} hoặc đích redirect 301 mới
+        // 0b. Nếu người dùng truy cập URL danh mục hoặc bài viết lồng nhiều cấp (/cha/con) -> 301 về /{con} hoặc đích redirect 301 mới
         if ($cleanRootSlug !== '' && str_contains($cleanRootSlug, '/')) {
             $segments = array_values(array_filter(explode('/', $cleanRootSlug)));
             $lastSeg = end($segments);
@@ -388,6 +407,10 @@ class WpContentRouterController extends Controller
                 $nestedCat = Category::where('slug', $lastSeg)->where('status', 'active')->first();
                 if ($nestedCat) {
                     return $this->redirectPreservingQuery($request, '/' . $nestedCat->slug, 301);
+                }
+                $nestedPost = Post::where('slug', $lastSeg)->whereIn('status', ['published', 'active'])->first();
+                if ($nestedPost) {
+                    return $this->redirectPreservingQuery($request, '/' . $nestedPost->slug . '/', 301);
                 }
                 $lastNorm = SourceUrlRoute::normalizePath($lastSeg);
                 $lastRedirect = SourceUrlRoute::where('path_hash', hash('sha256', $lastNorm))
@@ -474,7 +497,7 @@ class WpContentRouterController extends Controller
                 ? Post::with(['category:id,name,slug,parent_id', 'categories:id,name,slug', 'tags:id,name,slug', 'thumbnailMedia', 'author:id,name'])->find($routeEntry->entity_id)
                 : Post::with(['category:id,name,slug,parent_id', 'categories:id,name,slug', 'tags:id,name,slug', 'thumbnailMedia', 'author:id,name'])->where('slug', trim($normPath, '/'))->first();
 
-            if (!$post || $post->status !== 'published') {
+            if (!$post || !in_array($post->status, ['published', 'active'], true)) {
                 abort(404);
             }
 

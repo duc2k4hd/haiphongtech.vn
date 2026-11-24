@@ -243,6 +243,28 @@ class PostsImportCommand extends Command
                 if (! empty($item['image_url'])) {
                     $this->assignThumbnail($post, $item['image_url'], $downloadImages);
                 }
+
+                // Đồng bộ URL Registry source_url_routes
+                $normPath = '/' . trim($slug, '/') . '/';
+                $unslashedPath = '/' . trim($slug, '/');
+                \App\Models\SourceUrlRoute::updateOrCreate(
+                    ['path_hash' => hash('sha256', $normPath)],
+                    [
+                        'unslashed_hash' => hash('sha256', $unslashedPath),
+                        'normalized_path' => $normPath,
+                        'unslashed_path' => $unslashedPath,
+                        'entity_type' => 'post',
+                        'entity_id' => $post->id,
+                        'source_wp_id' => $wpId,
+                        'http_status' => 200,
+                        'trailing_slash_policy' => 'require_slash',
+                        'canonical_url' => $canonicalUrl,
+                        'in_sitemap' => true,
+                        'is_cutover_ready' => true,
+                        'source_snapshot_id' => 'posts_import',
+                        'import_batch_id' => $batchId,
+                    ]
+                );
             } else {
                 $action = $existing ? 'Sẽ cập nhật' : 'Sẽ tạo mới';
                 if ($existing) {
