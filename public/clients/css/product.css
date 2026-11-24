@@ -927,10 +927,6 @@ body.misutech_product_no_scroll {
     font-size: 1.2rem;
 }
 
-.misutech_product_tabs_section {
-    padding: 36px 0 20px;
-}
-
 .misutech_product_tabs {
     position: relative;
     display: flex;
