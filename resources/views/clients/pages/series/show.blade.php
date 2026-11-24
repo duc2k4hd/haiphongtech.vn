@@ -218,7 +218,7 @@
                     <div class="misutech_series_grid">
                         @foreach($products as $prod)
                             @php
-                                $thumb = $prod->thumbnailMedia->first()?->url ?? asset('storage/clients/imgs/products/no-image.png');
+                                $thumb = $prod->thumbnailMedia->first()?->url ?? asset('clients/imgs/no-image.webp');
                                 $currentPrice = $prod->sale_price && $prod->sale_price < $prod->price ? $prod->sale_price : $prod->price;
                                 $hasSale = $prod->sale_price && $prod->sale_price < $prod->price;
                             @endphp
@@ -231,7 +231,8 @@
                                         <span class="misutech_series_card_sale">-{{ round((1 - $prod->sale_price / $prod->price) * 100) }}%</span>
                                     @endif
                                     <a href="{{ route('product.show', $prod->slug) }}" class="misutech_series_card_link" title="{{ $prod->name }}">
-                                        <img src="{{ $thumb }}" alt="{{ $prod->name }}" width="200" height="200" loading="lazy" decoding="async">
+                                        <img src="{{ $thumb }}" alt="{{ $prod->name }}" width="200" height="200" loading="lazy" decoding="async"
+                                            onerror="this.onerror=null;this.src='{{ asset('clients/imgs/no-image.webp') }}';">
                                     </a>
                                     <div class="misutech_series_card_actions">
                                         <button class="misutech_series_card_btn_cart" type="button"

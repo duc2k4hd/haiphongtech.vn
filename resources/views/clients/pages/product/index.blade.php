@@ -33,7 +33,7 @@
     $productRobots = !empty($product->meta_robots)
         ? $product->meta_robots
         : 'follow, index, max-snippet:-1, max-video-preview:-1, max-image-preview:large';
-    $mainImage = $product->thumbnailMedia->first()?->url ?? asset('storage/clients/imgs/products/no-image.png');
+    $mainImage = $product->thumbnailMedia->first()?->url ?? asset('clients/imgs/no-image.webp');
 
     // Danh sách ảnh gallery
     $galleryUrls = [$mainImage];
@@ -373,25 +373,28 @@
                     <button class="misutech_product_main_image_button" type="button" data-open-image
                         aria-label="Mở ảnh sản phẩm lớn">
                         <img class="misutech_product_main_image" id="misutech_main_img"
-                            src="{{ $product->thumbnailMedia->first()?->url ?? asset('storage/clients/imgs/products/no-image.png') }}"
-                            alt="{{ $product->name }}" fetchpriority="high" decoding="async">
+                            src="{{ $product->thumbnailMedia->first()?->url ?? asset('clients/imgs/no-image.webp') }}"
+                            alt="{{ $product->name }}" fetchpriority="high" decoding="async"
+                            onerror="this.onerror=null;this.src='{{ asset('clients/imgs/no-image.webp') }}';">
                         <span class="misutech_product_zoom_hint">⌕</span>
                     </button>
 
                     <div class="misutech_product_thumbnails" id="misutech_product_thumbnails_wrapper" role="list"
                         aria-label="Ảnh sản phẩm">
                         <button class="misutech_product_thumbnail misutech_product_active" type="button"
-                            data-image="{{ $product->thumbnailMedia->first()?->url ?? asset('storage/clients/imgs/products/no-image.png') }}"
+                            data-image="{{ $product->thumbnailMedia->first()?->url ?? asset('clients/imgs/no-image.webp') }}"
                             aria-label="Ảnh chính">
                             <img class="misutech_product_thumbnail_image"
-                                src="{{ $product->thumbnailMedia->first()?->url ?? asset('storage/clients/imgs/products/no-image.png') }}"
-                                alt="{{ $product->name }}" loading="lazy" decoding="async">
+                                src="{{ $product->thumbnailMedia->first()?->url ?? asset('clients/imgs/no-image.webp') }}"
+                                alt="{{ $product->name }}" loading="lazy" decoding="async"
+                                onerror="this.onerror=null;this.src='{{ asset('clients/imgs/no-image.webp') }}';">
                         </button>
                         @foreach ($product->galleryMedia as $i => $img)
                             <button class="misutech_product_thumbnail" type="button" data-image="{{ $img->url }}"
                                 aria-label="Ảnh {{ $i + 2 }}">
                                 <img class="misutech_product_thumbnail_image" src="{{ $img->url }}"
-                                    alt="{{ $img->alt ?? $product->name }}" loading="lazy" decoding="async">
+                                    alt="{{ $img->alt ?? $product->name }}" loading="lazy" decoding="async"
+                                    onerror="this.onerror=null;this.src='{{ asset('clients/imgs/no-image.webp') }}';">
                             </button>
                         @endforeach
                     </div>
@@ -784,12 +787,13 @@
                                         $spThumb =
                                             $sp->thumbnail_url ??
                                             ($sp->thumbnailMedia->first()?->url ??
-                                                asset('storage/clients/imgs/products/no-image.png'));
+                                                asset('clients/imgs/no-image.webp'));
                                     @endphp
                                     <a href="{{ \App\Support\WpUrl::productUrl($sp->slug) }}" class="misutech_product_side_pitem">
                                         <div class="misutech_product_side_pimg">
                                             <img src="{{ $spThumb }}" alt="{{ $sp->name }}" loading="lazy"
-                                                decoding="async">
+                                                decoding="async"
+                                                onerror="this.onerror=null;this.src='{{ asset('clients/imgs/no-image.webp') }}';">
                                         </div>
                                         <div class="misutech_product_side_pinfo">
                                             <h4 class="misutech_product_side_pname" title="{{ $sp->name }}">
@@ -868,8 +872,9 @@
                                     class="misutech_product_related_link">
                                     <div class="misutech_product_related_media">
                                         <img class="misutech_product_related_image"
-                                            src="{{ $related->thumbnailMedia->first()?->url ?? asset('storage/clients/imgs/products/no-image.png') }}"
-                                            alt="{{ $related->name }}" loading="lazy" decoding="async">
+                                            src="{{ $related->thumbnailMedia->first()?->url ?? asset('clients/imgs/no-image.webp') }}"
+                                            alt="{{ $related->name }}" loading="lazy" decoding="async"
+                                            onerror="this.onerror=null;this.src='{{ asset('clients/imgs/no-image.webp') }}';">
                                         <div class="misutech_product_card_actions">
                                             <button class="misutech_product_card_action" type="button" data-cart
                                                 data-related-cart data-product-id="{{ $related->id }}"
@@ -963,9 +968,10 @@
                 </button>
                 <div class="misutech_lb_viewport" data-lb-viewport>
                     <img class="misutech_product_modal_image"
-                        src="{{ $product->thumbnailMedia->first()?->url ?? asset('storage/clients/imgs/products/no-image.png') }}"
+                        src="{{ $product->thumbnailMedia->first()?->url ?? asset('clients/imgs/no-image.webp') }}"
                         alt="{{ $product->name }}"
-                        draggable="false">
+                        draggable="false"
+                        onerror="this.onerror=null;this.src='{{ asset('clients/imgs/no-image.webp') }}';">
                 </div>
                 <button type="button" class="misutech_lb_nav misutech_lb_next" data-lb-next aria-label="Ảnh tiếp theo">
                     <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
@@ -994,8 +1000,9 @@
             </div>
 
             <div class="misutech_modal_product_preview">
-                <img src="{{ $product->thumbnailMedia->first()?->url ?? asset('storage/clients/imgs/products/no-image.png') }}"
-                    alt="{{ $product->name }}">
+                <img src="{{ $product->thumbnailMedia->first()?->url ?? asset('clients/imgs/no-image.webp') }}"
+                    alt="{{ $product->name }}"
+                    onerror="this.onerror=null;this.src='{{ asset('clients/imgs/no-image.webp') }}';">
                 <div class="misutech_modal_product_meta">
                     <h4 class="misutech_modal_pname">{{ $product->name }}</h4>
                     <p class="misutech_modal_psku">

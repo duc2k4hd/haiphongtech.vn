@@ -261,12 +261,13 @@
                             @endif
                             <div class="misutech_home_product_image">
                                 <a href="{{ \App\Support\WpUrl::productUrl($product->slug) }}">
-                                    <img src="{{ $product->thumbnailMedia->first()?->url ?? asset('storage/clients/imgs/products/no-image.png') }}"
+                                    <img src="{{ $product->thumbnailMedia->first()?->url ?? asset('clients/imgs/no-image.webp') }}"
                                         alt="{{ $product->name ?? 'Sản phẩm' }}"
                                         width="260"
                                         height="260"
                                         loading="lazy"
-                                        decoding="async" />
+                                        decoding="async"
+                                        onerror="this.onerror=null;this.src='{{ asset('clients/imgs/no-image.webp') }}';" />
                                 </a>
                             </div>
                             <h3 class="misutech_home_product_name">

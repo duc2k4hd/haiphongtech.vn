@@ -38,6 +38,16 @@
 <link rel="preload" href="{{ asset('clients/css/style.css?v=' . $styleVersion) }}" as="style">
 <link rel="stylesheet" href="{{ asset('clients/css/style.css?v=' . $styleVersion) }}">
 
+{{-- Global Image Error Fallback Handler (Tự động fallback về no-image.webp khi ảnh bị lỗi/404) --}}
+<script>
+    document.addEventListener('error', function (e) {
+        if (e.target && e.target.tagName === 'IMG' && !e.target.dataset.fallbackApplied) {
+            e.target.dataset.fallbackApplied = '1';
+            e.target.src = '{{ asset('clients/imgs/no-image.webp') }}';
+        }
+    }, true);
+</script>
+
 {{-- Google Analytics & Tag Manager (Deferred Non-blocking Loader for 100/100 PageSpeed) --}}
 @if (!empty($settings->google_analytics))
     <script>

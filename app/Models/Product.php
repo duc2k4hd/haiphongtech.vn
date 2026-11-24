@@ -103,6 +103,22 @@ class Product extends Model
     }
 
     /**
+     * URL ảnh đại diện của sản phẩm (tự fallback về no-image.webp nếu không có ảnh)
+     */
+    public function getThumbnailUrlAttribute(): string
+    {
+        $thumb = $this->relationLoaded('thumbnailMedia')
+            ? $this->thumbnailMedia->first()
+            : $this->thumbnailMedia()->first();
+
+        if ($thumb && !empty($thumb->url)) {
+            return $thumb->url;
+        }
+
+        return asset('clients/imgs/no-image.webp');
+    }
+
+    /**
      * Giới hạn an toàn tối đa 500 ký tự theo độ dài cột database VARCHAR(500).
      */
     public function setNameAttribute($value): void

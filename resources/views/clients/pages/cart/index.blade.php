@@ -49,10 +49,10 @@
                     @endphp
                     <div class="misutech_cart_item" data-id="{{ $item['id'] }}" data-price="{{ $unitPrice }}">
                         <div class="misutech_cart_item_info">
-                            <img src="{{ $item['thumbnail_url'] ?? asset('storage/clients/imgs/products/no-image.png') }}"
+                            <img src="{{ $item['thumbnail_url'] ?? asset('clients/imgs/no-image.webp') }}"
                                 alt="{{ $item['name'] }}"
                                 class="misutech_cart_item_img"
-                                onerror="this.src='{{ asset('storage/clients/imgs/products/no-image.png') }}'">
+                                onerror="this.onerror=null;this.src='{{ asset('clients/imgs/no-image.webp') }}';">
                             <div class="misutech_cart_item_details">
                                 <a href="{{ !empty($item['slug']) ? \App\Support\WpUrl::productUrl($item['slug']) : '#' }}"
                                     class="misutech_cart_item_name">{{ $item['name'] }}</a>

@@ -9,10 +9,11 @@
 
     <div class="misutech_home_product_media">
         <a href="{{ \App\Support\WpUrl::productUrl($product->slug) }}">
-            <img src="{{ $product->thumbnailMedia->first()?->url ?? ($product->thumbnail_url ?? asset('storage/clients/imgs/products/no-image.png')) }}"
+            <img src="{{ $product->thumbnailMedia->first()?->url ?? ($product->thumbnail_url ?? asset('clients/imgs/no-image.webp')) }}"
                 alt="{{ $product->name ?? 'No image' }}"
                 loading="lazy"
-                decoding="async">
+                decoding="async"
+                onerror="this.onerror=null;this.src='{{ asset('clients/imgs/no-image.webp') }}';">
         </a>
         <div class="misutech_home_product_actions">
             <button class="misutech_home_product_action" type="button" data-favorite aria-label="Thêm vào yêu thích">♡</button>
