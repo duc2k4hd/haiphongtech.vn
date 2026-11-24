@@ -2516,13 +2516,13 @@ a {
     }
 
     .misutech_home_footer_top_grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 18px 14px;
+        grid-template-columns: 1fr;
+        gap: 22px;
     }
 
     .misutech_home_footer_col_title {
         margin-bottom: 8px;
-        font-size: 12.5px;
+        font-size: 13px;
         font-weight: 800;
         color: #0f172a;
         letter-spacing: 0.2px;
@@ -2531,15 +2531,15 @@ a {
     .misutech_home_footer_col_list {
         display: flex;
         flex-direction: column;
-        gap: 7px;
+        gap: 8px;
         list-style: none;
         padding: 0;
         margin: 0;
     }
 
     .misutech_home_footer_col_list a {
-        font-size: 12px;
-        line-height: 1.35;
+        font-size: 12.5px;
+        line-height: 1.4;
         color: #1e293b;
         text-decoration: none;
         transition: color 0.15s;
@@ -2550,7 +2550,7 @@ a {
     }
 
     .misutech_home_footer_col_hours {
-        grid-column: span 2;
+        grid-column: auto;
         background: #f8fafc;
         padding: 12px 14px;
         border-radius: 6px;
@@ -2558,13 +2558,13 @@ a {
     }
 
     .misutech_home_footer_col_hours .misutech_home_footer_text {
-        font-size: 11.5px;
+        font-size: 12px;
         line-height: 1.5;
         margin-bottom: 6px;
     }
 
     .misutech_home_footer_col_contact {
-        grid-column: span 2;
+        grid-column: auto;
         background: #f8fafc;
         padding: 12px 14px;
         border-radius: 6px;
