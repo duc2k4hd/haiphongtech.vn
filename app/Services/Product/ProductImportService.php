@@ -16,8 +16,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 class ProductImportService
 {
     /**
-     * Danh sách các cột tiêu chuẩn trong file CSV khi Xuất và Nhập.
-     * Cột danh mục, thương hiệu, series hiển thị TÊN CHÍNH XÁC thay vì số ID.
+     * Danh sách các cột mặc định khi Xuất CSV.
      */
     const COLUMNS = [
         'sku',
@@ -42,26 +41,139 @@ class ProductImportService
     const MEDIA_COLUMNS = ['image', 'gallery', 'catalog'];
 
     /**
-     * Xuất danh sách sản phẩm ra file CSV với TÊN RÕ RÀNG của Category, Brand, Series và Ngày xuất bản.
+     * Toàn bộ các cột hợp lệ được phép chọn khi Xuất CSV (theo thứ tự chuẩn).
      */
-    public function exportCsv(string $type = 'all', ?array $ids = null, $categoryId = null): StreamedResponse
+    const EXPORTABLE_COLUMNS = [
+        'id',
+        'sku',
+        'name',
+        'slug',
+        'price',
+        'sale_price',
+        'short_description',
+        'content',
+        'category',
+        'brand',
+        'series',
+        'status',
+        'stock_status',
+        'product_type',
+        'published_at',
+        'image',
+        'gallery',
+        'catalog',
+        'meta_title',
+        'meta_description',
+        'meta_robots',
+        'canonical_url',
+        'og_title',
+        'og_description',
+        'og_image',
+        'in_sitemap',
+        'views_count',
+        'url',
+    ];
+
+    /**
+     * Xuất danh sách sản phẩm ra file CSV với danh sách cột do người dùng tùy chọn.
+     * Chỉ SELECT và Eager-Load đúng các cột/quan hệ được chọn để đạt tốc độ cao nhất.
+     *
+     * @param  array<int, string>|null  $columns
+     */
+    public function exportCsv(string $type = 'all', ?array $ids = null, $categoryId = null, ?array $columns = null): StreamedResponse
     {
-        $response = new StreamedResponse(function () use ($type, $ids, $categoryId) {
+        // Lọc và giữ đúng thứ tự các cột hợp lệ; nếu không truyền thì dùng bộ mặc định cũ
+        $selectedColumns = [];
+        if (!empty($columns)) {
+            $allowed = array_flip(self::EXPORTABLE_COLUMNS);
+            foreach ($columns as $col) {
+                $colKey = trim((string) $col);
+                if (isset($allowed[$colKey]) && !in_array($colKey, $selectedColumns, true)) {
+                    $selectedColumns[] = $colKey;
+                }
+            }
+        }
+        if (empty($selectedColumns)) {
+            $selectedColumns = array_merge(self::COLUMNS, self::MEDIA_COLUMNS);
+        }
+
+        $response = new StreamedResponse(function () use ($type, $ids, $categoryId, $selectedColumns) {
             $handle = fopen('php://output', 'w');
 
             // Ghi BOM UTF-8 để mở tiếng Việt có dấu chuẩn đẹp trên Microsoft Excel
             fputs($handle, chr(0xEF) . chr(0xBB) . chr(0xBF));
 
-            // Ghi dòng tiêu đề
-            fputcsv($handle, array_merge(self::COLUMNS, self::MEDIA_COLUMNS));
+            // Ghi dòng tiêu đề chính xác theo cột người dùng chọn
+            fputcsv($handle, $selectedColumns);
 
-            $query = Product::query()
-                ->select([
-                    'id', 'sku', 'name', 'slug', 'price', 'sale_price',
-                    'short_description', 'content', 'category_id', 'brand_id',
-                    'series_id', 'status', 'published_at', 'meta_title', 'meta_description'
-                ])
-                ->with(['category:id,name', 'brand:id,name', 'series:id,name', 'images']);
+            $needCategory = in_array('category', $selectedColumns, true);
+            $needBrand    = in_array('brand', $selectedColumns, true);
+            $needSeries   = in_array('series', $selectedColumns, true);
+            $needMedia    = count(array_intersect($selectedColumns, self::MEDIA_COLUMNS)) > 0;
+
+            // Chỉ SELECT đúng cột DB cần thiết (tránh load cột content nặng khi không chọn)
+            $directDbMap = [
+                'id'                => 'id',
+                'sku'               => 'sku',
+                'name'              => 'name',
+                'slug'              => 'slug',
+                'price'             => 'price',
+                'sale_price'        => 'sale_price',
+                'short_description' => 'short_description',
+                'content'           => 'content',
+                'status'            => 'status',
+                'stock_status'      => 'stock_status',
+                'product_type'      => 'product_type',
+                'published_at'      => 'published_at',
+                'meta_title'        => 'meta_title',
+                'meta_description'  => 'meta_description',
+                'meta_robots'       => 'meta_robots',
+                'canonical_url'     => 'canonical_url',
+                'og_title'          => 'og_title',
+                'og_description'    => 'og_description',
+                'og_image'          => 'og_image',
+                'in_sitemap'        => 'in_sitemap',
+                'views_count'       => 'views_count',
+            ];
+
+            $selectCols = ['id'];
+            foreach ($selectedColumns as $col) {
+                if (isset($directDbMap[$col])) {
+                    $selectCols[] = $directDbMap[$col];
+                }
+            }
+            if (in_array('url', $selectedColumns, true)) {
+                $selectCols[] = 'slug';
+            }
+            if ($needCategory) {
+                $selectCols[] = 'category_id';
+            }
+            if ($needBrand) {
+                $selectCols[] = 'brand_id';
+            }
+            if ($needSeries) {
+                $selectCols[] = 'series_id';
+            }
+            $selectCols = array_values(array_unique($selectCols));
+
+            $withRelations = [];
+            if ($needCategory) {
+                $withRelations[] = 'category:id,name';
+            }
+            if ($needBrand) {
+                $withRelations[] = 'brand:id,name';
+            }
+            if ($needSeries) {
+                $withRelations[] = 'series:id,name';
+            }
+            if ($needMedia) {
+                $withRelations[] = 'images';
+            }
+
+            $query = Product::query()->select($selectCols);
+            if (!empty($withRelations)) {
+                $query->with($withRelations);
+            }
 
             if ($type === 'selected' && !empty($ids)) {
                 $query->whereIn('id', $ids);
@@ -69,45 +181,45 @@ class ProductImportService
                 $query->where('category_id', $categoryId);
             }
 
-            // Chunk 1000 dòng để tối ưu RAM cho web hàng triệu sản phẩm
-            $query->chunk(1000, function ($products) use ($handle) {
+            // ChunkById 1000 dòng nhanh gấp nhiều lần OFFSET chunk trên bảng 133k+ bản ghi
+            $query->chunkById(1000, function ($products) use ($handle, $selectedColumns, $needMedia) {
                 foreach ($products as $product) {
-                    $row = [
-                        $product->sku ?? '',
-                        $product->name ?? '',
-                        $product->slug ?? '',
-                        $product->price !== null ? (float)$product->price : '',
-                        $product->sale_price !== null ? (float)$product->sale_price : '',
-                        $product->short_description ?? '',
-                        $product->content ?? '',
-                        $product->category->name ?? '', // TÊN DANH MỤC CHÍNH XÁC
-                        $product->brand->name ?? '',    // TÊN THƯƠNG HIỆU CHÍNH XÁC
-                        $product->series->name ?? '',   // TÊN SERIES CHÍNH XÁC
-                        $product->status ?? 'active',
-                        $product->published_at ? $product->published_at->format('Y-m-d H:i:s') : '',
-                        $product->meta_title ?? '',
-                        $product->meta_description ?? '',
-                    ];
+                    $media = $needMedia ? $product->images : null;
+                    $row = [];
 
-                    $media = $product->images;
-
-                    // 1. image (Ảnh đại diện thumbnail)
-                    $thumb = $media->where('pivot.role', 'thumbnail')->first();
-                    $row[] = $thumb ? $thumb->filename : '';
-
-                    // 2. gallery (Danh sách ảnh thư viện)
-                    $galleries = $media->where('pivot.role', 'gallery')
-                        ->sortBy('pivot.position')
-                        ->pluck('filename')
-                        ->toArray();
-                    $row[] = implode(', ', $galleries);
-
-                    // 3. catalog (Danh sách tài liệu catalog)
-                    $catalogs = $media->where('pivot.role', 'catalog')
-                        ->sortBy('pivot.position')
-                        ->pluck('filename')
-                        ->toArray();
-                    $row[] = implode(', ', $catalogs);
+                    foreach ($selectedColumns as $col) {
+                        $row[] = match ($col) {
+                            'id'                => $product->id,
+                            'sku'               => $product->sku ?? '',
+                            'name'              => $product->name ?? '',
+                            'slug'              => $product->slug ?? '',
+                            'price'             => $product->price !== null ? (float) $product->price : '',
+                            'sale_price'        => $product->sale_price !== null ? (float) $product->sale_price : '',
+                            'short_description' => $product->short_description ?? '',
+                            'content'           => $product->content ?? '',
+                            'category'          => $product->category->name ?? '',
+                            'brand'             => $product->brand->name ?? '',
+                            'series'            => $product->series->name ?? '',
+                            'status'            => $product->status ?? 'active',
+                            'stock_status'      => $product->stock_status ?? 'instock',
+                            'product_type'      => $product->product_type ?? 'simple',
+                            'published_at'      => $product->published_at ? $product->published_at->format('Y-m-d H:i:s') : '',
+                            'meta_title'        => $product->meta_title ?? '',
+                            'meta_description'  => $product->meta_description ?? '',
+                            'meta_robots'       => $product->meta_robots ?? '',
+                            'canonical_url'     => $product->canonical_url ?? '',
+                            'og_title'          => $product->og_title ?? '',
+                            'og_description'    => $product->og_description ?? '',
+                            'og_image'          => $product->og_image ?? '',
+                            'in_sitemap'        => $product->in_sitemap ? '1' : '0',
+                            'views_count'       => (int) ($product->views_count ?? 0),
+                            'url'               => $product->slug ? \App\Support\WpUrl::productUrl($product->slug) : '',
+                            'image'             => $media ? ($media->where('pivot.role', 'thumbnail')->first()?->filename ?? '') : '',
+                            'gallery'           => $media ? implode(', ', $media->where('pivot.role', 'gallery')->sortBy('pivot.position')->pluck('filename')->toArray()) : '',
+                            'catalog'           => $media ? implode(', ', $media->where('pivot.role', 'catalog')->sortBy('pivot.position')->pluck('filename')->toArray()) : '',
+                            default             => '',
+                        };
+                    }
 
                     fputcsv($handle, $row);
                 }
@@ -294,18 +406,49 @@ class ProductImportService
                 $cleanRow['content'] = $row['content'] !== '' ? $row['content'] : null;
             }
 
-            // SEO Meta
+            // SEO Meta & Nâng cao
             if (array_key_exists('meta_title', $row)) {
                 $cleanRow['meta_title'] = $row['meta_title'] !== '' ? mb_substr(trim((string)$row['meta_title']), 0, 500) : null;
             }
             if (array_key_exists('meta_description', $row)) {
                 $cleanRow['meta_description'] = $row['meta_description'] !== '' ? trim((string)$row['meta_description']) : null;
             }
+            if (array_key_exists('meta_robots', $row)) {
+                $cleanRow['meta_robots'] = $row['meta_robots'] !== '' ? mb_substr(trim((string)$row['meta_robots']), 0, 191) : null;
+            }
+            if (array_key_exists('canonical_url', $row)) {
+                $cleanRow['canonical_url'] = $row['canonical_url'] !== '' ? mb_substr(trim((string)$row['canonical_url']), 0, 500) : null;
+            }
+            if (array_key_exists('og_title', $row)) {
+                $cleanRow['og_title'] = $row['og_title'] !== '' ? mb_substr(trim((string)$row['og_title']), 0, 255) : null;
+            }
+            if (array_key_exists('og_description', $row)) {
+                $cleanRow['og_description'] = $row['og_description'] !== '' ? trim((string)$row['og_description']) : null;
+            }
+            if (array_key_exists('og_image', $row)) {
+                $cleanRow['og_image'] = $row['og_image'] !== '' ? mb_substr(trim((string)$row['og_image']), 0, 500) : null;
+            }
+            if (array_key_exists('in_sitemap', $row)) {
+                $smVal = strtolower(trim((string)$row['in_sitemap']));
+                $cleanRow['in_sitemap'] = in_array($smVal, ['1', 'true', 'yes', 'có', 'co'], true) ? 1 : 0;
+            }
+            if (array_key_exists('stock_status', $row)) {
+                $stk = strtolower(trim((string)$row['stock_status']));
+                $cleanRow['stock_status'] = match (true) {
+                    in_array($stk, ['outofstock', 'out_of_stock', 'hết hàng', 'het hang', '0'], true) => 'outofstock',
+                    in_array($stk, ['onbackorder', 'backorder', 'đặt hàng', 'dat hang'], true) => 'onbackorder',
+                    default => 'instock',
+                };
+            }
+            if (array_key_exists('product_type', $row)) {
+                $pt = strtolower(trim((string)$row['product_type']));
+                $cleanRow['product_type'] = in_array($pt, ['simple', 'variable', 'grouped', 'external'], true) ? $pt : 'simple';
+            }
 
             // Trạng thái
             if (array_key_exists('status', $row)) {
                 $st = strtolower(trim((string)$row['status']));
-                $cleanRow['status'] = in_array($st, ['active', '1', 'true', 'hiển thị']) ? 'active' : 'draft';
+                $cleanRow['status'] = in_array($st, ['active', '1', 'true', 'hiển thị', 'đang bán'], true) ? 'active' : 'draft';
             }
 
             // Ngày giờ xuất bản (published_at / publish / ngay_xuat_ban)
@@ -543,6 +686,11 @@ class ProductImportService
                             $isDirty = true;
                             break;
                         }
+                    } elseif ($k === 'in_sitemap') {
+                        if ((bool) $oldVal !== (bool) $newVal) {
+                            $isDirty = true;
+                            break;
+                        }
                     } elseif ($k === 'published_at') {
                         $oldDt = $oldVal ? \Carbon\Carbon::parse($oldVal)->toDateTimeString() : null;
                         $newDt = $newVal ? \Carbon\Carbon::parse($newVal)->toDateTimeString() : null;
@@ -603,6 +751,13 @@ class ProductImportService
                 // 3. Phân loại kết quả
                 if ($isDirty || $mediaDirty) {
                     if ($isDirty) {
+                        // Đảm bảo các cột NOT NULL (name, slug) luôn có mặt cho câu INSERT ... ON DUPLICATE KEY UPDATE (MySQL Strict Mode)
+                        if (!array_key_exists('name', $cleanRow)) {
+                            $cleanRow['name'] = (string) ($existing->name ?? $sku);
+                        }
+                        if (!array_key_exists('slug', $cleanRow)) {
+                            $cleanRow['slug'] = (string) ($existing->slug ?? Str::slug($cleanRow['name']));
+                        }
                         $cleanRow['updated_at'] = $now;
                         $cleanRow['created_at'] = $existing->created_at ? $existing->created_at->toDateTimeString() : $now;
                         $toUpsert[] = $cleanRow;
@@ -655,8 +810,23 @@ class ProductImportService
                     Product::insert($chunk);
                 }
             } else {
-                $updateColumns = array_diff($finalKeys, ['sku', 'created_at']);
-                if (!in_array('updated_at', $updateColumns)) {
+                // Chỉ cập nhật đúng các cột thực sự được người dùng ánh xạ (không ghi đè cột bổ trợ name/slug/price)
+                $mappedDbKeys = $passedKeys;
+                if ($hasCategoryCol) $mappedDbKeys[] = 'category_id';
+                if ($hasBrandCol)    $mappedDbKeys[] = 'brand_id';
+                if ($hasSeriesCol)   $mappedDbKeys[] = 'series_id';
+                if (in_array('publish', $passedKeys, true) || in_array('ngay_xuat_ban', $passedKeys, true)) {
+                    $mappedDbKeys[] = 'published_at';
+                }
+                if (in_array('name', $passedKeys, true) && !in_array('slug', $passedKeys, true)) {
+                    $mappedDbKeys[] = 'slug';
+                }
+
+                $updateColumns = array_values(array_intersect(
+                    array_diff($finalKeys, ['sku', 'created_at']),
+                    $mappedDbKeys
+                ));
+                if (!in_array('updated_at', $updateColumns, true)) {
                     $updateColumns[] = 'updated_at';
                 }
 
@@ -666,6 +836,33 @@ class ProductImportService
                         ['sku'],
                         $updateColumns
                     );
+                }
+            }
+
+            // Đồng bộ bảng trung gian category_product nếu có cập nhật cột danh mục
+            if ($hasCategoryCol) {
+                $upsertedSkus = array_values(array_unique(array_column($toUpsert, 'sku')));
+                $syncedCatProds = DB::table('products')
+                    ->whereIn('sku', $upsertedSkus)
+                    ->whereNotNull('category_id')
+                    ->get(['id', 'category_id']);
+
+                if ($syncedCatProds->isNotEmpty()) {
+                    $prodIds = $syncedCatProds->pluck('id')->all();
+                    DB::table('category_product')->whereIn('product_id', $prodIds)->delete();
+                    $catPivotRows = [];
+                    foreach ($syncedCatProds as $cp) {
+                        $catPivotRows[] = [
+                            'category_id' => (int) $cp->category_id,
+                            'product_id'  => (int) $cp->id,
+                            'is_primary'  => 1,
+                            'created_at'  => $now,
+                            'updated_at'  => $now,
+                        ];
+                    }
+                    foreach (array_chunk($catPivotRows, 1000) as $pivotChunk) {
+                        DB::table('category_product')->insert($pivotChunk);
+                    }
                 }
             }
         }

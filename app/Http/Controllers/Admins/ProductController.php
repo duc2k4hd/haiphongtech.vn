@@ -328,7 +328,7 @@ class ProductController extends Controller
     }
 
     /**
-     * Export all products to CSV.
+     * Export products to CSV with selectable columns.
      */
     public function apiExport(Request $request)
     {
@@ -339,7 +339,14 @@ class ProductController extends Controller
         }
         $categoryId = $request->input('category_id');
 
-        return $this->importService->exportCsv($type, $ids, $categoryId);
+        $columns = $request->input('columns');
+        if (is_string($columns)) {
+            $columns = array_values(array_filter(array_map('trim', explode(',', $columns))));
+        } elseif (!is_array($columns)) {
+            $columns = null;
+        }
+
+        return $this->importService->exportCsv($type, $ids, $categoryId, $columns);
     }
 
     /**
